@@ -20,7 +20,6 @@ export default function ResultScreen({
     isDaily?: boolean,
     nextPath?: string
 }) {
-    const percentage = Math.round((score / totalQuestions) * 100);
     const xpGained = score * 50;
 
     const { updateStreak } = useStreak();

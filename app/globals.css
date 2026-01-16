@@ -15,7 +15,31 @@ body {
   /* Prevent scrolling on main body */
 }
 
-/* Standard scrollbars restored for better navigation */
+/* Standard scrollbars restored with minimal/premium styling */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 107, 63, 0.2);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 107, 63, 0.4);
+}
+
+/* For Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 107, 63, 0.2) transparent;
+}
 
 @layer utilities {
   .animate-shake {

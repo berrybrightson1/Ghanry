@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useStreak } from '@/hooks/useStreak';
-import { Share2 } from "lucide-react";
 import QuizCard from "@/components/QuizCard";
-import { motion } from "framer-motion";
 import { ArrowLeft, Trophy, RotateCcw, Loader2 } from "lucide-react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
