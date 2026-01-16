@@ -5,7 +5,6 @@ import { useStreak } from '@/hooks/useStreak';
 import QuizCard from "@/components/QuizCard";
 import { Loader2 } from "lucide-react";
 import confetti from "canvas-confetti";
-import { useRouter } from "next/navigation";
 import ResultScreen from "@/components/ResultScreen";
 
 import { musicQuestions } from "@/lib/data/music";
