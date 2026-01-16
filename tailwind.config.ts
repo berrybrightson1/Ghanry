@@ -9,8 +9,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        ghana: {
+          red: "#CE1126",
+          gold: "#FCD116",
+          green: "#006B3F",
+        },
         background: "var(--background)",
         foreground: "var(--foreground)",
+      },
+      fontFamily: {
+        epilogue: ["var(--font-epilogue)"],
+        jakarta: ["var(--font-jakarta)"],
       },
     },
   },
