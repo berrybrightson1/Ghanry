@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import QuizCard from "@/components/QuizCard";
 import ResultScreen from "@/components/ResultScreen";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 
 import { useDailyTrivia } from "@/hooks/useDailyTrivia";
 

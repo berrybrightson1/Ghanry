@@ -1,7 +1,6 @@
 "use client";
 
 import Sidebar from "@/components/dashboard/Sidebar";
-import BottomNav from "@/components/dashboard/BottomNav";
 import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
 import { useEffect, useState } from "react";
 

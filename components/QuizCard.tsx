@@ -33,7 +33,6 @@ export default function QuizCard({
     totalQuestions
 }: QuizCardProps) {
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
-    const [isFlipping, setIsFlipping] = useState(false);
     const [secondsLeft, setSecondsLeft] = useState(240); // 4 minutes
 
     useEffect(() => {
@@ -89,11 +88,9 @@ export default function QuizCard({
     };
 
     const handleNext = () => {
-        setIsFlipping(true);
         setTimeout(() => {
             const isCorrect = question.options.find(o => o.id === selectedOption)?.isCorrect || false;
             setSelectedOption(null);
-            setIsFlipping(false);
             onNext(isCorrect);
         }, 500);
     };

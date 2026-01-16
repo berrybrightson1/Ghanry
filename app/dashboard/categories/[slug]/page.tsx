@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { useStreak } from '@/hooks/useStreak';
 import QuizCard from "@/components/QuizCard";
-import { ArrowLeft, Trophy, RotateCcw, Loader2 } from "lucide-react";
-import Link from "next/link";
+import { Loader2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useRouter } from "next/navigation";
 import ResultScreen from "@/components/ResultScreen";
@@ -28,82 +27,6 @@ interface Question {
     isSilhouette?: boolean;
 }
 
-// Mock Data Store
-const QUESTIONS_DB: Record<string, Question[]> = {
-    history: [
-        {
-            id: 1,
-            category: "History",
-            text: "Who was the first President of Ghana?",
-            options: [
-                { id: "a", text: "J.B. Danquah", isCorrect: false },
-                { id: "b", text: "Kwame Nkrumah", isCorrect: true },
-                { id: "c", text: "Jerry Rawlings", isCorrect: false },
-                { id: "d", text: "Kofi Annan", isCorrect: false },
-            ],
-            isSilhouette: false
-        },
-        {
-            id: 2,
-            category: "History",
-            text: "In which year did Ghana gain independence?",
-            options: [
-                { id: "a", text: "1957", isCorrect: true },
-                { id: "b", text: "1960", isCorrect: false },
-                { id: "c", text: "1948", isCorrect: false },
-                { id: "d", text: "1981", isCorrect: false },
-            ],
-        },
-        {
-            id: 3,
-            category: "History",
-            text: "What was the former name of Ghana?",
-            options: [
-                { id: "a", text: "Ivory Coast", isCorrect: false },
-                { id: "b", text: "Gold Coast", isCorrect: true },
-                { id: "c", text: "Grain Coast", isCorrect: false },
-                { id: "d", text: "Slave Coast", isCorrect: false },
-            ],
-        }
-    ],
-    culture: [
-        {
-            id: 1,
-            category: "Culture",
-            text: "What does the Adinkra symbol 'Gye Nyame' mean?",
-            options: [
-                { id: "a", text: "Love for all", isCorrect: false },
-                { id: "b", text: "Except God", isCorrect: true },
-                { id: "c", text: "Unity in diversity", isCorrect: false },
-                { id: "d", text: "Strength of soul", isCorrect: false },
-            ],
-        },
-        {
-            id: 2,
-            category: "Culture",
-            text: "Which festival is celebrated by the Ga people?",
-            options: [
-                { id: "a", text: "Odwira", isCorrect: false },
-                { id: "b", text: "Homowo", isCorrect: true },
-                { id: "c", text: "Aboakyir", isCorrect: false },
-                { id: "d", text: "Hogbetsotso", isCorrect: false },
-            ],
-        }
-    ],
-    food: [
-        {
-            id: 1,
-            category: "Food",
-            text: "Which of these is the main ingredient in Banku?",
-            options: [
-                { id: "a", text: "Rice", isCorrect: false },
-                { id: "b", text: "Cassava & Corn Dough", isCorrect: true },
-                { id: "c", text: "Yam", isCorrect: false },
-                { id: "d", text: "Plantain", isCorrect: false },
-            ],
-        }
-    ]
-};
 
 // Generic filler if category empty
 const GENERIC_QUESTIONS = [
@@ -127,7 +50,6 @@ const CATEGORY_ORDER = ["history", "culture", "geography", "food", "music", "art
 
 export default function CategoryQuizPage({ params }: { params: { slug: string } }) {
     const slug = params.slug;
-    const router = useRouter();
 
     const [loading, setLoading] = useState(true);
     const [categoryQuestions, setCategoryQuestions] = useState<Question[]>([]);
@@ -137,7 +59,7 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
 
     const { markAsAnswered, answeredIds } = useQuestionProgress();
     const currentQuestion = categoryQuestions[currentIndex];
-    const { streak, updateStreak } = useStreak();
+    const { updateStreak } = useStreak();
 
     // Calculate Next Category for the Result Screen
     const currentCategoryIndex = CATEGORY_ORDER.indexOf(slug);
