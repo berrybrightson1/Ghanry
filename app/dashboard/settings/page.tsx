@@ -45,7 +45,7 @@ export default function SettingsPage() {
                     <button
                         id="sound-toggle"
                         onClick={() => setSound(!sound)}
-                        aria-pressed={sound ? "true" : "false"}
+                        aria-pressed={sound}
                         aria-label={sound ? "Disable sound effects" : "Enable sound effects"}
                         className={`px-3 py-1 rounded-full ${sound ? 'bg-[#006B3F] text-white' : 'bg-gray-200 text-gray-700'}`}
                     >

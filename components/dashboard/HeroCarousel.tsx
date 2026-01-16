@@ -50,6 +50,7 @@ export default function HeroCarousel() {
                             : "w-2 bg-gray-300 hover:bg-gray-400"
                             }`}
                         aria-label={`Go to slide ${idx + 1}`}
+                        title={`Go to slide ${idx + 1}`}
                     />
                 ))}
             </div>
@@ -60,7 +61,9 @@ export default function HeroCarousel() {
                     <div className="absolute top-1/2 -right-4 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                             onClick={() => setCurrentIndex(1)}
-                            className="p-3 bg-white rounded-full shadow-2xl border border-gray-100 text-[#006B3F] hover:bg-gray-50 flex items-center justify-center"
+                            className="p-3 bg-white rounded-full shadow-2xl border border-gray-100 text-[#006B3F] hover:bg-gray-50 flex items-center justify-center transform active:scale-95 transition-transform"
+                            aria-label="Next slide"
+                            title="Next slide"
                         >
                             <ChevronRight className="w-5 h-5" />
                         </button>
@@ -70,7 +73,9 @@ export default function HeroCarousel() {
                     <div className="absolute top-1/2 -left-4 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                             onClick={() => setCurrentIndex(0)}
-                            className="p-3 bg-white rounded-full shadow-2xl border border-gray-100 text-[#006B3F] hover:bg-gray-50 flex items-center justify-center"
+                            className="p-3 bg-white rounded-full shadow-2xl border border-gray-100 text-[#006B3F] hover:bg-gray-50 flex items-center justify-center transform active:scale-95 transition-transform"
+                            aria-label="Previous slide"
+                            title="Previous slide"
                         >
                             <ChevronLeft className="w-5 h-5" />
                         </button>
