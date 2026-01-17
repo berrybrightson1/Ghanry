@@ -65,7 +65,18 @@ export default function OnboardingSlider() {
                     animate={{ x: "0%" }}
                     exit={{ x: "-100%" }}
                     transition={{ duration: 0.5, ease: "easeInOut" }}
-                    className="absolute inset-0 w-full h-full flex items-center justify-center"
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.2}
+                    onDragEnd={(e, { offset }) => {
+                        const swipeThreshold = 50;
+                        if (offset.x < -swipeThreshold) {
+                            setCurrentSlide((prev) => (prev + 1) % slides.length);
+                        } else if (offset.x > swipeThreshold) {
+                            setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+                        }
+                    }}
+                    className="absolute inset-0 w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
                 >
                     {slides[currentSlide].type === "image" && (
                         <div className="w-full h-full relative flex flex-col items-center justify-start pt-24 text-center">

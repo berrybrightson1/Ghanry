@@ -35,8 +35,17 @@ export default function Home() {
   const [wrongAnswers, setWrongAnswers] = useState(0);
   const [recoveredPin, setRecoveredPin] = useState<string | null>(null);
 
-  // --- LOCKOUT CHECK ---
+  // --- LOCKOUT CHECK & AUTO-LOGIN ---
   useEffect(() => {
+    // Auto-Login Check
+    const pid = localStorage.getItem("ghanry_passport_id");
+    const nick = localStorage.getItem("ghanry_nickname");
+    const reg = localStorage.getItem("ghanry_region");
+    if (pid && nick && reg) {
+      router.push("/dashboard");
+      return;
+    }
+
     const checkLockout = () => {
       const lockoutStr = localStorage.getItem("ghanry_lockout_until");
       if (lockoutStr) {
@@ -54,7 +63,33 @@ export default function Home() {
     // Re-check every minute just in case
     const interval = setInterval(checkLockout, 60000);
     return () => clearInterval(interval);
-  }, [viewMode]);
+  }, [viewMode, router]);
+
+  // --- HELPERS ---
+  const formatPassportId = (value: string) => {
+    // Remove non-alphanumeric
+    const clean = value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+
+    // Handle "GH" prefix logic
+    let core = clean;
+    if (clean.startsWith("GH")) {
+      core = clean.substring(2);
+    }
+
+    // If just starting, allow "G", "GH"
+    if (core.length === 0 && clean.length > 0 && clean.length <= 2) return clean;
+    if (core.length === 0) return "";
+
+    // Format: GH-XXXX-X
+    let formatted = "GH";
+    if (core.length > 0) {
+      formatted += "-" + core.substring(0, 4);
+    }
+    if (core.length > 4) {
+      formatted += "-" + core.substring(4, 5);
+    }
+    return formatted;
+  };
 
   // --- HANDLERS ---
 
@@ -186,24 +221,7 @@ export default function Home() {
           setCurrentQuestionIndex(prev => prev + 1);
         } else {
           // Failed last Q but wrongAnswers < 2? (Means they got 2 right, 1 wrong).
-          // Wait, if they fail Q3, and had 0 wrongs, newWrongs = 1.
           // Loop ends. They don't see success screen (index 3).
-          // They just stick at index 2?
-          // Let's force index 3 but show FAILURE if index 3 reached and wrongAnswers > 0?
-          // Request: "if they fail 2 questions, block".
-          // Implies if fail 1, it might be ok? Or must get ALL correct?
-          // User said: "solves some hard questions... shown password".
-          // Usually means PASS.
-          // Let's be strict: Must get 3/3 Correct to see password? Or 2/3?
-          // "If they fail 2... block". Means they can fail 1 without blocking.
-          // But do they get the password if they fail 1?
-          // Let's assume strict: Must get ALL correct to see password.
-          // But if they fail 1, they don't get password, but don't get blocked.
-          // They just retry?
-          // Let's simplify: 3 Questions. Must pass ALL to see PIN.
-          // If wrong >= 2, Block.
-          // So if they get 1 wrong, they finish quiz, but don't see PIN. They can try again immediately?
-          // Let's just reset quiz if they fail but don't lockout.
           setCurrentQuestionIndex(3); // End state, logic in render will handle success/fail display
         }
       }
@@ -231,7 +249,7 @@ export default function Home() {
         {viewMode !== "guest" && viewMode !== "locked" && viewMode !== "success" && (
           <button
             onClick={() => setViewMode("guest")}
-            className="absolute top-8 left-8 text-gray-400 hover:text-gray-900 flex items-center gap-2 transition-colors font-jakarta text-sm font-bold"
+            className="text-gray-400 hover:text-gray-900 flex items-center gap-2 transition-colors font-jakarta text-sm font-bold mb-4 self-start"
           >
             <ArrowLeft className="w-4 h-4" /> Back
           </button>
@@ -370,7 +388,7 @@ export default function Home() {
                 <input
                   type="text"
                   value={loginId}
-                  onChange={(e) => setLoginId(e.target.value.toUpperCase())}
+                  onChange={(e) => setLoginId(formatPassportId(e.target.value))}
                   placeholder="GH-XXXX-X"
                   className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-mono font-bold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] uppercase"
                 />
@@ -511,7 +529,7 @@ export default function Home() {
             {/* Function Toggles */}
             <div className="pt-4 border-t border-gray-100 w-full space-y-3">
               {viewMode === 'guest' ? (
-                <button onClick={() => setViewMode("signup")} className="group w-full p-4 rounded-2xl border border-[#006B3F] bg-[#006B3F]/5 hover:bg-[#006B3F]/10 transition-all flex items-center justify-between text-left shadow-sm hover:shadow-md">
+                <button onClick={() => setViewMode("signup")} className="group w-full p-4 rounded-2xl border border-gray-200 bg-[#006B3F]/5 hover:bg-[#006B3F]/10 transition-all flex items-center justify-between text-left shadow-sm hover:shadow-md">
                   <div className="flex flex-col gap-1">
                     <span className="font-epilogue font-bold text-[#006B3F] flex items-center gap-2"><CreditCard className="w-4 h-4" /> Get a Ghana Card</span>
                     <span className="text-xs text-gray-600 font-jakarta leading-tight">Sign up to sync your XP across devices.</span>
