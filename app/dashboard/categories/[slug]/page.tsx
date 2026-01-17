@@ -53,7 +53,7 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
     const [loading, setLoading] = useState(true);
     const [categoryQuestions, setCategoryQuestions] = useState<Question[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [score, setScore] = useState(0);
+    const [score, setScore] = useState(0); // Count of correct answers
     const [gameStatus, setGameStatus] = useState<"playing" | "finished">("playing");
 
     const { markAsAnswered, answeredIds } = useQuestionProgress();
@@ -89,20 +89,21 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
             ];
         }
 
-        // Filter out already answered questions
-        const freshQuestions = allQuestions.filter(q => !answeredIds.includes(q.id));
-
-        // If everything is answered, allow re-playing or show mastered state
-        // For now, let's just use the full set if empty to avoid crashing, 
-        // but the user will see a "Mastered" badge if they want.
-        const finalizedQuestions = freshQuestions.length > 0 ? freshQuestions : allQuestions;
+        // By default, show all questions for this category to allow replaying
+        // But shuffle them to keep it fresh
+        const finalizedQuestions = shuffleArray(allQuestions);
 
         const timer = setTimeout(() => {
             setLoading(false);
             setCategoryQuestions(finalizedQuestions);
-        }, 1000);
+        }, 800);
         return () => clearTimeout(timer);
-    }, [slug, answeredIds]);
+    }, [slug]);
+
+    // Added shuffle helper
+    const shuffleArray = (array: Question[]) => {
+        return [...array].sort(() => Math.random() - 0.5);
+    };
 
     useEffect(() => {
         if (gameStatus === "finished" && score > 0) {
@@ -135,9 +136,7 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
         }
 
         if (isCorrect) {
-            const isTourist = localStorage.getItem("ghanry_status") === "tourist";
-            const points = isTourist ? 150 : 100; // 1.5x Multiplier for Tourists
-            setScore(s => s + points);
+            setScore(s => s + 1);
         }
 
         if (currentIndex < categoryQuestions.length - 1) {

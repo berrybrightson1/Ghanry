@@ -32,43 +32,54 @@ const createSlug = (title: string): string => {
         .substring(0, 100);
 };
 
-// Cache for articles (in-memory for now)
+// Cache for articles (in-memory persistent across requests in the same session)
 let articlesCache: NewsItem[] = [];
+let lastFetchTime = 0;
+const CACHE_DURATION = 1000 * 60 * 15; // 15 minutes
 
-export const fetchNews = async (): Promise<NewsItem[]> => {
+export const fetchNews = async (forceRefresh: boolean = false): Promise<NewsItem[]> => {
+    const now = Date.now();
+    if (!forceRefresh && articlesCache.length > 0 && (now - lastFetchTime) < CACHE_DURATION) {
+        return articlesCache;
+    }
+
     try {
         const feedPromises = FEEDS.map(async (feed) => {
             try {
-                const parsed = await parser.parseURL(feed.url);
+                // Use fetch with next: { revalidate } for built-in caching
+                const response = await fetch(feed.url, {
+                    next: { revalidate: 900 } // 15 minute revalidation
+                });
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const xml = await response.text();
+                const parsed = await parser.parseString(xml);
+
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 return parsed.items.map((item: any) => {
                     // Aggressive Image Extraction
                     let image = undefined;
 
-                    // 1. Try 'enclosure'
                     if (item.enclosure?.url) {
                         image = item.enclosure.url;
-                    }
-                    // 2. Try 'media:content' (often an object or array)
-                    else if (item['media:content']) {
+                    } else if (item['media:content']) {
                         const media = item['media:content'];
                         if (Array.isArray(media)) {
                             image = media[0]?.['$']?.url;
                         } else {
                             image = media?.['$']?.url;
                         }
-                    }
-                    // 3. Try 'media:thumbnail'
-                    else if (item['media:thumbnail']) {
+                    } else if (item['media:thumbnail']) {
                         const media = item['media:thumbnail'];
                         if (Array.isArray(media)) {
                             image = media[0]?.['$']?.url;
                         } else {
-                            image = media?.['$']?.url; // or media.url directly
+                            image = media?.['$']?.url;
                             if (!image && media.url) image = media.url;
                         }
                     }
-                    // 4. Regex in content/contentSnippet/description
+
                     if (!image) {
                         const htmlContent = item['content:encoded'] || item.content || item.description || '';
                         const imgMatch = htmlContent.match(/<img[^>]+src="([^">]+)"/);
@@ -84,7 +95,7 @@ export const fetchNews = async (): Promise<NewsItem[]> => {
                         id: slug,
                         title: item.title || 'Untitled',
                         link: item.link || '#',
-                        contentSnippet: (item.contentSnippet || item.content || '').substring(0, 150) + '...',
+                        contentSnippet: (item.contentSnippet || item.content || item.description || '').substring(0, 150) + '...',
                         fullContent: fullContent,
                         source: feed.source,
                         tag: feed.tag,
@@ -101,13 +112,19 @@ export const fetchNews = async (): Promise<NewsItem[]> => {
 
         const results = await Promise.all(feedPromises);
         const allNews = results.flat();
-        articlesCache = allNews; // Update cache
 
-        return shuffleArray(allNews);
+        // Final deduplication and sorting
+        const uniqueNews = Array.from(new Map(allNews.map(item => [item.id, item])).values());
+        uniqueNews.sort((a, b) => new Date(b.isoDate).getTime() - new Date(a.isoDate).getTime());
+
+        articlesCache = uniqueNews;
+        lastFetchTime = now;
+
+        return uniqueNews;
 
     } catch (error) {
         console.error("Error fetching news:", error);
-        return [];
+        return articlesCache;
     }
 };
 

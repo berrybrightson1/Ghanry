@@ -54,15 +54,15 @@ export default function QuizPage() {
     const [score, setScore] = useState(0);
     const [isCompleted, setIsCompleted] = useState(false);
 
-    // Only redirect if already completed AND not currently showing results
-    useEffect(() => {
-        if (isCompletedToday && !isCompleted) {
-            router.replace("/dashboard");
-        }
-    }, [isCompletedToday, isCompleted, router]);
+    // Temporarily disabled daily redirect to allow for testing and replaying
+    // useEffect(() => {
+    //     if (isCompletedToday && !isCompleted) {
+    //         router.replace("/dashboard");
+    //     }
+    // }, [isCompletedToday, isCompleted, router]);
 
     // Don't render anything if redirecting
-    if (isCompletedToday && !isCompleted) return null;
+    // if (isCompletedToday && !isCompleted) return null;
 
     const handleNext = (isCorrect: boolean) => {
         // Mark current daily question as answered

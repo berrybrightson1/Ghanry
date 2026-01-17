@@ -17,65 +17,62 @@ export interface QuizReward {
     correctAnswerXP: number;
     perfectScoreBonus: number;
     streakBonus: number;
+    multiplier: number;
     totalXP: number;
 }
 
-// Level thresholds and ranks
-const LEVEL_THRESHOLDS = [
-    { level: 1, minXP: 0, maxXP: 500, rank: "Tourist" },
-    { level: 2, minXP: 501, maxXP: 1200, rank: "Expat" },
-    { level: 3, minXP: 1201, maxXP: 2000, rank: "Citizen" },
-    { level: 4, minXP: 2001, maxXP: 3000, rank: "Citizen" },
-    { level: 5, minXP: 3001, maxXP: 4200, rank: "Citizen" },
-    { level: 6, minXP: 4201, maxXP: 5600, rank: "Citizen" },
-    { level: 7, minXP: 5601, maxXP: 7200, rank: "Citizen" },
-    { level: 8, minXP: 7201, maxXP: 9000, rank: "Patriot" },
-    { level: 9, minXP: 9001, maxXP: 11000, rank: "Patriot" },
-    { level: 10, minXP: 11001, maxXP: 999999, rank: "Legend" },
-];
+/**
+ * Calculate XP needed for a specific level
+ * Progression: Each level takes more XP than the last
+ */
+function getXPForLevel(level: number): number {
+    if (level <= 1) return 0;
+    // Level 2: 200
+    // Level 3: 500
+    // Level 4: 900
+    // formula: 100 * (L-1) * (1 + 0.1 * (L-1)) roughly, or just simple summation
+    let total = 0;
+    for (let i = 1; i < level; i++) {
+        total += 100 + (i * 50);
+    }
+    return total;
+}
+
+/**
+ * Get rank name based on level
+ */
+function getRankForLevel(level: number): string {
+    if (level < 5) return "Tourist";
+    if (level < 15) return "Expat";
+    if (level < 30) return "Citizen";
+    if (level < 45) return "Patriot";
+    return "Legend";
+}
 
 /**
  * Calculate current level and progress from total XP
  */
 export function calculateProgress(totalXP: number): LevelInfo {
-    // Find current level
     let currentLevel = 1;
-    let rank = "Tourist";
-    let xpToNextLevel = 500;
-    let xpInCurrentLevel = totalXP;
 
-    for (const threshold of LEVEL_THRESHOLDS) {
-        if (totalXP >= threshold.minXP && totalXP <= threshold.maxXP) {
-            currentLevel = threshold.level;
-            rank = threshold.rank;
-            xpInCurrentLevel = totalXP - threshold.minXP;
-
-            // Find next level threshold
-            const nextThreshold = LEVEL_THRESHOLDS.find(t => t.level === currentLevel + 1);
-            if (nextThreshold) {
-                const xpNeeded = nextThreshold.minXP - threshold.minXP;
-                xpToNextLevel = nextThreshold.minXP - totalXP;
-                const progressPercent = (xpInCurrentLevel / xpNeeded) * 100;
-
-                return {
-                    currentLevel,
-                    rank,
-                    progressPercent: Math.min(100, progressPercent),
-                    xpToNextLevel,
-                    xpInCurrentLevel,
-                    totalXP
-                };
-            }
-            break;
-        }
+    // Find the highest level where getXPForLevel(level) <= totalXP
+    while (getXPForLevel(currentLevel + 1) <= totalXP && currentLevel < 100) {
+        currentLevel++;
     }
 
-    // Max level reached
+    const rank = getRankForLevel(currentLevel);
+    const xpForCurrent = getXPForLevel(currentLevel);
+    const xpForNext = getXPForLevel(currentLevel + 1);
+
+    const xpInCurrentLevel = totalXP - xpForCurrent;
+    const xpNeededForLevel = xpForNext - xpForCurrent;
+    const progressPercent = (xpInCurrentLevel / xpNeededForLevel) * 100;
+
     return {
         currentLevel,
         rank,
-        progressPercent: 100,
-        xpToNextLevel: 0,
+        progressPercent: Math.min(100, progressPercent),
+        xpToNextLevel: xpForNext - totalXP,
         xpInCurrentLevel,
         totalXP
     };
@@ -88,27 +85,33 @@ export function calculateQuizReward(
     correctAnswers: number,
     totalQuestions: number,
     currentStreak: number,
-    currentLevel: number
+    currentLevel: number,
+    isTourist: boolean = false
 ): QuizReward {
-    // Base XP formula: 100 + (10 * Level)
-    const baseXP = 100 + (10 * currentLevel);
+    // Base XP: 50
+    const baseXP = 50;
 
-    // Correct answer XP: 20 per correct answer
-    const correctAnswerXP = correctAnswers * 20;
+    // Correct answer XP: 10 per correct answer
+    const correctAnswerXP = correctAnswers * 10;
 
-    // Perfect score bonus
-    const perfectScoreBonus = correctAnswers === totalQuestions ? 100 : 0;
+    // Perfect score bonus: 50
+    const perfectScoreBonus = (correctAnswers === totalQuestions && totalQuestions > 0) ? 50 : 0;
 
-    // Streak bonus: 5 XP per streak day
-    const streakBonus = currentStreak * 5;
+    // Streak bonus: 2 XP per streak day (max 50)
+    const streakBonus = Math.min(currentStreak * 2, 50);
 
-    const totalXP = baseXP + correctAnswerXP + perfectScoreBonus + streakBonus;
+    // Multiplier for Tourists: 1.5x
+    const multiplier = isTourist ? 1.5 : 1.0;
+
+    const subtotal = baseXP + correctAnswerXP + perfectScoreBonus + streakBonus;
+    const totalXP = Math.floor(subtotal * multiplier);
 
     return {
         baseXP,
         correctAnswerXP,
         perfectScoreBonus,
         streakBonus,
+        multiplier,
         totalXP
     };
 }

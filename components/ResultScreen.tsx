@@ -31,19 +31,22 @@ export default function ResultScreen({
     const [isGeneratingImage, setIsGeneratingImage] = useState(false);
     const shareCardRef = useRef<HTMLDivElement>(null);
 
-    // Calculate new progress with gamification system
+    // Calculate rewards
+    const isTourist = typeof window !== 'undefined' ? localStorage.getItem("ghanry_status") === "tourist" : false;
     const currentProgress = calculateProgress(xp);
-    const quizReward = calculateQuizReward(score, totalQuestions, streak, currentProgress.currentLevel);
+    const quizReward = calculateQuizReward(score, totalQuestions, streak, currentProgress.currentLevel, isTourist);
+
+    // Future stats for display
     const newTotalXP = xp + quizReward.totalXP;
     const newProgress = calculateProgress(newTotalXP);
 
     useEffect(() => {
-        if (!hasUpdated && score >= 0) {
-            // Update streak and XP on completion (even if score is 0)
+        if (!hasUpdated) {
+            // Update streak and XP on completion
             updateStreak();
 
-            // Only add XP if score > 0
-            if (score > 0) {
+            // Only add XP if they got at least one question right or it's a daily
+            if (score > 0 || isDaily) {
                 addXP(quizReward.totalXP);
             }
 
@@ -51,8 +54,8 @@ export default function ResultScreen({
                 markAsCompleted();
             }
 
-            // Only trigger confetti if they got at least one correct
-            if (score > 0) {
+            // Trigger confetti if score is decent
+            if (score > (totalQuestions / 2)) {
                 confetti({
                     particleCount: 150,
                     spread: 70,
@@ -63,7 +66,7 @@ export default function ResultScreen({
 
             setHasUpdated(true);
         }
-    }, [score, updateStreak, addXP, quizReward.totalXP, hasUpdated, isDaily, markAsCompleted, streak]);
+    }, [score, totalQuestions, updateStreak, addXP, quizReward.totalXP, hasUpdated, isDaily, markAsCompleted]);
 
     const handleDownloadShareCard = async () => {
         if (!shareCardRef.current) return;
@@ -73,7 +76,7 @@ export default function ResultScreen({
             const dataUrl = await toPng(shareCardRef.current, {
                 quality: 0.95,
                 pixelRatio: 2,
-                backgroundColor: '#1a5236', // Solid green background instead of transparent
+                backgroundColor: '#1a5236',
             });
 
             // Download the image
@@ -112,7 +115,7 @@ export default function ResultScreen({
                         <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-ghana-gold to-yellow-300 flex items-center justify-center shadow-[0_0_30px_rgba(252,209,22,0.3)] animate-pulse">
                             <Trophy className="w-12 h-12 text-white fill-white" />
                         </div>
-                        {score > 0 && (
+                        {(score > 0 || isDaily) && (
                             <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
@@ -153,7 +156,6 @@ export default function ResultScreen({
                 </div>
 
                 <div className="flex flex-col w-full max-w-xs gap-3 relative z-50">
-                    {/* Download Share Card Button */}
                     <button
                         onClick={handleDownloadShareCard}
                         disabled={isGeneratingImage}
