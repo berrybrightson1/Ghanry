@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trophy, ArrowRight, RotateCcw } from "lucide-react";
+import { Trophy, ArrowRight, RotateCcw, Share2, Check, Copy } from "lucide-react";
+import { toast } from "sonner";
 import Link from "next/link";
 import confetti from 'canvas-confetti';
 import { useEffect, useState } from 'react';
@@ -105,6 +106,26 @@ export default function ResultScreen({
             </div>
 
             <div className="flex flex-col w-full max-w-xs gap-3 relative z-50">
+                {/* Share Button */}
+                <button
+                    onClick={() => {
+                        const shareText = `I just hit Level ${level} in Ghanry! 🇬🇭\nScored ${score}/${totalQuestions} in the latest quiz.\n\nCan you beat my intelligence? #Ghanry #GhanaTrivia`;
+                        if (navigator.share) {
+                            navigator.share({
+                                title: 'Ghanry Result',
+                                text: shareText,
+                                url: window.location.origin
+                            }).catch(console.error);
+                        } else {
+                            navigator.clipboard.writeText(shareText);
+                            toast.success("Result copied to clipboard!");
+                        }
+                    }}
+                    className="w-full py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-jakarta font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 mb-2"
+                >
+                    <Share2 className="w-4 h-4" /> Share Result
+                </button>
+
                 <Link href={nextPath} className="w-full">
                     <button className="w-full py-4 bg-ghana-gold hover:bg-yellow-500 text-black font-epilogue font-bold rounded-xl shadow-lg transition-transform active:scale-95 flex items-center justify-center gap-2">
                         Next Intelligence <ArrowRight className="w-4 h-4" />
@@ -117,6 +138,6 @@ export default function ResultScreen({
                     </button>
                 </Link>
             </div>
-        </div>
+        </div >
     );
 }
