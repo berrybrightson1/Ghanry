@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trophy, Flame, Crown, Star } from "lucide-react";
+import { Flame, Crown } from "lucide-react";
 
 interface AchievementCardProps {
     type: "streak" | "rank";

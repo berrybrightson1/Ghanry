@@ -1,12 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Flame, Star, Trophy, Shield, Crown, ArrowLeft } from "lucide-react";
+import { Flame, Star, Shield, Crown, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import AchievementCard from "@/components/AchievementCard";
 import { useXP } from "@/hooks/useXP";
 import { useStreak } from "@/hooks/useStreak";
+import { LucideIcon } from "lucide-react";
 import { calculateProgress } from "@/lib/gamification";
 
 interface Milestone {
@@ -16,7 +17,7 @@ interface Milestone {
     title: string;
     message: string;
     threshold: number; // XP or Streak required
-    icon: any;
+    icon: LucideIcon;
     color: string;
 }
 
@@ -52,7 +53,6 @@ export default function JourneyPage() {
     const { xp } = useXP();
     const { streak } = useStreak();
     const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
-    const progress = calculateProgress(xp);
 
     const isUnlocked = (milestone: Milestone) => {
         if (milestone.type === "rank") return xp >= milestone.threshold;
