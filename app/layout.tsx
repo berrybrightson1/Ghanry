@@ -24,6 +24,9 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Ghanry",
   },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
   icons: {
     apple: "/icons/icon-512.png",
   },
