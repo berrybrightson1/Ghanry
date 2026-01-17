@@ -29,25 +29,33 @@ export async function POST(req: Request) {
             );
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash",
+            systemInstruction: SYSTEM_PROMPT
+        });
 
         // Format history for Gemini
         // We take the last few messages to maintain context
+        const history = messages.slice(0, -1).map((m) => ({
+            role: m.role === "user" ? "user" : "model",
+            parts: [{ text: m.content }],
+        }));
+
+        // CRITICAL: Gemini history MUST start with 'user' role
+        // If the first message is the 'bot' welcome message, we remove it from history
+        if (history.length > 0 && history[0].role === "model") {
+            history.shift();
+        }
+
         const chat = model.startChat({
-            history: messages.slice(0, -1).map((m) => ({
-                role: m.role === "user" ? "user" : "model",
-                parts: [{ text: m.content }],
-            })),
+            history,
             generationConfig: {
                 maxOutputTokens: 500,
             },
         });
 
         const lastMessage = messages[messages.length - 1].content;
-        const result = await chat.sendMessage([
-            { text: SYSTEM_PROMPT },
-            { text: lastMessage }
-        ]);
+        const result = await chat.sendMessage(lastMessage);
 
         const response = await result.response;
         const text = response.text();
