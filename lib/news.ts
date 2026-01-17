@@ -7,6 +7,7 @@ export interface NewsItem {
     title: string;
     link: string;
     contentSnippet: string;
+    fullContent: string; // Full article content
     source: string;
     tag: string;
     pubDate: string;
@@ -21,6 +22,18 @@ const FEEDS = [
     { url: 'https://citinewsroom.com/feed/', source: 'Citi News', tag: 'General' },
     { url: 'https://www.myjoyonline.com/feed/', source: 'Joy Online', tag: 'Politics' },
 ];
+
+// Helper to create URL-safe slug from title
+const createSlug = (title: string): string => {
+    return title
+        .toLowerCase()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .substring(0, 100);
+};
+
+// Cache for articles (in-memory for now)
+let articlesCache: NewsItem[] = [];
 
 export const fetchNews = async (): Promise<NewsItem[]> => {
     try {
@@ -64,11 +77,15 @@ export const fetchNews = async (): Promise<NewsItem[]> => {
                         }
                     }
 
+                    const fullContent = item['content:encoded'] || item.content || item.contentSnippet || item.description || '';
+                    const slug = createSlug(item.title || 'untitled');
+
                     return {
-                        id: item.guid || item.link || Math.random().toString(36),
+                        id: slug,
                         title: item.title || 'Untitled',
                         link: item.link || '#',
-                        contentSnippet: (item.contentSnippet || item.content || '').substring(0, 100) + '...',
+                        contentSnippet: (item.contentSnippet || item.content || '').substring(0, 150) + '...',
+                        fullContent: fullContent,
                         source: feed.source,
                         tag: feed.tag,
                         pubDate: item.pubDate || new Date().toISOString(),
@@ -84,6 +101,7 @@ export const fetchNews = async (): Promise<NewsItem[]> => {
 
         const results = await Promise.all(feedPromises);
         const allNews = results.flat();
+        articlesCache = allNews; // Update cache
 
         return shuffleArray(allNews);
 
@@ -91,6 +109,19 @@ export const fetchNews = async (): Promise<NewsItem[]> => {
         console.error("Error fetching news:", error);
         return [];
     }
+};
+
+// Get single article by ID
+export const getArticleById = async (id: string): Promise<NewsItem | null> => {
+    // Try cache first
+    if (articlesCache.length > 0) {
+        const article = articlesCache.find(item => item.id === id);
+        if (article) return article;
+    }
+
+    // If not in cache, fetch fresh
+    const allNews = await fetchNews();
+    return allNews.find(item => item.id === id) || null;
 };
 
 // Fisher-Yates Shuffle
