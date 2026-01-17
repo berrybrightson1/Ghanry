@@ -14,25 +14,30 @@ export default function Leaderboard() {
         const fetchRankings = async () => {
             const nickname = localStorage.getItem("ghanry_nickname") || "Guest";
             const region = localStorage.getItem("ghanry_region") || "Ghana";
+            const passportId = localStorage.getItem("ghanry_passport_id");
+
+            // Only include user if they have a valid passport ID
+            if (!passportId) {
+                setRankings([]);
+                setIsLoading(false);
+                return;
+            }
+
             // Mock XP for now - in real app, this comes from a hook/context
             const xp = 1250;
 
             const data = await LeaderboardService.getRankings(nickname, region, xp);
-            setRankings(data);
-            setUserRank(data.find(p => p.isCurrentUser));
+
+            // Filter to only show users with valid IDs (in production, this would be handled server-side)
+            const validRankings = data.filter(user => user.isCurrentUser || user.nickname !== "Guest");
+
+            setRankings(validRankings);
+            setUserRank(validRankings.find(p => p.isCurrentUser));
             setIsLoading(false);
         };
 
         fetchRankings();
     }, []);
-
-    const RegionRankings = [
-        { rank: 1, name: "Volta Region", score: 980 },
-        { rank: 2, name: "Ashanti Region", score: 850 },
-        { rank: 3, name: "Greater Accra", score: 720 },
-        { rank: 4, name: "Eastern Region", score: 690 },
-        { rank: 5, name: "Central Region", score: 650 },
-    ];
 
     return (
         <div className="w-full min-h-screen bg-gray-50 pb-24 flex flex-col items-center">
@@ -102,50 +107,47 @@ export default function Leaderboard() {
                             <span className="text-xs font-bold uppercase tracking-wider">Syncing Global Data...</span>
                         </div>
                     ) : activeTab === "global" ? (
-                        rankings.map((user) => (
-                            <div
-                                key={user.rank}
-                                className={`p-4 rounded-2xl shadow-sm flex items-center gap-4 transition-all ${user.isCurrentUser
-                                    ? "bg-green-50 border-2 border-[#006B3F] scale-[1.02] shadow-md"
-                                    : "bg-white hover:scale-[1.01]"
-                                    }`}
-                            >
-                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm shadow-sm ${user.rank === 1 ? "bg-yellow-400 text-yellow-900" :
-                                    user.rank === 2 ? "bg-gray-300 text-gray-800" :
-                                        user.rank === 3 ? "bg-orange-300 text-orange-900" :
-                                            "bg-gray-100 text-gray-500"
-                                    }`}>
-                                    {user.rank <= 3 ? <Trophy className="w-5 h-5" /> : user.rank}
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className={`font-epilogue font-bold ${user.isCurrentUser ? "text-[#006B3F]" : "text-gray-800"}`}>
-                                        {user.nickname} {user.isCurrentUser && "(You)"}
-                                    </h3>
-                                    <div className="flex items-center gap-1 text-xs text-gray-400 font-bold">
-                                        <MapPin className="w-3 h-3" /> {user.region}
+                        rankings.length > 0 ? (
+                            rankings.map((user) => (
+                                <div
+                                    key={user.rank}
+                                    className={`p-4 rounded-2xl shadow-sm flex items-center gap-4 transition-all ${user.isCurrentUser
+                                        ? "bg-green-50 border-2 border-[#006B3F] scale-[1.02] shadow-md"
+                                        : "bg-white hover:scale-[1.01]"
+                                        }`}
+                                >
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm shadow-sm ${user.rank === 1 ? "bg-yellow-400 text-yellow-900" :
+                                        user.rank === 2 ? "bg-gray-300 text-gray-800" :
+                                            user.rank === 3 ? "bg-orange-300 text-orange-900" :
+                                                "bg-gray-100 text-gray-500"
+                                        }`}>
+                                        {user.rank <= 3 ? <Trophy className="w-5 h-5" /> : user.rank}
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className={`font-epilogue font-bold ${user.isCurrentUser ? "text-[#006B3F]" : "text-gray-800"}`}>
+                                            {user.nickname} {user.isCurrentUser && "(You)"}
+                                        </h3>
+                                        <div className="flex items-center gap-1 text-xs text-gray-400 font-bold">
+                                            <MapPin className="w-3 h-3" /> {user.region}
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-[#006B3F] font-extrabold text-sm">{user.xp.toLocaleString()} XP</div>
+                                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Citizen</div>
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <div className="text-[#006B3F] font-extrabold text-sm">{user.xp.toLocaleString()} XP</div>
-                                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Citizen</div>
-                                </div>
+                            ))
+                        ) : (
+                            <div className="bg-white p-8 rounded-2xl text-center">
+                                <p className="text-gray-500 font-jakarta text-sm mb-2">Be the first to join the leaderboard!</p>
+                                <p className="text-xs text-gray-400">Complete quizzes to earn XP and rank up</p>
                             </div>
-                        ))
+                        )
                     ) : (
-                        RegionRankings.map((region) => (
-                            <div key={region.rank} className="bg-white p-4 rounded-2xl shadow-sm flex items-center gap-4 hover:scale-[1.02] transition-transform">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${region.rank === 1 ? "bg-ghana-gold text-black" : "bg-gray-100 text-gray-500"
-                                    }`}>
-                                    {region.rank <= 3 ? <Trophy className="w-4 h-4" /> : region.rank}
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="font-epilogue font-bold text-gray-800">{region.name}</h3>
-                                </div>
-                                <div className="text-[#006B3F] font-bold text-sm">
-                                    Avg: {region.score}
-                                </div>
-                            </div>
-                        ))
+                        <div className="bg-white p-8 rounded-2xl text-center">
+                            <p className="text-gray-500 font-jakarta text-sm mb-2">Regional rankings coming soon!</p>
+                            <p className="text-xs text-gray-400">Compete with others from your region</p>
+                        </div>
                     )}
                 </div>
             </div>

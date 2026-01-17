@@ -26,7 +26,7 @@ export default function Breadcrumbs({ xp = 0, onMenuClick }: BreadcrumbsProps) {
                     <Menu className="w-5 h-5" />
                 </button>
 
-                <div className="inline-flex items-center gap-2 px-4 h-12 bg-white/80 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm text-sm font-jakarta flex-1 overflow-hidden">
+                <div className="inline-flex items-center gap-2 px-4 h-12 bg-white/80 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm text-sm font-jakarta flex-1 overflow-hidden min-w-0">
                     <Link href="/dashboard" className="text-gray-400 font-bold hover:text-[#006B3F] transition-colors flex-shrink-0">
                         Ghanry
                     </Link>
@@ -35,16 +35,19 @@ export default function Breadcrumbs({ xp = 0, onMenuClick }: BreadcrumbsProps) {
                         const isLast = index === paths.length - 1;
                         const href = `/${paths.slice(0, index + 1).join("/")}`;
 
+                        // Simplify display: if it's an article ID (very long), just show "Article"
+                        const displayName = path.length > 20 ? "Article" : path;
+
                         return (
-                            <div key={path} className="flex items-center gap-2">
-                                <ChevronRight className="w-3 h-3 text-gray-300" />
+                            <div key={path} className="flex items-center gap-2 min-w-0">
+                                <ChevronRight className="w-3 h-3 text-gray-300 flex-shrink-0" />
                                 {isLast ? (
-                                    <span className="text-[#006B3F] font-extrabold capitalize">
-                                        {path}
+                                    <span className="text-[#006B3F] font-extrabold capitalize truncate">
+                                        {displayName}
                                     </span>
                                 ) : (
-                                    <Link href={href} className="text-gray-500 font-bold hover:text-gray-800 capitalize transition-colors">
-                                        {path}
+                                    <Link href={href} className="text-gray-500 font-bold hover:text-gray-800 capitalize transition-colors truncate">
+                                        {displayName}
                                     </Link>
                                 )}
                             </div>
