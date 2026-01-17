@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useStreak } from '@/hooks/useStreak';
 import QuizCard from "@/components/QuizCard";
 import { Loader2 } from "lucide-react";
@@ -55,6 +55,8 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [score, setScore] = useState(0); // Count of correct answers
     const [gameStatus, setGameStatus] = useState<"playing" | "finished">("playing");
+    const [timeElapsed, setTimeElapsed] = useState(0);
+    const startTimeRef = useRef<number>(Date.now());
 
     const { markAsAnswered } = useQuestionProgress();
     const currentQuestion = categoryQuestions[currentIndex];
@@ -96,6 +98,7 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
         const timer = setTimeout(() => {
             setLoading(false);
             setCategoryQuestions(finalizedQuestions);
+            startTimeRef.current = Date.now(); // Reset timer when loading finishes
         }, 800);
         return () => clearTimeout(timer);
     }, [slug]);
@@ -142,6 +145,8 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
         if (currentIndex < categoryQuestions.length - 1) {
             setTimeout(() => setCurrentIndex(i => i + 1), 1000);
         } else {
+            const endTime = Date.now();
+            setTimeElapsed(Math.floor((endTime - startTimeRef.current) / 1000));
             setTimeout(() => setGameStatus("finished"), 1000);
         }
     };
@@ -154,6 +159,7 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
                         score={score}
                         totalQuestions={categoryQuestions.length}
                         nextPath={nextPath}
+                        timeElapsed={timeElapsed}
                     />
                 ) : (
                     <QuizCard

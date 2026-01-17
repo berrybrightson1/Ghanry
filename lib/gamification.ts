@@ -17,6 +17,7 @@ export interface QuizReward {
     correctAnswerXP: number;
     perfectScoreBonus: number;
     streakBonus: number;
+    timeBonus: number;
     multiplier: number;
     totalXP: number;
 }
@@ -27,10 +28,6 @@ export interface QuizReward {
  */
 function getXPForLevel(level: number): number {
     if (level <= 1) return 0;
-    // Level 2: 200
-    // Level 3: 500
-    // Level 4: 900
-    // formula: 100 * (L-1) * (1 + 0.1 * (L-1)) roughly, or just simple summation
     let total = 0;
     for (let i = 1; i < level; i++) {
         total += 100 + (i * 50);
@@ -86,7 +83,8 @@ export function calculateQuizReward(
     totalQuestions: number,
     currentStreak: number,
     currentLevel: number,
-    isTourist: boolean = false
+    isTourist: boolean = false,
+    timeElapsedSeconds: number = 0
 ): QuizReward {
     // Base XP: 50
     const baseXP = 50;
@@ -100,10 +98,22 @@ export function calculateQuizReward(
     // Streak bonus: 2 XP per streak day (max 50)
     const streakBonus = Math.min(currentStreak * 2, 50);
 
+    // Time Bonus: 
+    // If they finish in less than 5 seconds per question on average
+    // Max 100 points for insanely fast, scaling down
+    const averageTimePerQuestion = totalQuestions > 0 ? timeElapsedSeconds / totalQuestions : 0;
+    let timeBonus = 0;
+    if (correctAnswers > 0) {
+        if (averageTimePerQuestion < 3) timeBonus = 100;
+        else if (averageTimePerQuestion < 5) timeBonus = 50;
+        else if (averageTimePerQuestion < 8) timeBonus = 25;
+        else if (averageTimePerQuestion < 12) timeBonus = 10;
+    }
+
     // Multiplier for Tourists: 1.5x
     const multiplier = isTourist ? 1.5 : 1.0;
 
-    const subtotal = baseXP + correctAnswerXP + perfectScoreBonus + streakBonus;
+    const subtotal = baseXP + correctAnswerXP + perfectScoreBonus + streakBonus + timeBonus;
     const totalXP = Math.floor(subtotal * multiplier);
 
     return {
@@ -111,6 +121,7 @@ export function calculateQuizReward(
         correctAnswerXP,
         perfectScoreBonus,
         streakBonus,
+        timeBonus,
         multiplier,
         totalXP
     };

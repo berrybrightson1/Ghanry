@@ -17,11 +17,13 @@ export default function ResultScreen({
     score,
     totalQuestions,
     isDaily,
+    timeElapsed = 0,
     nextPath = "/dashboard/categories"
 }: {
     score: number,
     totalQuestions: number,
     isDaily?: boolean,
+    timeElapsed?: number,
     nextPath?: string
 }) {
     const { updateStreak, streak } = useStreak();
@@ -34,7 +36,7 @@ export default function ResultScreen({
     // Calculate rewards
     const isTourist = typeof window !== 'undefined' ? localStorage.getItem("ghanry_status") === "tourist" : false;
     const currentProgress = calculateProgress(xp);
-    const quizReward = calculateQuizReward(score, totalQuestions, streak, currentProgress.currentLevel, isTourist);
+    const quizReward = calculateQuizReward(score, totalQuestions, streak, currentProgress.currentLevel, isTourist, timeElapsed);
 
     // Future stats for display
     const newTotalXP = xp + quizReward.totalXP;
@@ -131,9 +133,28 @@ export default function ResultScreen({
                 <h1 className="text-4xl font-epilogue font-extrabold text-white mb-2">
                     {newProgress.rank} - Level {newProgress.currentLevel}
                 </h1>
-                <p className="text-green-100 font-jakarta text-lg mb-8">
+                <p className="text-green-100 font-jakarta text-lg mb-4">
                     Score: <span className="font-bold text-ghana-gold">{score}/{totalQuestions}</span>
                 </p>
+
+                {/* Bonus Tags */}
+                <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+                    {quizReward.timeBonus > 0 && (
+                        <div className="bg-blue-500/20 text-blue-300 text-[10px] font-bold px-2 py-1 rounded-full border border-blue-500/30">
+                            Fast Finish +{quizReward.timeBonus} XP
+                        </div>
+                    )}
+                    {quizReward.perfectScoreBonus > 0 && (
+                        <div className="bg-ghana-gold/20 text-ghana-gold text-[10px] font-bold px-2 py-1 rounded-full border border-ghana-gold/30">
+                            Perfect +{quizReward.perfectScoreBonus} XP
+                        </div>
+                    )}
+                    {quizReward.streakBonus > 0 && (
+                        <div className="bg-red-500/20 text-red-300 text-[10px] font-bold px-2 py-1 rounded-full border border-red-500/30">
+                            Streak +{quizReward.streakBonus} XP
+                        </div>
+                    )}
+                </div>
 
                 {/* Level Progress */}
                 <div className="w-full max-w-xs space-y-2 mb-12">

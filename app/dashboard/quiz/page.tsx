@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import QuizCard from "@/components/QuizCard";
 import ResultScreen from "@/components/ResultScreen";
 
@@ -50,6 +50,13 @@ export default function QuizPage() {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [score, setScore] = useState(0);
     const [isCompleted, setIsCompleted] = useState(false);
+    const [timeElapsed, setTimeElapsed] = useState(0);
+    const startTimeRef = useRef<number>(Date.now());
+
+    // Reset timer on mount
+    useEffect(() => {
+        startTimeRef.current = Date.now();
+    }, []);
 
     // Temporarily disabled daily redirect to allow for testing and replaying
     // useEffect(() => {
@@ -73,6 +80,8 @@ export default function QuizPage() {
             setCurrentQuestionIndex(prev => prev + 1);
         } else {
             // Quiz is complete
+            const endTime = Date.now();
+            setTimeElapsed(Math.floor((endTime - startTimeRef.current) / 1000));
             setIsCompleted(true);
         }
     };
@@ -81,7 +90,12 @@ export default function QuizPage() {
         <div className="w-full min-h-screen bg-gradient-to-br from-[#006B3F] to-[#004629] relative flex flex-col items-center justify-start px-4 overflow-x-hidden">
             <div className="w-full max-w-4xl mx-auto pt-8 pb-12 flex-1 flex flex-col items-center justify-start">
                 {isCompleted ? (
-                    <ResultScreen score={score} totalQuestions={QUESTIONS.length} isDaily={true} />
+                    <ResultScreen
+                        score={score}
+                        totalQuestions={QUESTIONS.length}
+                        isDaily={true}
+                        timeElapsed={timeElapsed}
+                    />
                 ) : (
                     <QuizCard
                         question={QUESTIONS[currentQuestionIndex]}
