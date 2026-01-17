@@ -27,21 +27,6 @@ interface Question {
 }
 
 
-// Generic filler if category empty
-const GENERIC_QUESTIONS = [
-    {
-        id: 99,
-        category: "General",
-        text: "What is the capital of Ghana?",
-        options: [
-            { id: "a", text: "Kumasi", isCorrect: false },
-            { id: "b", text: "Accra", isCorrect: true },
-            { id: "c", text: "Tamale", isCorrect: false },
-            { id: "d", text: "Takoradi", isCorrect: false },
-        ],
-    }
-];
-
 import { useQuestionProgress } from "@/hooks/useQuestionProgress";
 
 // Category Order for "Next Intelligence" flow
