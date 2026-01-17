@@ -5,7 +5,6 @@ import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
 import { useEffect, useState } from "react";
 
 import MobileSidebar from "@/components/dashboard/MobileSidebar";
-import { useXP } from "@/hooks/useXP";
 
 export default function DashboardLayout({
     children,
@@ -21,8 +20,6 @@ export default function DashboardLayout({
         const storedRegion = localStorage.getItem("ghanry_region") || "Ghana";
         setUserData({ nickname: storedNickname, region: storedRegion });
     }, []);
-
-    const { xp } = useXP();
 
     if (!userData) return null;
 
@@ -43,7 +40,7 @@ export default function DashboardLayout({
             <div className="flex-1 h-full relative flex flex-col overflow-hidden">
                 {/* Fixed Header */}
                 <div className="flex-shrink-0 sticky top-0 z-30 w-full bg-gray-50/90 backdrop-blur-md border-b border-gray-100/50">
-                    <Breadcrumbs xp={xp} onMenuClick={() => setIsMobileMenuOpen(true)} />
+                    <Breadcrumbs onMenuClick={() => setIsMobileMenuOpen(true)} />
                 </div>
 
                 {/* Scrollable Content */}

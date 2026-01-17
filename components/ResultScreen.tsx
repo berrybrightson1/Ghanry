@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trophy, ArrowRight, RotateCcw, Share2 } from "lucide-react";
+import { Trophy, ArrowRight, RotateCcw, Download } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import confetti from 'canvas-confetti';
@@ -38,28 +38,34 @@ export default function ResultScreen({
     const newProgress = calculateProgress(newTotalXP);
 
     useEffect(() => {
-        if (!hasUpdated && score > 0) {
-            // Update streak and XP on successful completion
+        if (!hasUpdated && score >= 0) {
+            // Update streak and XP on completion (even if score is 0)
             updateStreak();
-            addXP(quizReward.totalXP);
+
+            // Only add XP if score > 0
+            if (score > 0) {
+                addXP(quizReward.totalXP);
+            }
 
             if (isDaily) {
                 markAsCompleted();
             }
 
-            // Trigger confetti
-            confetti({
-                particleCount: 150,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#CE1126', '#FCD116', '#006B3F']
-            });
+            // Only trigger confetti if they got at least one correct
+            if (score > 0) {
+                confetti({
+                    particleCount: 150,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#CE1126', '#FCD116', '#006B3F']
+                });
+            }
 
             setHasUpdated(true);
         }
     }, [score, updateStreak, addXP, quizReward.totalXP, hasUpdated, isDaily, markAsCompleted, streak]);
 
-    const handleShareImage = async () => {
+    const handleDownloadShareCard = async () => {
         if (!shareCardRef.current) return;
 
         setIsGeneratingImage(true);
@@ -67,30 +73,18 @@ export default function ResultScreen({
             const dataUrl = await toPng(shareCardRef.current, {
                 quality: 0.95,
                 pixelRatio: 2,
+                backgroundColor: '#1a5236', // Solid green background instead of transparent
             });
 
-            // Convert data URL to blob
-            const response = await fetch(dataUrl);
-            const blob = await response.blob();
-            const file = new File([blob], 'ghanry-result.png', { type: 'image/png' });
-
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    title: 'My Ghanry Result',
-                    text: `I just scored ${score}/${totalQuestions} on Ghanry! 🇬🇭`,
-                });
-            } else {
-                // Fallback: Download the image
-                const link = document.createElement('a');
-                link.download = 'ghanry-result.png';
-                link.href = dataUrl;
-                link.click();
-                toast.success("Image downloaded!");
-            }
+            // Download the image
+            const link = document.createElement('a');
+            link.download = `ghanry-result-${score}-${totalQuestions}.png`;
+            link.href = dataUrl;
+            link.click();
+            toast.success("Share card downloaded!");
         } catch (error) {
             console.error('Failed to generate share image:', error);
-            toast.error("Failed to generate share image");
+            toast.error("Failed to generate share card");
         } finally {
             setIsGeneratingImage(false);
         }
@@ -118,14 +112,16 @@ export default function ResultScreen({
                         <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-ghana-gold to-yellow-300 flex items-center justify-center shadow-[0_0_30px_rgba(252,209,22,0.3)] animate-pulse">
                             <Trophy className="w-12 h-12 text-white fill-white" />
                         </div>
-                        <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.5 }}
-                            className="absolute -top-2 -right-4 bg-[#CE1126] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg"
-                        >
-                            +{quizReward.totalXP} XP
-                        </motion.div>
+                        {score > 0 && (
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: 0.5 }}
+                                className="absolute -top-2 -right-4 bg-[#CE1126] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg"
+                            >
+                                +{quizReward.totalXP} XP
+                            </motion.div>
+                        )}
                     </div>
                 </motion.div>
 
@@ -157,14 +153,14 @@ export default function ResultScreen({
                 </div>
 
                 <div className="flex flex-col w-full max-w-xs gap-3 relative z-50">
-                    {/* Share Button with Image */}
+                    {/* Download Share Card Button */}
                     <button
-                        onClick={handleShareImage}
+                        onClick={handleDownloadShareCard}
                         disabled={isGeneratingImage}
                         className="w-full py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-jakarta font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 mb-2 disabled:opacity-50"
                     >
-                        <Share2 className="w-4 h-4" />
-                        {isGeneratingImage ? "Generating..." : "Share Result"}
+                        <Download className="w-4 h-4" />
+                        {isGeneratingImage ? "Generating..." : "Download Share Card"}
                     </button>
 
                     <Link href={nextPath} className="w-full">

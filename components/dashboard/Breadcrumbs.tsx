@@ -3,15 +3,16 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight, Star, Menu } from "lucide-react";
+import { useXP } from "@/hooks/useXP";
 
 interface BreadcrumbsProps {
-    xp?: number;
     onMenuClick?: () => void;
 }
 
-export default function Breadcrumbs({ xp = 0, onMenuClick }: BreadcrumbsProps) {
+export default function Breadcrumbs({ onMenuClick }: BreadcrumbsProps) {
     const pathname = usePathname();
     const paths = pathname.split("/").filter(Boolean);
+    const { xp } = useXP(); // Get XP directly from hook for real-time updates
 
     return (
         <div className="w-full px-6 py-4 flex items-center justify-between">
@@ -56,7 +57,7 @@ export default function Breadcrumbs({ xp = 0, onMenuClick }: BreadcrumbsProps) {
                 </div>
             </div>
 
-            {/* XP Badge */}
+            {/* XP Badge - Now reads directly from useXP */}
             <div className="hidden sm:inline-flex items-center gap-2 px-3 h-12 bg-yellow-50 border border-yellow-200 rounded-xl shadow-sm text-yellow-700 text-xs font-bold font-jakarta">
                 <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-600" />
                 <span>{xp} XP</span>
