@@ -1,6 +1,5 @@
-"use client";
-
 import { motion } from "framer-motion";
+import { forwardRef } from "react";
 import { Flame, Crown } from "lucide-react";
 
 interface AchievementCardProps {
@@ -8,12 +7,13 @@ interface AchievementCardProps {
     value: string | number;
     title: string;
     message: string;
-    onClose: () => void;
+    onClose?: () => void;
 }
 
-export default function AchievementCard({ type, value, title, message, onClose }: AchievementCardProps) {
+const AchievementCard = forwardRef<HTMLDivElement, AchievementCardProps>(({ type, value, title, message, onClose }, ref) => {
     return (
         <motion.div
+            ref={ref}
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
@@ -63,7 +63,7 @@ export default function AchievementCard({ type, value, title, message, onClose }
 
                 <div className="flex justify-between items-end pt-2 border-t border-gray-100">
                     <span className="text-2xl font-epilogue font-black text-[#006B3F] tracking-tighter">
-                        ghanry
+                        Ghanry
                     </span>
                     <div className="flex gap-1">
                         <div className="w-2 h-2 rounded-full bg-[#CE1126]" />
@@ -74,4 +74,8 @@ export default function AchievementCard({ type, value, title, message, onClose }
             </div>
         </motion.div>
     );
-}
+});
+
+AchievementCard.displayName = "AchievementCard";
+
+export default AchievementCard;

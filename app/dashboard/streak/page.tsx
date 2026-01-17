@@ -1,13 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Flame, Star, Shield, Crown, ArrowLeft } from "lucide-react";
+import { Flame, Star, Shield, Crown, ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import AchievementCard from "@/components/AchievementCard";
 import { useXP } from "@/hooks/useXP";
 import { useStreak } from "@/hooks/useStreak";
 import { LucideIcon } from "lucide-react";
+import { toJpeg } from "html-to-image";
+import { toast } from "sonner";
 
 interface Milestone {
     id: number;
@@ -52,11 +54,43 @@ export default function JourneyPage() {
     const { xp } = useXP();
     const { streak } = useStreak();
     const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
+    const [isExporting, setIsExporting] = useState(false);
+    const cardRef = useRef<HTMLDivElement>(null);
 
     const isUnlocked = (milestone: Milestone) => {
         if (milestone.type === "rank") return xp >= milestone.threshold;
         return streak >= milestone.threshold;
     };
+
+    const handleExport = useCallback(async () => {
+        if (!cardRef.current) return;
+
+        setIsExporting(true);
+        const toastId = toast.loading("Preparing your brag card...");
+
+        try {
+            const dataUrl = await toJpeg(cardRef.current, {
+                quality: 0.95,
+                backgroundColor: "#ffffff",
+                style: {
+                    transform: "scale(1)",
+                    borderRadius: "40px"
+                }
+            });
+
+            const link = document.createElement("a");
+            link.download = `ghanry-achievement-${selectedMilestone?.value}.jpg`;
+            link.href = dataUrl;
+            link.click();
+
+            toast.success("Saved to gallery!", { id: toastId });
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to export image", { id: toastId });
+        } finally {
+            setIsExporting(false);
+        }
+    }, [selectedMilestone]);
 
     return (
         <div className="min-h-screen bg-gray-50 pb-24">
@@ -127,22 +161,40 @@ export default function JourneyPage() {
 
             {/* Brag Card Modal */}
             {selectedMilestone && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
                     <div className="w-full max-w-sm">
                         <AchievementCard
+                            ref={cardRef}
                             type={selectedMilestone.type}
                             value={selectedMilestone.value}
                             title={selectedMilestone.title}
                             message={selectedMilestone.message}
-                            onClose={() => setSelectedMilestone(null)}
+                            onClose={() => !isExporting && setSelectedMilestone(null)}
                         />
 
-                        <button
-                            onClick={() => setSelectedMilestone(null)}
-                            className="w-full mt-6 py-4 bg-white/10 hover:bg-white/20 text-white font-epilogue font-bold rounded-2xl border border-white/20 transition-all"
-                        >
-                            Close
-                        </button>
+                        <div className="grid grid-cols-2 gap-3 mt-6">
+                            <button
+                                onClick={() => setSelectedMilestone(null)}
+                                disabled={isExporting}
+                                className="py-4 bg-white/10 hover:bg-white/20 text-white font-epilogue font-bold rounded-2xl border border-white/20 transition-all disabled:opacity-50"
+                            >
+                                Close
+                            </button>
+                            <button
+                                onClick={handleExport}
+                                disabled={isExporting}
+                                className="py-4 bg-[#006B3F] hover:bg-[#005a35] text-white font-epilogue font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            >
+                                {isExporting ? (
+                                    <>Saving...</>
+                                ) : (
+                                    <>
+                                        <Download className="w-5 h-5" />
+                                        Save Image
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
