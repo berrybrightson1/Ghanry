@@ -54,7 +54,7 @@ export default function Breadcrumbs({ xp = 0, onMenuClick }: BreadcrumbsProps) {
             </div>
 
             {/* XP Badge */}
-            <div className="hidden sm:inline-flex items-center gap-2 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-xl shadow-sm text-yellow-700 text-xs font-bold font-jakarta">
+            <div className="hidden sm:inline-flex items-center gap-2 px-3 h-12 bg-yellow-50 border border-yellow-200 rounded-xl shadow-sm text-yellow-700 text-xs font-bold font-jakarta">
                 <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-600" />
                 <span>{xp} XP</span>
             </div>
