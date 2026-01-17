@@ -1,4 +1,7 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
 
 const SYSTEM_PROMPT = `
 You are "Ghanry", an expert AI guide specialized in everything about Ghana. 
@@ -19,46 +22,43 @@ export async function POST(req: Request) {
     try {
         const { messages }: { messages: Message[] } = await req.json();
 
-        // Use Groq API Key
-        const apiKey = process.env.GROQ_API_KEY;
-
-        if (!apiKey) {
+        if (!process.env.GOOGLE_GEMINI_API_KEY) {
             return NextResponse.json(
-                { error: "Groq API Key not configured. Please add GROQ_API_KEY to your environment variables." },
+                { error: "API Key not configured. Please add GOOGLE_GEMINI_API_KEY to your environment variables." },
                 { status: 500 }
             );
         }
 
-        // Format history for Groq (OpenAI format)
-        const formattedMessages = [
-            { role: "system", content: SYSTEM_PROMPT },
-            ...messages.map((m) => ({
-                role: m.role === "user" ? "user" : "assistant",
-                content: m.content,
-            })),
-        ];
-
-        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
-                messages: formattedMessages,
-                temperature: 0.7,
-                max_tokens: 500,
-            }),
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash",
+            systemInstruction: SYSTEM_PROMPT
         });
 
-        const data = await response.json();
+        // Format history for Gemini
+        // We take the last few messages to maintain context
+        const history = messages.slice(0, -1).map((m) => ({
+            role: m.role === "user" ? "user" : "model",
+            parts: [{ text: m.content }],
+        }));
 
-        if (!response.ok) {
-            throw new Error(data.error?.message || `Groq API Error: ${response.statusText}`);
+        // CRITICAL: Gemini history MUST start with 'user' role
+        // If the first message is the 'bot' welcome message, we remove it from history
+        if (history.length > 0 && history[0].role === "model") {
+            history.shift();
         }
 
-        const text = data.choices[0]?.message?.content || "Sorry, I couldn't think of anything to say.";
+        const chat = model.startChat({
+            history,
+            generationConfig: {
+                maxOutputTokens: 500,
+            },
+        });
+
+        const lastMessage = messages[messages.length - 1].content;
+        const result = await chat.sendMessage(lastMessage);
+
+        const response = await result.response;
+        const text = response.text();
 
         return NextResponse.json({ content: text });
     } catch (error: unknown) {
