@@ -100,7 +100,7 @@ export default function AskGhanryPage() {
     };
 
     return (
-        <div className="absolute inset-x-0 top-0 bottom-4 md:bottom-8 lg:bottom-12 flex flex-col mx-1 md:mx-4 bg-white md:bg-gray-50 rounded-[2.5rem] overflow-hidden shadow-2xl border border-gray-100 z-10">
+        <div className="fixed inset-x-0 top-[70px] bottom-0 md:absolute md:inset-x-0 md:top-0 md:bottom-8 lg:bottom-12 flex flex-col mx-0 md:mx-4 bg-white md:bg-gray-50 rounded-none md:rounded-[2.5rem] overflow-hidden md:shadow-2xl border-0 md:border md:border-gray-100 z-[40]">
             {/* Header */}
             <div className="bg-white border-b border-gray-100 p-4 sticky top-0 z-10 flex items-center justify-between">
                 <div className="flex items-center gap-4">
