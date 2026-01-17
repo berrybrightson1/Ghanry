@@ -59,6 +59,18 @@ export default function Home() {
         {/* Abstract Pattern Overlay */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
+        {/* Ghana Colors: Red & Gold Accents (Green is Bg) */}
+        <motion.div
+          animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+          transition={{ duration: 8, repeat: Infinity }}
+          className="absolute top-[-100px] left-[-100px] w-[500px] h-[500px] bg-[#CE1126] rounded-full blur-[120px] pointer-events-none mix-blend-screen opacity-50"
+        />
+        <motion.div
+          animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
+          transition={{ duration: 7, repeat: Infinity, delay: 1 }}
+          className="absolute bottom-[-50px] right-[-50px] w-[400px] h-[400px] bg-[#FCD116] rounded-full blur-[100px] pointer-events-none mix-blend-screen opacity-50"
+        />
+
         {/* Animated Black Star */}
         <motion.div
           animate={{ rotate: 360, scale: [1, 1.1, 1] }}
