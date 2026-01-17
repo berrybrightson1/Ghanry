@@ -57,6 +57,7 @@ export default function RootLayout({
               <Toaster position="bottom-center" toastOptions={{
                 className: 'bg-white text-gray-900 border border-gray-100 shadow-xl rounded-2xl px-4 py-3 font-jakarta',
                 style: { marginBottom: '20px' },
+                duration: 2000,
               }} />
             </div>
           </div>
