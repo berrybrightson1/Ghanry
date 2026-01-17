@@ -8,7 +8,6 @@ import AchievementCard from "@/components/AchievementCard";
 import { useXP } from "@/hooks/useXP";
 import { useStreak } from "@/hooks/useStreak";
 import { LucideIcon } from "lucide-react";
-import { calculateProgress } from "@/lib/gamification";
 
 interface Milestone {
     id: number;
