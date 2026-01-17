@@ -14,7 +14,7 @@ const ShareCard = forwardRef<HTMLDivElement, ShareCardProps>(
         return (
             <div
                 ref={ref}
-                className="absolute left-[-9999px] top-[-9999px] w-[600px] h-[800px]"
+                className="fixed top-0 left-0 w-[600px] h-[800px] opacity-0 pointer-events-none z-[-1]"
             >
                 {/* Card Container */}
                 <div className="w-full h-full bg-gradient-to-br from-green-900 via-green-800 to-green-950 relative overflow-hidden flex flex-col items-center justify-center p-12">

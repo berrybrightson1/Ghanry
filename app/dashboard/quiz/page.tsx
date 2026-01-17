@@ -54,14 +54,15 @@ export default function QuizPage() {
     const [score, setScore] = useState(0);
     const [isCompleted, setIsCompleted] = useState(false);
 
-    // Redirect if already completed today
+    // Only redirect if already completed AND not currently showing results
     useEffect(() => {
-        if (isCompletedToday) {
+        if (isCompletedToday && !isCompleted) {
             router.replace("/dashboard");
         }
-    }, [isCompletedToday, router]);
+    }, [isCompletedToday, isCompleted, router]);
 
-    if (isCompletedToday) return null;
+    // Don't render anything if redirecting
+    if (isCompletedToday && !isCompleted) return null;
 
     const handleNext = (isCorrect: boolean) => {
         // Mark current daily question as answered
@@ -72,25 +73,12 @@ export default function QuizPage() {
         }
 
         if (currentQuestionIndex < QUESTIONS.length - 1) {
-            // Small delay to allow user to see result if needed, but per card logic we wait for button click usually
-            // The card calls onNext when "Next" is clicked.
             setCurrentQuestionIndex(prev => prev + 1);
         } else {
+            // Quiz is complete
             setIsCompleted(true);
         }
     };
-
-    // We need to modify QuizCard to pass back correctness or handle score there.
-    // Ideally QuizCard handles "Next" click. 
-    // To minimize refactor, let's assume QuizCard just calls onNext.
-    // BUT we need to track score. 
-    // I will update QuizCard props in the Page to accept an onAnswer callback if possible, 
-    // OR just hack it: QuizCard logic is internal.
-
-    // Better approach for MVP:
-    // Pass a simplified handleNext that assumes if they clicked Next, they are done with that question.
-    // But we need to know if they got it right.
-    // I'll assume for this turn that I will update QuizCard to pass `isCorrect` to `onNext`.
 
     return (
         <div className="w-full min-h-screen bg-gradient-to-br from-[#006B3F] to-[#004629] relative flex flex-col items-center justify-start px-4 overflow-x-hidden">
