@@ -10,7 +10,7 @@ export default async function GistPage() {
     const news = await fetchNews();
 
     return (
-        <div className="max-w-xl mx-auto px-4 py-6">
+        <div className="max-w-[480px] mx-auto px-4 py-6">
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <div>

@@ -27,17 +27,40 @@ export const fetchNews = async (): Promise<NewsItem[]> => {
         const feedPromises = FEEDS.map(async (feed) => {
             try {
                 const parsed = await parser.parseURL(feed.url);
-                return parsed.items.map((item) => {
-                    // Extract image from content:encoded or common RSS structures if needed
-                    // For now, rely on what rss-parser finds or simple heuristics
-                    // Note: rss-parser doesn't always automatically find images in 'content'.
-                    // We might need regex if the image is embedded in HTML content.
-
+                return parsed.items.map((item: any) => {
+                    // Aggressive Image Extraction
                     let image = undefined;
+
+                    // 1. Try 'enclosure'
                     if (item.enclosure?.url) {
                         image = item.enclosure.url;
-                    } else if (item.content?.match(/<img[^>]+src="([^">]+)"/)) {
-                        image = item.content?.match(/<img[^>]+src="([^">]+)"/)?.[1];
+                    }
+                    // 2. Try 'media:content' (often an object or array)
+                    else if (item['media:content']) {
+                        const media = item['media:content'];
+                        if (Array.isArray(media)) {
+                            image = media[0]?.['$']?.url;
+                        } else {
+                            image = media?.['$']?.url;
+                        }
+                    }
+                    // 3. Try 'media:thumbnail'
+                    else if (item['media:thumbnail']) {
+                        const media = item['media:thumbnail'];
+                        if (Array.isArray(media)) {
+                            image = media[0]?.['$']?.url;
+                        } else {
+                            image = media?.['$']?.url; // or media.url directly
+                            if (!image && media.url) image = media.url;
+                        }
+                    }
+                    // 4. Regex in content/contentSnippet/description
+                    if (!image) {
+                        const htmlContent = item['content:encoded'] || item.content || item.description || '';
+                        const imgMatch = htmlContent.match(/<img[^>]+src="([^">]+)"/);
+                        if (imgMatch) {
+                            image = imgMatch[1];
+                        }
                     }
 
                     return {
