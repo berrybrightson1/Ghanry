@@ -41,6 +41,28 @@ const QUESTIONS = [
             { id: "d", text: "Paga Palace", isCorrect: false },
         ],
     },
+    {
+        id: 5004,
+        category: "Geography",
+        text: "Which of these is the largest man-made lake by surface area in the world, located in Ghana?",
+        options: [
+            { id: "a", text: "Lake Victoria", isCorrect: false },
+            { id: "b", text: "Lake Volta", isCorrect: true },
+            { id: "c", text: "Lake Bosumtwi", isCorrect: false },
+            { id: "d", text: "Lake Kariba", isCorrect: false },
+        ],
+    },
+    {
+        id: 5005,
+        category: "Culture",
+        text: "What is the name of the traditional Ghanaian kente cloth pattern that symbolizes royalty and wealth?",
+        options: [
+            { id: "a", text: "Adinkra", isCorrect: false },
+            { id: "b", text: "Nyame Biribi Wo Soro", isCorrect: false },
+            { id: "c", text: "Adweneasa", isCorrect: true },
+            { id: "d", text: "Sankofa", isCorrect: false },
+        ],
+    },
 ];
 
 export default function QuizPage() {

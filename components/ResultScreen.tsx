@@ -75,10 +75,14 @@ export default function ResultScreen({
 
         setIsGeneratingImage(true);
         try {
+            // Give it a tiny moment to ensure it's in the DOM properly
+            await new Promise(r => setTimeout(r, 100));
+
             const dataUrl = await toPng(shareCardRef.current, {
                 quality: 0.95,
                 pixelRatio: 2,
-                backgroundColor: '#1a5236',
+                cacheBust: true,
+                skipFonts: true, // Sometimes fonts cause blank screens in html-to-image
             });
 
             // Download the image

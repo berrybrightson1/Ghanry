@@ -97,13 +97,57 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
                         { id: "c", text: "Tamale", isCorrect: false },
                         { id: "d", text: "Cape Coast", isCorrect: false },
                     ]
+                },
+                {
+                    id: 998,
+                    category: "General",
+                    text: "Which of these is NOT a region in Ghana?",
+                    options: [
+                        { id: "a", text: "Ashanti", isCorrect: false },
+                        { id: "b", text: "Savannah", isCorrect: false },
+                        { id: "c", text: "Lagos", isCorrect: true },
+                        { id: "d", text: "Volta", isCorrect: false },
+                    ]
+                },
+                {
+                    id: 997,
+                    category: "General",
+                    text: "What is the currency of Ghana?",
+                    options: [
+                        { id: "a", text: "Dollar", isCorrect: false },
+                        { id: "b", text: "Naira", isCorrect: false },
+                        { id: "c", text: "Cedi", isCorrect: true },
+                        { id: "d", text: "Franc", isCorrect: false },
+                    ]
+                },
+                {
+                    id: 996,
+                    category: "General",
+                    text: "In which year did Ghana gain independence?",
+                    options: [
+                        { id: "a", text: "1957", isCorrect: true },
+                        { id: "b", text: "1960", isCorrect: false },
+                        { id: "c", text: "1948", isCorrect: false },
+                        { id: "d", text: "1945", isCorrect: false },
+                    ]
+                },
+                {
+                    id: 995,
+                    category: "General",
+                    text: "Who was Ghana's first president?",
+                    options: [
+                        { id: "a", text: "Kwame Nkrumah", isCorrect: true },
+                        { id: "b", text: "J.B. Danquah", isCorrect: false },
+                        { id: "c", text: "Jerry Rawlings", isCorrect: false },
+                        { id: "d", text: "John Kufuor", isCorrect: false },
+                    ]
                 }
             ];
         }
 
-        // By default, show all questions for this category to allow replaying
+        // By default, show exactly 5 questions for this category
         // But shuffle them to keep it fresh
-        const finalizedQuestions = shuffleArray(allQuestions);
+        const finalizedQuestions = shuffleArray(allQuestions).slice(0, 5);
 
         const timer = setTimeout(() => {
             setLoading(false);
@@ -144,8 +188,9 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
 
     const handleNext = (isCorrect: boolean) => {
         // Mark current question as answered
-        if (currentQuestion) {
-            markAsAnswered(currentQuestion.id);
+        const questionToMark = categoryQuestions[currentIndex];
+        if (questionToMark) {
+            markAsAnswered(questionToMark.id);
         }
 
         if (isCorrect) {
