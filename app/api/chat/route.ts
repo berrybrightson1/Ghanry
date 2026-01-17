@@ -61,10 +61,13 @@ export async function POST(req: Request) {
         const text = response.text();
 
         return NextResponse.json({ content: text });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Chat API Error:", error);
+
+        // Return a more descriptive error to help the user debug
+        const errorMessage = error.message || "Unknown AI error";
         return NextResponse.json(
-            { error: "Failed to fetch response from Ghanry's brain." },
+            { error: `Ghanry's brain is a bit fuzzy: ${errorMessage}` },
             { status: 500 }
         );
     }
