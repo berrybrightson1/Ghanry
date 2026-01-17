@@ -3,6 +3,7 @@
 import { ReactNode } from "react";
 import { Flame, MapPin, Target, Globe } from "lucide-react";
 import { useXP } from "@/hooks/useXP";
+import { calculateProgress } from "@/lib/gamification";
 
 interface StatCardProps {
     icon: ReactNode;
@@ -17,7 +18,7 @@ function StatCard({ icon, value, label, colorClasses }: StatCardProps) {
             <div className="p-2 bg-white rounded-full mb-2 shadow-sm">
                 {icon}
             </div>
-            <span className="text-lg font-epilogue font-extrabold mb-0.5">{value}</span>
+            <span className="text-lg font-epilogue font-extrabold mb-0.5 whitespace-nowrap overflow-hidden text-ellipsis w-full px-1">{value}</span>
             <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">{label}</span>
         </div>
     );
@@ -31,6 +32,7 @@ interface StatsGridProps {
 
 export default function StatsGrid({ region, streak, xp }: StatsGridProps) {
     const { activeBuffs } = useXP();
+    const { rank } = calculateProgress(xp);
     const hasShield = activeBuffs.some(b => b.type === 'shield');
     const multiplier = activeBuffs.find(b => b.type === 'multiplier')?.value || 1;
 
@@ -76,8 +78,8 @@ export default function StatsGrid({ region, streak, xp }: StatsGridProps) {
                 <StatCard
                     icon={<Globe className="w-6 h-6 text-purple-500" />}
                     colorClasses="bg-purple-50 border-purple-100 text-purple-800"
-                    value="Top 10%"
-                    label="Global"
+                    value={rank}
+                    label="Global Status"
                 />
             </div>
         </div>

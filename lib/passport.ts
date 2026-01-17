@@ -44,7 +44,7 @@ export const createAccount = async (nickname: string, region: string, pin: strin
             region,
             pin, // Note: In a real production app, you should hash this PIN before saving
             xp: 0,
-            rank: "Citizen", // Starting rank
+            rank: "Tourist", // Starting rank
             touristVisaUsed: true,
             joinedAt,
             badges: ["New Citizen"]

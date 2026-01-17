@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import { Trophy, MapPin, Globe, Loader2 } from "lucide-react";
 import { LeaderboardService, type LeaderboardEntry } from "@/lib/leaderboard";
+import { useXP } from "@/hooks/useXP";
 
 export default function Leaderboard() {
     const [activeTab, setActiveTab] = useState<"global" | "region">("global");
     const [rankings, setRankings] = useState<LeaderboardEntry[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [userRank, setUserRank] = useState<LeaderboardEntry | undefined>(undefined);
+    const { xp: realXP } = useXP();
 
     useEffect(() => {
         const fetchRankings = async () => {
@@ -23,10 +25,7 @@ export default function Leaderboard() {
                 return;
             }
 
-            // Mock XP for now - in real app, this comes from a hook/context
-            const xp = 1250;
-
-            const data = await LeaderboardService.getRankings(nickname, region, xp);
+            const data = await LeaderboardService.getRankings(nickname, region, realXP);
 
             // Filter to only show users with valid IDs (in production, this would be handled server-side)
             const validRankings = data.filter(user => user.isCurrentUser || user.nickname !== "Guest");
@@ -37,7 +36,7 @@ export default function Leaderboard() {
         };
 
         fetchRankings();
-    }, []);
+    }, [realXP]);
 
     return (
         <div className="w-full min-h-screen bg-gray-50 pb-24 flex flex-col items-center">
@@ -133,7 +132,7 @@ export default function Leaderboard() {
                                     </div>
                                     <div className="text-right">
                                         <div className="text-[#006B3F] font-extrabold text-sm">{user.xp.toLocaleString()} XP</div>
-                                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Citizen</div>
+                                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{user.rankName || "Citizen"}</div>
                                     </div>
                                 </div>
                             ))

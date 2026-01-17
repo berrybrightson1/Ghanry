@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { db } from '@/lib/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 
 /**
  * useXP hook tracks the global XP of the user.
@@ -32,6 +34,21 @@ export function useXP() {
         }
     }, []);
 
+    // Helper to sync with Firestore
+    const syncXPToFirestore = async (newXP: number) => {
+        if (typeof window !== 'undefined') {
+            const passportId = localStorage.getItem('ghanry_passport_id');
+            if (passportId) {
+                try {
+                    const docRef = doc(db, "users", passportId);
+                    await updateDoc(docRef, { xp: newXP });
+                } catch (error) {
+                    console.error("Firestore sync error:", error);
+                }
+            }
+        }
+    };
+
     const level = Math.floor(xp / XP_PER_LEVEL) + 1;
     const progressInLevel = (xp % XP_PER_LEVEL);
     const levelProgressPercent = (progressInLevel / XP_PER_LEVEL) * 100;
@@ -46,12 +63,13 @@ export function useXP() {
     // Add XP and persist
     const addXP = (amount: number) => {
         // Apply multiplier if active
-        const multiplier = activeBuffs.find(b => b.type === 'multiplier')?.value || 1;
+        const multiplier = activeBuffs.find((b: Buff) => b.type === 'multiplier')?.value || 1;
         const totalAmount = amount * multiplier;
 
         const newXP = xp + totalAmount;
         setXp(newXP);
         localStorage.setItem('ghanry_xp', newXP.toString());
+        syncXPToFirestore(newXP);
         return totalAmount;
     };
 
@@ -61,6 +79,7 @@ export function useXP() {
         const newXP = xp - amount;
         setXp(newXP);
         localStorage.setItem('ghanry_xp', newXP.toString());
+        syncXPToFirestore(newXP);
         return true;
     };
 
@@ -70,7 +89,7 @@ export function useXP() {
     };
 
     const consumeShield = () => {
-        const shieldIdx = activeBuffs.findIndex(b => b.type === 'shield');
+        const shieldIdx = activeBuffs.findIndex((b: Buff) => b.type === 'shield');
         if (shieldIdx > -1) {
             const newBuffs = [...activeBuffs];
             newBuffs.splice(shieldIdx, 1);

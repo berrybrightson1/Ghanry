@@ -1,10 +1,11 @@
 "use client";
 
-import { Sparkles, Home, Trophy, Calendar, Settings, Flame, Gamepad2, MessageSquare, Scroll } from "lucide-react";
+import { Home, Trophy, Calendar, Settings, Flame, Gamepad2, MessageSquare, Scroll, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useXP } from "@/hooks/useXP";
+import { calculateProgress, getRankColor } from "@/lib/gamification";
 
 interface SidebarProps {
     nickname: string;
@@ -12,12 +13,9 @@ interface SidebarProps {
 
 export default function Sidebar({ nickname }: SidebarProps) {
     const pathname = usePathname();
-    const [status, setStatus] = useState<string>("citizen");
-
-    useEffect(() => {
-        const storedStatus = localStorage.getItem("ghanry_status") || "citizen";
-        setStatus(storedStatus);
-    }, []);
+    const { xp } = useXP();
+    const { rank } = calculateProgress(xp);
+    const rankColor = getRankColor(rank);
 
     const isActive = (path: string) => {
         if (path === "/dashboard" && pathname === "/dashboard") return true;
@@ -49,9 +47,8 @@ export default function Sidebar({ nickname }: SidebarProps) {
                         <h2 className="font-epilogue font-bold text-gray-900 leading-tight">{nickname}</h2>
 
                         {/* Status Badge */}
-                        <div className={`text-[10px] font-bold uppercase tracking-widest mt-0.5 ${status === 'tourist' ? "text-blue-500" : "text-[#006B3F]"
-                            }`}>
-                            {status === 'tourist' ? "Tourist Visa" : "Citizen"}
+                        <div className={`text-[10px] font-bold uppercase tracking-widest mt-0.5 ${rankColor}`}>
+                            {rank}
                         </div>
                     </div>
                 </div>
