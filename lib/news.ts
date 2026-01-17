@@ -141,12 +141,3 @@ export const getArticleById = async (id: string): Promise<NewsItem | null> => {
     return allNews.find(item => item.id === id) || null;
 };
 
-// Fisher-Yates Shuffle
-const shuffleArray = <T>(array: T[]): T[] => {
-    const arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-};

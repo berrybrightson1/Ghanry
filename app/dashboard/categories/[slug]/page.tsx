@@ -56,7 +56,7 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
     const [score, setScore] = useState(0); // Count of correct answers
     const [gameStatus, setGameStatus] = useState<"playing" | "finished">("playing");
 
-    const { markAsAnswered, answeredIds } = useQuestionProgress();
+    const { markAsAnswered } = useQuestionProgress();
     const currentQuestion = categoryQuestions[currentIndex];
     const { updateStreak } = useStreak();
 

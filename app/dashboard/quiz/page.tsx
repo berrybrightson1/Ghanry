@@ -1,11 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import QuizCard from "@/components/QuizCard";
 import ResultScreen from "@/components/ResultScreen";
-import { useRouter } from "next/navigation";
-
-import { useDailyTrivia } from "@/hooks/useDailyTrivia";
 
 import { useQuestionProgress } from "@/hooks/useQuestionProgress";
 
@@ -47,8 +44,8 @@ const QUESTIONS = [
 ];
 
 export default function QuizPage() {
-    const router = useRouter();
-    const { isCompletedToday } = useDailyTrivia();
+    // const router = useRouter();
+    // const { isCompletedToday } = useDailyTrivia();
     const { markAsAnswered } = useQuestionProgress();
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [score, setScore] = useState(0);
