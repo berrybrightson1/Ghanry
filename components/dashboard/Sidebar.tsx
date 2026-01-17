@@ -32,8 +32,8 @@ export default function Sidebar({ nickname }: SidebarProps) {
         { path: "/dashboard/gist", icon: Sparkles, label: "Ghana Now" },
         { path: "/dashboard/holidays", icon: Calendar, label: "Holidays" },
         { path: "/dashboard/leaderboard", icon: Trophy, label: "Leaderboard" },
-        { path: "/dashboard/ask", icon: MessageSquare, label: "Ask Ghanry" },
         { path: "/dashboard/settings", icon: Settings, label: "Settings" },
+        { path: "/dashboard/ask", icon: MessageSquare, label: "Ask Ghanry" },
     ];
 
     return (
@@ -59,24 +59,30 @@ export default function Sidebar({ nickname }: SidebarProps) {
             {/* Navigation */}
             <div className="flex-1 min-h-0">
                 <nav className="h-full p-4 space-y-1 overflow-y-auto no-scrollbar">
-                    {navItems.map((item) => (
-                        <Link
-                            key={item.path}
-                            href={item.path}
-                            className={`flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all group relative overflow-hidden ${isActive(item.path)
-                                ? 'bg-[#006B3F] text-white shadow-lg shadow-green-900/10'
-                                : 'text-gray-500 hover:bg-green-50 hover:text-[#006B3F]'
-                                }`}
-                        >
-                            {isActive(item.path) && (
-                                <motion.div
-                                    layoutId="sidebar-active"
-                                    className="absolute left-0 top-0 bottom-0 w-1 bg-[#006B3F] rounded-l-xl"
-                                />
+                    {navItems.map((item, index) => (
+                        <div key={item.path}>
+                            {index === navItems.length - 1 && (
+                                <div className="mt-8 mb-4 border-t border-gray-50 pt-4 px-5">
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Support</span>
+                                </div>
                             )}
-                            <item.icon className={`w-5 h-5 ${isActive(item.path) ? "fill-current" : ""}`} />
-                            <span className="font-bold font-jakarta text-[14px]">{item.label}</span>
-                        </Link>
+                            <Link
+                                href={item.path}
+                                className={`flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all group relative overflow-hidden ${isActive(item.path)
+                                    ? 'bg-[#006B3F] text-white shadow-lg shadow-green-900/10'
+                                    : 'text-gray-500 hover:bg-green-50 hover:text-[#006B3F]'
+                                    }`}
+                            >
+                                {isActive(item.path) && (
+                                    <motion.div
+                                        layoutId="sidebar-active"
+                                        className="absolute left-0 top-0 bottom-0 w-1 bg-[#006B3F] rounded-l-xl"
+                                    />
+                                )}
+                                <item.icon className={`w-5 h-5 ${isActive(item.path) ? "fill-current" : ""}`} />
+                                <span className="font-bold font-jakarta text-[14px]">{item.label}</span>
+                            </Link>
+                        </div>
                     ))}
                 </nav>
             </div>

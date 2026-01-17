@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Send, Sparkles, User, Bot, Trash2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 interface Message {
     role: "user" | "bot";
@@ -76,46 +77,57 @@ export default function AskGhanryPage() {
         }
     };
 
-    const clearChat = () => {
-        if (confirm("Chale, are you sure you want to clear our conversation history?")) {
-            const initial = [{
-                role: "bot" as const,
-                content: "Akwaaba! I am Ghanry, your expert guide to the Motherland. Ask me anything about Ghana's history, food, culture, or even a tricky quiz question you're stuck on! 🇬🇭✨"
-            }];
-            setMessages(initial);
-            localStorage.setItem("ghanry_chat_history", JSON.stringify(initial));
-        }
+    const confirmClear = () => {
+        toast("Clear chat history?", {
+            description: "Chale, this will delete our entire conversation history forever.",
+            action: {
+                label: "Delete",
+                onClick: () => {
+                    const initial = [{
+                        role: "bot" as const,
+                        content: "Akwaaba! I am Ghanry, your expert guide to the Motherland. Ask me anything about Ghana's history, food, culture, or even a tricky quiz question you're stuck on! 🇬🇭✨"
+                    }];
+                    setMessages(initial);
+                    localStorage.setItem("ghanry_chat_history", JSON.stringify(initial));
+                    toast.success("History cleared!");
+                },
+            },
+            cancel: {
+                label: "Keep it",
+                onClick: () => { },
+            }
+        });
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-80px)] md:h-screen bg-gray-50 overflow-hidden">
+        <div className="flex flex-col h-[calc(100vh-140px)] md:h-[calc(100vh-180px)] bg-gray-50 rounded-3xl overflow-hidden shadow-inner border border-gray-100 mx-1 md:mx-4 mb-4">
             {/* Header */}
-            <div className="bg-white border-b border-gray-100 p-4 md:p-6 sticky top-0 z-10 flex items-center justify-between">
+            <div className="bg-white border-b border-gray-100 p-4 sticky top-0 z-10 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Link href="/dashboard" className="p-2 hover:bg-gray-100 rounded-xl transition-colors md:hidden">
                         <ArrowLeft className="w-5 h-5 text-gray-500" />
                     </Link>
                     <div>
-                        <h1 className="text-xl md:text-2xl font-epilogue font-extrabold text-[#006B3F] flex items-center gap-2">
-                            <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-ghana-gold fill-current" />
+                        <h1 className="text-xl font-epilogue font-extrabold text-[#006B3F] flex items-center gap-2">
+                            <Sparkles className="w-4 h-4 text-ghana-gold fill-current" />
                             Ask Ghanry
                         </h1>
-                        <p className="text-xs md:text-sm text-gray-500 font-jakarta lowercase">your personal ghana expert.</p>
+                        <p className="text-[10px] text-gray-500 font-jakarta lowercase">your personal ghana expert.</p>
                     </div>
                 </div>
                 <button
-                    onClick={clearChat}
-                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                    onClick={confirmClear}
+                    className="p-2 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
                     title="Clear Chat"
                 >
-                    <Trash2 className="w-5 h-5" />
+                    <Trash2 className="w-4 h-4" />
                 </button>
             </div>
 
             {/* Chat Area */}
             <div
                 ref={scrollRef}
-                className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 no-scrollbar"
+                className="flex-1 overflow-y-auto p-4 space-y-6 no-scrollbar"
             >
                 <AnimatePresence initial={false}>
                     {messages.map((msg, idx) => (
@@ -125,7 +137,7 @@ export default function AskGhanryPage() {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                         >
-                            <div className={`flex gap-3 max-w-[85%] md:max-w-[75%] ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
+                            <div className={`flex gap-3 max-w-[90%] md:max-w-[80%] ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
                                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm ${msg.role === "user" ? "bg-[#006B3F] text-white" : "bg-ghana-gold text-green-900"
                                     }`}>
                                     {msg.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-5 h-5" />}
@@ -163,7 +175,7 @@ export default function AskGhanryPage() {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 md:p-6 bg-white border-t border-gray-100 pb-24 md:pb-8">
+            <div className="p-4 bg-white border-t border-gray-100">
                 <div className="max-w-4xl mx-auto flex gap-2">
                     <div className="flex-1 relative">
                         <input
@@ -171,7 +183,7 @@ export default function AskGhanryPage() {
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                            placeholder="Ask me anything about Ghana..."
+                            placeholder="Ask me anything..."
                             className="w-full p-4 pr-12 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#006B3F] focus:border-transparent transition-all font-jakarta text-sm"
                         />
                         <button
@@ -188,9 +200,10 @@ export default function AskGhanryPage() {
                     </div>
                 </div>
                 <p className="text-[10px] text-center text-gray-400 mt-2 font-jakarta uppercase tracking-widest">
-                    Ghanry AI may make mistakes. Verify important info.
+                    AI may make mistakes. Verify important info.
                 </p>
             </div>
         </div>
     );
 }
+
