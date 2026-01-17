@@ -1,31 +1,94 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, X, LogOut, Star } from 'lucide-react';
+import { Check, X, LogOut, Star, Eye, EyeOff } from 'lucide-react';
 import { useStreak } from '@/hooks/useStreak';
 import { usePWA } from '@/hooks/usePWA';
 import { useXP } from '@/hooks/useXP';
 import { Download } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
     const router = useRouter();
     const [nickname, setNickname] = useState('');
-    const [sound, setSound] = useState(true);
+    const [passportId, setPassportId] = useState('');
+    const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [sound, setSound] = useState(false); // Default to OFF
     const { streak } = useStreak();
     const { xp } = useXP();
     const { isInstallable, handleInstall } = usePWA();
 
+    // Track original values for dirty state detection
+    const [originalNickname, setOriginalNickname] = useState('');
+    const [originalPassportId, setOriginalPassportId] = useState('');
+    const [originalSound, setOriginalSound] = useState(false);
+
     useEffect(() => {
         const storedNick = localStorage.getItem('ghanry_nickname') || '';
+        const storedId = localStorage.getItem('ghanry_passport_id') || '';
         const storedSound = localStorage.getItem('ghanry_sound');
+
         setNickname(storedNick);
-        setSound(storedSound !== 'false');
+        setPassportId(storedId);
+        // Sound defaults to false (OFF)
+        const soundValue = storedSound === 'true';
+        setSound(soundValue);
+
+        // Store original values
+        setOriginalNickname(storedNick);
+        setOriginalPassportId(storedId);
+        setOriginalSound(soundValue);
     }, []);
 
-    const handleSave = () => {
+    // Check if anything has changed
+    const hasChanges =
+        nickname !== originalNickname ||
+        passportId !== originalPassportId ||
+        sound !== originalSound ||
+        password.trim() !== '';
+
+    const handleSaveChanges = () => {
+        // Validation
+        if (!nickname.trim()) {
+            toast.error('Nickname cannot be empty', { duration: 2000 });
+            return;
+        }
+
+        if (!passportId.trim()) {
+            toast.error('Passport ID cannot be empty', { duration: 2000 });
+            return;
+        }
+
+        // Save changes
         localStorage.setItem('ghanry_nickname', nickname);
+        localStorage.setItem('ghanry_passport_id', passportId);
         localStorage.setItem('ghanry_sound', sound.toString());
-        router.push('/dashboard');
+
+        if (password.trim()) {
+            // Save password (in real app this would be hashed and sent to server)
+            localStorage.setItem('ghanry_password', password);
+            toast.success('Password updated successfully!', { duration: 2000 });
+        }
+
+        toast.success('Settings saved!', { duration: 2000 });
+
+        // Update original values
+        setOriginalNickname(nickname);
+        setOriginalPassportId(passportId);
+        setOriginalSound(sound);
+        setPassword('');
+
+        setTimeout(() => router.push('/dashboard'), 500);
+    };
+
+    const handleCancel = () => {
+        // Revert to original values
+        setNickname(originalNickname);
+        setPassportId(originalPassportId);
+        setSound(originalSound);
+        setPassword('');
+        router.back();
     };
 
     const handleLogout = () => {
@@ -34,6 +97,7 @@ export default function SettingsPage() {
         localStorage.removeItem("ghanry_nickname");
         localStorage.removeItem("ghanry_region");
         localStorage.removeItem("ghanry_status");
+        localStorage.removeItem("ghanry_password");
         router.push("/");
     };
 
@@ -45,6 +109,7 @@ export default function SettingsPage() {
                 {/* Profile Section */}
                 <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
                     <h2 className="font-bold text-gray-400 text-xs uppercase tracking-wider">Profile</h2>
+
                     <div>
                         <label htmlFor="nickname" className="block font-jakarta font-medium mb-1.5 text-sm text-gray-700">Nickname</label>
                         <input
@@ -54,6 +119,38 @@ export default function SettingsPage() {
                             onChange={e => setNickname(e.target.value)}
                             className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] font-epilogue font-bold text-gray-900"
                         />
+                    </div>
+
+                    <div>
+                        <label htmlFor="passport-id" className="block font-jakarta font-medium mb-1.5 text-sm text-gray-700">Passport ID</label>
+                        <input
+                            id="passport-id"
+                            type="text"
+                            value={passportId}
+                            onChange={e => setPassportId(e.target.value)}
+                            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] font-epilogue font-bold text-gray-900"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="password" className="block font-jakarta font-medium mb-1.5 text-sm text-gray-700">Change Password</label>
+                        <div className="relative">
+                            <input
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                placeholder="Enter new password (optional)"
+                                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 pr-12 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] font-epilogue font-bold text-gray-900"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -106,31 +203,34 @@ export default function SettingsPage() {
                     </div>
                 )}
 
-                {/* Actions */}
-                <div className="pt-4 flex flex-col gap-3">
-                    <div className="grid grid-cols-2 gap-3">
-                        <button
-                            onClick={() => router.back()}
-                            className="px-4 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleSave}
-                            className="px-4 py-3 bg-[#006B3F] text-white font-bold rounded-xl hover:bg-[#005a35] transition-colors shadow-lg shadow-green-900/10"
-                        >
-                            Save Changes
-                        </button>
+                {/* Actions - Only show if changes made */}
+                {hasChanges && (
+                    <div className="pt-4 flex flex-col gap-3">
+                        <div className="grid grid-cols-2 gap-3">
+                            <button
+                                onClick={handleCancel}
+                                className="px-4 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveChanges}
+                                className="px-4 py-3 bg-[#006B3F] text-white font-bold rounded-xl hover:bg-[#005a35] transition-colors shadow-lg shadow-green-900/10"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
                     </div>
+                )}
 
-                    <button
-                        onClick={handleLogout}
-                        className="w-full py-3 text-red-500 font-bold hover:bg-red-50 rounded-xl transition-colors flex items-center justify-center gap-2 group"
-                    >
-                        <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                        Log Out
-                    </button>
-                </div>
+                {/* Logout - Always visible */}
+                <button
+                    onClick={handleLogout}
+                    className="w-full py-3 text-red-500 font-bold hover:bg-red-50 rounded-xl transition-colors flex items-center justify-center gap-2 group"
+                >
+                    <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    Log Out
+                </button>
             </div>
         </div>
     );

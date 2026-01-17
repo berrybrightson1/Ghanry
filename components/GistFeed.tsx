@@ -42,7 +42,7 @@ export default function GistFeed({ initialNews }: GistFeedProps) {
 
     return (
         <div className="pb-24">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-6">
                 {visibleNews.map((item, index) => (
                     <NewsCard key={item.id} item={item} index={index % PAGE_SIZE} />
                 ))}
