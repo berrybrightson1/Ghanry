@@ -31,7 +31,7 @@ export default function CustomSelect({ options, value, onChange, placeholder = "
             {/* Trigger Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full p-4 bg-gray-50 border-2 border-gray-200 rounded-xl flex items-center justify-between text-left transition-all hover:border-[#006B3F] hover:bg-white active:scale-[0.99] focus:outline-none focus:border-[#006B3F]"
+                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-between text-left transition-all hover:border-[#006B3F] hover:bg-white active:scale-[0.99] focus:outline-none focus:border-[#006B3F]"
             >
                 <span className={`font-jakarta font-bold ${value ? "text-gray-900" : "text-gray-400"}`}>
                     {value || placeholder}
