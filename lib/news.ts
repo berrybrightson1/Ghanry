@@ -27,6 +27,7 @@ export const fetchNews = async (): Promise<NewsItem[]> => {
         const feedPromises = FEEDS.map(async (feed) => {
             try {
                 const parsed = await parser.parseURL(feed.url);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 return parsed.items.map((item: any) => {
                     // Aggressive Image Extraction
                     let image = undefined;
