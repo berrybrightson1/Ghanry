@@ -31,11 +31,11 @@ export default function OnboardingSlider() {
             // Features list for the grid
             features: [
                 { icon: <GraduationCap className="w-5 h-5 text-[#FCD116]" />, label: "Trivia Battles" },
-                { icon: <CreditCard className="w-5 h-5 text-blue-400" />, label: "Passport ID" },
-                { icon: <Lock className="w-5 h-5 text-pink-400" />, label: "Security Quiz" },
+                { icon: <ShieldCheck className="w-5 h-5 text-blue-400" />, label: "Passport ID" },
+                { icon: <Sparkles className="w-5 h-5 text-ghana-gold" />, label: "Ask Ghanry" },
                 { icon: <Globe className="w-5 h-5 text-green-400" />, label: "Leaderboard" },
                 { icon: <Medal className="w-5 h-5 text-[#CE1126]" />, label: "Ranks" },
-                { icon: <Sparkles className="w-5 h-5 text-purple-400" />, label: "Culture" },
+                { icon: <Image src="/Flame.svg" width={20} height={20} alt="Streak" />, label: "Journey" },
             ]
         }
     ];
