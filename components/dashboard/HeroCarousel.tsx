@@ -83,14 +83,22 @@ export default function HeroCarousel() {
                 )}
             </div>
 
-            {/* Mobile Swipe Indicators / Hints */}
-            <div className="flex sm:hidden justify-between absolute top-1/2 left-0 right-0 -translate-y-1/2 px-2 pointer-events-none">
-                <div className={`p-2 bg-white/80 backdrop-blur-md rounded-full shadow-lg ${currentIndex === 1 ? "opacity-100" : "opacity-0"}`}>
+            {/* Mobile Swipe Indicators / Arrows */}
+            <div className="flex sm:hidden justify-between absolute top-1/2 left-0 right-0 -translate-y-1/2 px-2">
+                <button
+                    onClick={() => setCurrentIndex(0)}
+                    className={`p-2 bg-white/80 backdrop-blur-md rounded-full shadow-lg transition-opacity active:scale-95 ${currentIndex === 1 ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                    aria-label="Previous slide"
+                >
                     <ChevronLeft className="w-4 h-4 text-[#006B3F]" />
-                </div>
-                <div className={`p-2 bg-white/80 backdrop-blur-md rounded-full shadow-lg ${currentIndex === 0 ? "opacity-100" : "opacity-0"}`}>
+                </button>
+                <button
+                    onClick={() => setCurrentIndex(1)}
+                    className={`p-2 bg-white/80 backdrop-blur-md rounded-full shadow-lg transition-opacity active:scale-95 ${currentIndex === 0 ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+                    aria-label="Next slide"
+                >
                     <ChevronRight className="w-4 h-4 text-[#006B3F]" />
-                </div>
+                </button>
             </div>
         </div>
     );

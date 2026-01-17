@@ -48,7 +48,7 @@ export default function RootLayout({
       <body className={`${epilogue.variable} ${jakarta.variable} antialiased bg-gradient-to-br from-green-950 via-green-900 to-black min-h-screen flex flex-col items-center justify-start sm:justify-center overflow-y-auto`}
       >
         {/* Mobile Container Strategy */}
-        <div className="w-full min-h-[100dvh] sm:min-h-[700px] sm:h-[85vh] sm:max-w-5xl sm:my-10 bg-white/20 backdrop-blur-3xl sm:rounded-3xl shadow-2xl overflow-hidden relative flex flex-col items-stretch font-jakarta border border-white/10">
+        <div className="w-full min-h-[100dvh] sm:min-h-[700px] sm:h-[85vh] sm:max-w-5xl sm:my-10 bg-white/20 backdrop-blur-3xl sm:rounded-3xl shadow-2xl overflow-hidden relative flex flex-col items-stretch font-jakarta">
           {children}
 
           {/* Global Toast Notification */}
