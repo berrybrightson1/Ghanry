@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trophy, ArrowRight, RotateCcw, Share2, Check, Copy } from "lucide-react";
+import { Trophy, ArrowRight, RotateCcw, Share2 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import confetti from 'canvas-confetti';
