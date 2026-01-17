@@ -1,0 +1,72 @@
+[
+    {
+        "id": 1,
+        "native": "Obi nnim a, obi kyerɛ.",
+        "language": "Twi",
+        "translation": "If one does not know, another teaches.",
+        "meaning": "Wisdom is gained through sharing and humility. No one has a monopoly on knowledge.",
+        "power": "xp_refund",
+        "powerValue": 50,
+        "rarity": "common"
+    },
+    {
+        "id": 2,
+        "native": "Ti koro nkɔ agyina.",
+        "language": "Twi",
+        "translation": "One head does not go into council.",
+        "meaning": "Collaboration and collective wisdom are essential for making great decisions.",
+        "power": "shield",
+        "powerValue": 1,
+        "rarity": "uncommon"
+    },
+    {
+        "id": 3,
+        "native": "Agya bi wu a, agya bi te ase.",
+        "language": "Twi",
+        "translation": "When one father dies, another lives.",
+        "meaning": "Leadership and legacy are continuous. There is always someone to guide the next generation.",
+        "power": "xp_multiplier",
+        "powerValue": 2,
+        "rarity": "rare"
+    },
+    {
+        "id": 4,
+        "native": "Kɔtɔ nne mma anoma.",
+        "language": "Twi",
+        "translation": "A crab does not give birth to a bird.",
+        "meaning": "Character and heritage are often passed down. You cannot escape your true nature.",
+        "power": "shield",
+        "powerValue": 1,
+        "rarity": "uncommon"
+    },
+    {
+        "id": 5,
+        "native": "Nsuo a ɛdɔ mpoano na ɛfa nneɛma kɔ.",
+        "language": "Twi",
+        "translation": "It is the calm water that carries things away.",
+        "meaning": "Quiet strength and patience are often more powerful than loud aggression.",
+        "power": "theme_unlock",
+        "powerValue": "gold",
+        "rarity": "legendary"
+    },
+    {
+        "id": 6,
+        "native": "Nunoo tso fufɔi ji nɔ ni ayɔ.",
+        "language": "Ga",
+        "translation": "A tree with many fruits is what people throw stones at.",
+        "meaning": "Success often brings criticism or envy. Stay focused despite the noise.",
+        "power": "xp_refund",
+        "powerValue": 80,
+        "rarity": "uncommon"
+    },
+    {
+        "id": 7,
+        "native": "Agbe mitsɔ fia, eye fia.",
+        "language": "Ewe",
+        "translation": "If life turns into a forest, become a hunter.",
+        "meaning": "Adaptability is the key to survival. Turn challenges into opportunities.",
+        "power": "xp_multiplier",
+        "powerValue": 2,
+        "rarity": "rare"
+    }
+]

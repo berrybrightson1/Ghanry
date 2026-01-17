@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Trophy, MessageCircle, Settings } from "lucide-react";
+import { Home, Trophy, MessageCircle, Settings, Scroll } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -13,6 +13,7 @@ export default function BottomNav() {
     const navItems = [
         { path: "/dashboard", icon: Home, label: "Home" },
         { path: "/dashboard/leaderboard", icon: Trophy, label: "Rank" },
+        { path: "/dashboard/wisdom", icon: Scroll, label: "Wisdom" },
         { path: "/dashboard/ask", icon: MessageCircle, label: "Ask" },
         { path: "/dashboard/settings", icon: Settings, label: "Settings" },
     ];

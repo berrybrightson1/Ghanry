@@ -35,6 +35,12 @@ export default function ResultScreen({
     const currentProgress = calculateProgress(xp);
     const quizReward = calculateQuizReward(score, totalQuestions, streak, currentProgress.currentLevel, isTourist, timeElapsed);
 
+    // Check for active multiplier
+    const { activeBuffs } = useXP();
+    const multiplier = activeBuffs.find(b => b.type === 'multiplier')?.value || 1;
+    const baseXP = quizReward.totalXP;
+    const finalXP = baseXP * multiplier;
+
     // Future stats for display
     const newTotalXP = xp + quizReward.totalXP;
     const newProgress = calculateProgress(newTotalXP);
@@ -46,7 +52,7 @@ export default function ResultScreen({
 
             // Only add XP if they got at least one question right or it's a daily
             if (score > 0 || isDaily) {
-                addXP(quizReward.totalXP);
+                addXP(baseXP); // Multiplier is handled inside addXP
             }
 
             if (isDaily) {
@@ -65,7 +71,7 @@ export default function ResultScreen({
 
             setHasUpdated(true);
         }
-    }, [score, totalQuestions, updateStreak, addXP, quizReward.totalXP, hasUpdated, isDaily, markAsCompleted]);
+    }, [score, totalQuestions, updateStreak, addXP, baseXP, hasUpdated, isDaily, markAsCompleted]);
 
     return (
         <div className="w-full h-full flex flex-col items-center justify-center relative bg-transparent p-6 text-center">
@@ -86,7 +92,7 @@ export default function ResultScreen({
                             transition={{ delay: 0.5 }}
                             className="absolute -top-2 -right-4 bg-[#CE1126] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg"
                         >
-                            +{quizReward.totalXP} XP
+                            +{finalXP} XP
                         </motion.div>
                     )}
                 </div>
@@ -114,6 +120,11 @@ export default function ResultScreen({
                 {quizReward.streakBonus > 0 && (
                     <div className="bg-red-500/20 text-red-300 text-[10px] font-bold px-2 py-1 rounded-full border border-red-500/30">
                         Streak +{quizReward.streakBonus} XP
+                    </div>
+                )}
+                {multiplier > 1 && (
+                    <div className="bg-[#FCD116]/20 text-[#FCD116] text-[10px] font-bold px-2 py-1 rounded-full border border-[#FCD116]/30 animate-pulse">
+                        Wisdom x{multiplier} Active!
                     </div>
                 )}
             </div>

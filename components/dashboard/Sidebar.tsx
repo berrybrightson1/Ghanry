@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles, Home, Trophy, Calendar, Settings, Flame, Gamepad2, MessageSquare } from "lucide-react";
+import { Sparkles, Home, Trophy, Calendar, Settings, Flame, Gamepad2, MessageSquare, Scroll } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -32,6 +32,7 @@ export default function Sidebar({ nickname }: SidebarProps) {
         { path: "/dashboard/gist", icon: Sparkles, label: "Ghana Now" },
         { path: "/dashboard/holidays", icon: Calendar, label: "Holidays" },
         { path: "/dashboard/leaderboard", icon: Trophy, label: "Leaderboard" },
+        { path: "/dashboard/wisdom", icon: Scroll, label: "Wisdom Pot" },
         { path: "/dashboard/settings", icon: Settings, label: "Settings" },
         { path: "/dashboard/ask", icon: MessageSquare, label: "Ask Ghanry" },
     ];

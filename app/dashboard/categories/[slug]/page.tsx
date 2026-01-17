@@ -6,6 +6,8 @@ import QuizCard from "@/components/QuizCard";
 import { Loader2 } from "lucide-react";
 import confetti from "canvas-confetti";
 import ResultScreen from "@/components/ResultScreen";
+import { toast } from "sonner";
+import { useXP } from "@/hooks/useXP";
 
 import { musicQuestions } from "@/lib/data/music";
 import { foodQuestions } from "@/lib/data/food";
@@ -61,6 +63,7 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
 
     const { markAsAnswered } = useQuestionProgress();
     const { updateStreak } = useStreak();
+    const { consumeShield } = useXP();
 
     // Calculate Next Category for the Result Screen
     const currentCategoryIndex = CATEGORY_ORDER.indexOf(slug);
@@ -131,7 +134,19 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
             markAsAnswered(questionToMark.id);
         }
 
-        if (isCorrect) {
+        let finalIsCorrect = isCorrect;
+        if (!isCorrect) {
+            // Check for wisdom shield
+            if (consumeShield()) {
+                finalIsCorrect = true;
+                toast.success("Wisdom Shield Activated!", {
+                    description: "Your error was blocked by the ancestors. 🛡️",
+                    icon: "🛡️"
+                });
+            }
+        }
+
+        if (finalIsCorrect) {
             setScore(s => s + 1);
         }
 

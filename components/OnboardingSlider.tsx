@@ -4,7 +4,7 @@ import Image from "next/image";
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Globe, Medal, GraduationCap, ShieldCheck, CreditCard, Lock } from "lucide-react";
+import { Sparkles, Globe, GraduationCap, ShieldCheck, Scroll } from "lucide-react";
 
 export default function OnboardingSlider() {
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -34,7 +34,7 @@ export default function OnboardingSlider() {
                 { icon: <ShieldCheck className="w-5 h-5 text-blue-400" />, label: "Passport ID" },
                 { icon: <Sparkles className="w-5 h-5 text-ghana-gold" />, label: "Ask Ghanry" },
                 { icon: <Globe className="w-5 h-5 text-green-400" />, label: "Leaderboard" },
-                { icon: <Medal className="w-5 h-5 text-[#CE1126]" />, label: "Ranks" },
+                { icon: <Scroll className="w-5 h-5 text-[#CE1126]" />, label: "Wisdom Pot" },
                 { icon: <Image src="/Flame.svg" width={20} height={20} alt="Streak" />, label: "Journey" },
             ]
         }
