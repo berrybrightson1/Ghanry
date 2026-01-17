@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import CustomSelect from "@/components/CustomSelect";
@@ -58,10 +59,22 @@ export default function Home() {
         {/* Abstract Pattern Overlay */}
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
+        {/* Animated Black Star */}
+        <motion.div
+          animate={{ rotate: 360, scale: [1, 1.1, 1] }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute -bottom-24 -left-24 w-96 h-96 opacity-10 pointer-events-none text-black"
+        >
+          <svg viewBox="0 0 100 100" fill="currentColor">
+            <polygon points="50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35" />
+          </svg>
+        </motion.div>
+
         <div className="relative z-10">
-          <div className="w-16 h-16 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20 mb-8">
-            <span className="font-epilogue font-bold text-white text-xl">GH</span>
+          <div className="w-auto inline-flex px-6 py-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 mb-8">
+            <span className="font-epilogue font-bold text-white text-xl tracking-wide">Ghanry</span>
           </div>
+
 
           <h1 className="text-4xl md:text-5xl font-epilogue font-extrabold text-white mb-4 leading-tight">
             Akwaaba!
