@@ -24,32 +24,19 @@ interface QuizCardProps {
     onNext: (isCorrect: boolean) => void;
     questionNumber: number;
     totalQuestions: number;
+    currentTime?: number;
 }
 
 export default function QuizCard({
     question,
     onNext,
     questionNumber,
-    totalQuestions
+    totalQuestions,
+    currentTime = 0
 }: QuizCardProps) {
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
-    const [secondsLeft, setSecondsLeft] = useState(240); // 4 minutes
 
-    useEffect(() => {
-        if (selectedOption) return; // Pause timer on answer
 
-        const timer = setInterval(() => {
-            setSecondsLeft((prev) => {
-                if (prev <= 0) {
-                    clearInterval(timer);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, [selectedOption]);
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
@@ -124,8 +111,8 @@ export default function QuizCard({
                             </div>
                         </div>
                         <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-[#CE1126] rounded-xl border border-red-100 font-epilogue font-bold text-xs shadow-sm">
-                            <Timer className="w-3.5 h-3.5 animate-pulse" />
-                            <span>{formatTime(secondsLeft)}</span>
+                            <Timer className="w-3.5 h-3.5" />
+                            <span>{formatTime(currentTime)}</span>
                         </div>
                     </div>
 

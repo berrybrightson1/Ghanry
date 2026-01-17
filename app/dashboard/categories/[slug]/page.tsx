@@ -56,10 +56,20 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
     const [score, setScore] = useState(0); // Count of correct answers
     const [gameStatus, setGameStatus] = useState<"playing" | "finished">("playing");
     const [timeElapsed, setTimeElapsed] = useState(0);
+    const [currentTime, setCurrentTime] = useState(0);
     const startTimeRef = useRef<number>(Date.now());
 
+    // Tick the timer
+    useEffect(() => {
+        if (gameStatus === "playing") {
+            const timer = setInterval(() => {
+                setCurrentTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
+            }, 1000);
+            return () => clearInterval(timer);
+        }
+    }, [gameStatus]);
+
     const { markAsAnswered } = useQuestionProgress();
-    const currentQuestion = categoryQuestions[currentIndex];
     const { updateStreak } = useStreak();
 
     // Calculate Next Category for the Result Screen
@@ -146,8 +156,9 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
             setTimeout(() => setCurrentIndex(i => i + 1), 1000);
         } else {
             const endTime = Date.now();
-            setTimeElapsed(Math.floor((endTime - startTimeRef.current) / 1000));
-            setTimeout(() => setGameStatus("finished"), 1000);
+            const finalTime = Math.floor((endTime - startTimeRef.current) / 1000);
+            setTimeElapsed(finalTime);
+            setGameStatus("finished");
         }
     };
 
@@ -163,10 +174,11 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
                     />
                 ) : (
                     <QuizCard
-                        question={currentQuestion || GENERIC_QUESTIONS[0]}
-                        onNext={handleNext}
+                        question={categoryQuestions[currentIndex]}
                         questionNumber={currentIndex + 1}
                         totalQuestions={categoryQuestions.length}
+                        currentTime={currentTime}
+                        onNext={(isCorrect) => handleNext(isCorrect)}
                     />
                 )}
             </div>

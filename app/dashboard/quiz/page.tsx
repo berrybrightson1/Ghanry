@@ -51,12 +51,19 @@ export default function QuizPage() {
     const [score, setScore] = useState(0);
     const [isCompleted, setIsCompleted] = useState(false);
     const [timeElapsed, setTimeElapsed] = useState(0);
+    const [currentTime, setCurrentTime] = useState(0);
     const startTimeRef = useRef<number>(Date.now());
 
-    // Reset timer on mount
+    // Reset timer on mount and start tick
     useEffect(() => {
         startTimeRef.current = Date.now();
-    }, []);
+        const timer = setInterval(() => {
+            if (!isCompleted) {
+                setCurrentTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
+            }
+        }, 1000);
+        return () => clearInterval(timer);
+    }, [isCompleted]);
 
     // Temporarily disabled daily redirect to allow for testing and replaying
     // useEffect(() => {
@@ -101,6 +108,7 @@ export default function QuizPage() {
                         question={QUESTIONS[currentQuestionIndex]}
                         questionNumber={currentQuestionIndex + 1}
                         totalQuestions={QUESTIONS.length}
+                        currentTime={currentTime}
                         onNext={(isCorrect) => handleNext(isCorrect)}
                     />
                 )}
