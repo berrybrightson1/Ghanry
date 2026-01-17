@@ -27,33 +27,43 @@ export default function Breadcrumbs({ onMenuClick }: BreadcrumbsProps) {
                     <Menu className="w-5 h-5" />
                 </button>
 
-                <div className="inline-flex items-center gap-2 px-4 h-12 bg-white/80 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm text-sm font-jakarta flex-1 overflow-hidden min-w-0">
+                <div className="inline-flex items-center gap-1.5 px-4 h-12 bg-white/80 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm text-sm font-jakarta flex-1 overflow-hidden min-w-0">
                     <Link href="/dashboard" className="text-gray-400 font-bold hover:text-[#006B3F] transition-colors flex-shrink-0">
                         Ghanry
                     </Link>
 
-                    {paths.map((path, index) => {
-                        const isLast = index === paths.length - 1;
-                        const href = `/${paths.slice(0, index + 1).join("/")}`;
-
-                        // Simplify display: if it's an article ID (very long), just show "Article"
-                        const displayName = path.length > 20 ? "Article" : path;
+                    {(() => {
+                        // If path is too long, show only last 2 segments
+                        const displayPaths = paths.length > 2 ? paths.slice(-2) : paths;
+                        const isTruncated = paths.length > 2;
 
                         return (
-                            <div key={path} className="flex items-center gap-2 min-w-0">
-                                <ChevronRight className="w-3 h-3 text-gray-300 flex-shrink-0" />
-                                {isLast ? (
-                                    <span className="text-[#006B3F] font-extrabold capitalize truncate">
-                                        {displayName}
-                                    </span>
-                                ) : (
-                                    <Link href={href} className="text-gray-500 font-bold hover:text-gray-800 capitalize transition-colors truncate">
-                                        {displayName}
-                                    </Link>
-                                )}
-                            </div>
+                            <>
+                                {isTruncated && <span className="text-gray-300">...</span>}
+                                {displayPaths.map((path, index) => {
+                                    const actualIndex = isTruncated ? paths.length - 2 + index : index;
+                                    const isLast = actualIndex === paths.length - 1;
+                                    const href = `/${paths.slice(0, actualIndex + 1).join("/")}`;
+                                    const displayName = path.length > 15 ? "..." : path;
+
+                                    return (
+                                        <div key={path} className="flex items-center gap-1.5 min-w-0 flex-shrink">
+                                            <ChevronRight className="w-3 h-3 text-gray-300 flex-shrink-0" />
+                                            {isLast ? (
+                                                <span className="text-[#006B3F] font-extrabold capitalize truncate">
+                                                    {path.length > 15 ? "Article" : path}
+                                                </span>
+                                            ) : (
+                                                <Link href={href} className="text-gray-500 font-bold hover:text-gray-800 capitalize transition-colors truncate">
+                                                    {displayName}
+                                                </Link>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </>
                         );
-                    })}
+                    })()}
                 </div>
             </div>
 
