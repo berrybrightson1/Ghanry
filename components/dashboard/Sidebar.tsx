@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles, Home, Trophy, Calendar, Settings, Flame } from "lucide-react";
+import { Sparkles, Home, Trophy, Calendar, Settings, Flame, Gamepad2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -27,7 +27,7 @@ export default function Sidebar({ nickname }: SidebarProps) {
 
     const navItems = [
         { path: "/dashboard", icon: Home, label: "Home" },
-        { path: "/dashboard/categories", icon: Trophy, label: "Topics" },
+        { path: "/dashboard/categories", icon: Gamepad2, label: "Play Quiz" },
         { path: "/dashboard/streak", icon: Flame, label: "Journey" },
         { path: "/dashboard/gist", icon: Sparkles, label: "Ghana Now" },
         { path: "/dashboard/holidays", icon: Calendar, label: "Holidays" },

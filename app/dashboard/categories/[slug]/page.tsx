@@ -10,6 +10,11 @@ import ResultScreen from "@/components/ResultScreen";
 import { musicQuestions } from "@/lib/data/music";
 import { foodQuestions } from "@/lib/data/food";
 import { historyQuestions } from "@/lib/data/history";
+import { cultureQuestions } from "@/lib/data/culture";
+import { geographyQuestions } from "@/lib/data/geography";
+import { artsQuestions } from "@/lib/data/arts";
+import { sportsQuestions } from "@/lib/data/sports";
+import { generalQuestions } from "@/lib/data/general";
 
 interface Option {
     id: string;
@@ -63,71 +68,19 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
     const nextPath = `/dashboard/categories/${nextCategorySlug}`;
 
     useEffect(() => {
-        // Simulate data fetch based on slug
+        // Load questions based on slug
         let allQuestions: Question[] = [];
 
-        if (slug === "music") allQuestions = musicQuestions;
-        else if (slug === "food") allQuestions = foodQuestions;
-        else if (slug === "history") allQuestions = historyQuestions;
-        else {
-            // Default placeholder
-            allQuestions = [
-                {
-                    id: 999,
-                    category: "General",
-                    text: "What is the capital of Ghana?",
-                    options: [
-                        { id: "a", text: "Kumasi", isCorrect: false },
-                        { id: "b", text: "Accra", isCorrect: true },
-                        { id: "c", text: "Tamale", isCorrect: false },
-                        { id: "d", text: "Cape Coast", isCorrect: false },
-                    ]
-                },
-                {
-                    id: 998,
-                    category: "General",
-                    text: "Which of these is NOT a region in Ghana?",
-                    options: [
-                        { id: "a", text: "Ashanti", isCorrect: false },
-                        { id: "b", text: "Savannah", isCorrect: false },
-                        { id: "c", text: "Lagos", isCorrect: true },
-                        { id: "d", text: "Volta", isCorrect: false },
-                    ]
-                },
-                {
-                    id: 997,
-                    category: "General",
-                    text: "What is the currency of Ghana?",
-                    options: [
-                        { id: "a", text: "Dollar", isCorrect: false },
-                        { id: "b", text: "Naira", isCorrect: false },
-                        { id: "c", text: "Cedi", isCorrect: true },
-                        { id: "d", text: "Franc", isCorrect: false },
-                    ]
-                },
-                {
-                    id: 996,
-                    category: "General",
-                    text: "In which year did Ghana gain independence?",
-                    options: [
-                        { id: "a", text: "1957", isCorrect: true },
-                        { id: "b", text: "1960", isCorrect: false },
-                        { id: "c", text: "1948", isCorrect: false },
-                        { id: "d", text: "1945", isCorrect: false },
-                    ]
-                },
-                {
-                    id: 995,
-                    category: "General",
-                    text: "Who was Ghana's first president?",
-                    options: [
-                        { id: "a", text: "Kwame Nkrumah", isCorrect: true },
-                        { id: "b", text: "J.B. Danquah", isCorrect: false },
-                        { id: "c", text: "Jerry Rawlings", isCorrect: false },
-                        { id: "d", text: "John Kufuor", isCorrect: false },
-                    ]
-                }
-            ];
+        switch (slug) {
+            case "history": allQuestions = historyQuestions; break;
+            case "food": allQuestions = foodQuestions; break;
+            case "music": allQuestions = musicQuestions; break;
+            case "culture": allQuestions = cultureQuestions; break;
+            case "geography": allQuestions = geographyQuestions; break;
+            case "arts": allQuestions = artsQuestions; break;
+            case "sports": allQuestions = sportsQuestions; break;
+            case "general": allQuestions = generalQuestions; break;
+            default: allQuestions = generalQuestions; // Fallback
         }
 
         // By default, show exactly 5 questions for this category

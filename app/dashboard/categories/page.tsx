@@ -43,8 +43,8 @@ export default function CategoriesPage() {
     return (
         <div className="p-6 sm:p-8 space-y-8">
             <div className="space-y-2">
-                <h1 className="text-3xl font-epilogue font-bold text-gray-900">Explore Topics</h1>
-                <p className="text-gray-500 font-jakarta">Choose a category to start learning.</p>
+                <h1 className="text-3xl font-epilogue font-bold text-gray-900">Master Your Roots</h1>
+                <p className="text-gray-500 font-jakarta text-sm lowercase">choose a path to prove your knowledge about the motherland.</p>
             </div>
 
             <motion.div

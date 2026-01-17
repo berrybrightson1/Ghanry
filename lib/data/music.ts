@@ -46,13 +46,68 @@ export const musicQuestions = [
     },
     {
         id: 5,
-        text: "complete the lyric: 'You know say money no be problem...'",
+        text: "Which artist is widely credited as the 'Grandpapa' of Hiplife music?",
         category: "Music",
         options: [
-            { id: "a", text: "For the boy", isCorrect: false },
-            { id: "b", text: "Sarkodie!", isCorrect: true },
-            { id: "c", text: "Money dey!", isCorrect: false },
-            { id: "d", text: "No wahala", isCorrect: false },
+            { id: "a", text: "Lord Kenya", isCorrect: false },
+            { id: "b", text: "Reggie Rockstone", isCorrect: true },
+            { id: "c", text: "Obrafour", isCorrect: false },
+            { id: "d", text: "Tic Tac", isCorrect: false },
+        ]
+    },
+    {
+        id: 6,
+        text: "Who is the lead singer of the legendary band 'Osibisa'?",
+        category: "Music",
+        options: [
+            { id: "a", text: "Teddy Osei", isCorrect: true },
+            { id: "b", text: "Mac Tontoh", isCorrect: false },
+            { id: "c", text: "Sol Amarfio", isCorrect: false },
+            { id: "d", text: "Kojo Antwi", isCorrect: false },
+        ]
+    },
+    {
+        id: 7,
+        text: "Which Ghanaian artist collaborated with Beyoncé on the song 'Already'?",
+        category: "Music",
+        options: [
+            { id: "a", text: "Sarkodie", isCorrect: false },
+            { id: "b", text: "Shatta Wale", isCorrect: true },
+            { id: "c", text: "Stonebwoy", isCorrect: false },
+            { id: "d", text: "King Promise", isCorrect: false },
+        ]
+    },
+    {
+        id: 8,
+        text: "What is the name of the Bhim Nation president, known for Afro-dancehall?",
+        category: "Music",
+        options: [
+            { id: "a", text: "Samini", isCorrect: false },
+            { id: "b", text: "Stonebwoy", isCorrect: true },
+            { id: "c", text: "Shatta Wale", isCorrect: false },
+            { id: "d", text: "Jupitar", isCorrect: false },
+        ]
+    },
+    {
+        id: 9,
+        text: "Which instrument is central to traditional northern Ghanaian music, particularly by Atongo Zimba?",
+        category: "Music",
+        options: [
+            { id: "a", text: "Kora", isCorrect: false },
+            { id: "b", text: "Koliko (Molo)", isCorrect: true },
+            { id: "c", text: "Djembe", isCorrect: false },
+            { id: "d", text: "Balafon", isCorrect: false },
+        ]
+    },
+    {
+        id: 10,
+        text: "Which Highlife legend is known for the hit song 'Iron Boy'?",
+        category: "Music",
+        options: [
+            { id: "a", text: "Amakye Dede", isCorrect: false },
+            { id: "b", text: "Daddy Lumba", isCorrect: true },
+            { id: "c", text: "Kojo Antwi", isCorrect: false },
+            { id: "d", text: "Nana Ampadu", isCorrect: false },
         ]
     }
 ];

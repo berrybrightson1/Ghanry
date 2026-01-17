@@ -23,27 +23,27 @@ interface Milestone {
 const MILESTONES: Milestone[] = [
     {
         id: 1, type: "rank", value: "Tourist", title: "The Beginning",
-        message: "I've officially started my journey to master Ghana knowledge! 🇬🇭",
+        message: "Akwaaba! I've officially started my journey to master everything about my roots. 🇬🇭",
         threshold: 0, icon: Star, color: "bg-blue-400"
     },
     {
         id: 2, type: "streak", value: 3, title: "Heating Up",
-        message: "3 day streak! I'm staying consistent in learning my roots.",
+        message: "Consistency is key. 3 days of pure Ghana wisdom down, forever to go! 🔥",
         threshold: 3, icon: Flame, color: "bg-orange-400"
     },
     {
         id: 3, type: "rank", value: "Citizen", title: "Moving Up",
-        message: "Level 10 reached! I'm officially a Citizen of knowledge.",
+        message: "I'm not just a visitor anymore—I'm a Citizen of knowledge! Level 10 reached. 🛡️",
         threshold: 5000, icon: Shield, color: "bg-green-500"
     },
     {
         id: 4, type: "streak", value: 7, title: "Flame On",
-        message: "A perfect week! 7 days of pure Ghana wisdom. 🔥",
+        message: "A perfect week! I'm officially a master of the daily gist. Ghana knowledge on lock! 🔒",
         threshold: 7, icon: Flame, color: "bg-red-500"
     },
     {
         id: 5, type: "rank", value: "Elder God", title: "Peak Knowledge",
-        message: "I got the Elder God rank for having deeper knowledge about my country Ghana!",
+        message: "Rank: Elder God. My roots run deep and my knowledge of Ghana is now legendary! 👑🏛️",
         threshold: 50000, icon: Crown, color: "bg-ghana-gold"
     },
 ];
@@ -68,7 +68,7 @@ export default function JourneyPage() {
                 </Link>
                 <div className="flex-1">
                     <h1 className="text-2xl font-epilogue font-extrabold text-gray-900">My Journey</h1>
-                    <p className="text-gray-500 font-jakarta text-sm">Track your progress and bragging rights.</p>
+                    <p className="text-gray-500 font-jakarta text-sm lowercase">track your progress and bragging rights.</p>
                 </div>
                 <div className="flex items-center gap-2 bg-orange-50 px-4 py-2 rounded-full border border-orange-100">
                     <Flame className="w-5 h-5 text-orange-500 fill-orange-500" />
@@ -117,7 +117,7 @@ export default function JourneyPage() {
                                         {milestone.title}
                                     </h3>
                                     <p className={`text-xs font-jakarta ${unlocked ? "text-gray-500 font-bold" : "text-gray-300"}`}>
-                                        {unlocked ? milestone.value : `${milestone.threshold} ${milestone.type === 'streak' ? 'Day Streak' : 'XP'} required`}
+                                        {unlocked ? milestone.value : `${milestone.threshold} ${milestone.type === 'streak' ? 'day streak' : 'xp'} required`}
                                     </p>
                                 </div>
                             </div>

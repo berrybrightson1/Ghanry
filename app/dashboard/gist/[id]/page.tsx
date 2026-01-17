@@ -4,6 +4,7 @@ import Image from "next/image";
 import { CalendarDays, ExternalLink, Mic2, Tv, Newspaper, Radio, ArrowLeft } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
+import ArticleReader from "@/components/ArticleReader";
 
 interface ArticlePageProps {
     params: {
@@ -36,14 +37,21 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
     return (
         <div className="max-w-[680px] mx-auto px-4 py-6">
-            {/* Back Button */}
-            <Link
-                href="/dashboard/gist"
-                className="inline-flex items-center gap-2 text-gray-600 hover:text-[#006B3F] font-bold mb-6 transition-colors"
-            >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Gist Hub
-            </Link>
+            {/* Back Button & Read Aloud Header */}
+            <div className="flex items-center justify-between mb-6">
+                <Link
+                    href="/dashboard/gist"
+                    className="inline-flex items-center gap-2 text-gray-600 hover:text-[#006B3F] font-bold transition-colors"
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                    Back to Gist Hub
+                </Link>
+
+                <ArticleReader
+                    title={article.title}
+                    content={stripHTML(article.fullContent)}
+                />
+            </div>
 
             {/* Article Header */}
             <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-6">

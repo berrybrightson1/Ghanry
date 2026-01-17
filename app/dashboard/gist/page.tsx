@@ -19,7 +19,7 @@ export default async function GistPage() {
                         <Sparkles className="w-6 h-6 text-ghana-gold fill-current" />
                         Gist Hub
                     </h1>
-                    <p className="text-gray-500 font-jakarta text-sm">Latest buzz from Ghana & beyond.</p>
+                    <p className="text-gray-500 font-jakarta text-sm lowercase">latest buzz from ghana & beyond.</p>
                 </div>
                 <RefreshButton />
             </div>
