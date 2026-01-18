@@ -67,8 +67,8 @@ export default function TrotroRun() {
 
         // Standard inverse distribution
         const m = 1.00 / (1 - Math.random());
-        // Force minimum 1.10x to prevent instant frustration
-        return Math.max(1.10, Math.floor(m * 100) / 100);
+        // Force minimum 1.10x and CAP at 1000x to prevent infinite loops (User Report: "Never stops")
+        return Math.min(1000, Math.max(1.10, Math.floor(m * 100) / 100));
     };
 
     // GAME LOOP
@@ -103,7 +103,7 @@ export default function TrotroRun() {
     };
 
     const handleCrash = (finalM: number) => {
-        cancelAnimationFrame(requestRef.current!);
+        if (requestRef.current) cancelAnimationFrame(requestRef.current);
         setGameState("CRASHED");
         setMultiplier(finalM); // Show final crash value
 
@@ -165,8 +165,8 @@ export default function TrotroRun() {
                 {/* THE TROTRO */}
                 <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
                     <div className={`font-black font-mono transition-all duration-100 ${gameState === "CRASHED" ? "text-6xl text-red-600 drop-shadow-[0_0_30px_rgba(220,38,38,1)]" :
-                            cashedOutAt ? "text-6xl text-green-400 opacity-50 blur-sm" :
-                                `text-7xl ${getIntensityStyles(multiplier)}`
+                        cashedOutAt ? "text-6xl text-green-400 opacity-50 blur-sm" :
+                            `text-7xl ${getIntensityStyles(multiplier)}`
                         }`}>
                         {multiplier.toFixed(2)}x
                     </div>
