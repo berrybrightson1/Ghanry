@@ -59,13 +59,14 @@ export default function ResultScreen({
                 markAsCompleted();
             }
 
-            // Trigger confetti if score is decent
-            if (score > (totalQuestions / 2)) {
+            // Trigger confetti if score is decent OR it's a Daily Trivia completion
+            if (score > (totalQuestions / 2) || isDaily) {
                 confetti({
-                    particleCount: 150,
-                    spread: 70,
+                    particleCount: 200,
+                    spread: 80,
                     origin: { y: 0.6 },
-                    colors: ['#CE1126', '#FCD116', '#006B3F']
+                    colors: ['#CE1126', '#FCD116', '#006B3F'],
+                    disableForReducedMotion: true
                 });
             }
 
@@ -90,13 +91,26 @@ export default function ResultScreen({
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ delay: 0.5 }}
-                            className="absolute -top-2 -right-4 bg-[#CE1126] text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg"
+                            className="absolute -top-2 -right-4 bg-[#CE1126] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border-2 border-white"
                         >
                             +{finalXP} XP
                         </motion.div>
                     )}
                 </div>
             </motion.div>
+
+            {isDaily && (
+                <motion.div
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    className="mb-4 bg-green-500/20 border border-green-500/30 text-green-100 px-4 py-2 rounded-xl backdrop-blur-md"
+                >
+                    <span className="font-bold flex items-center gap-2">
+                        <Flame className="w-4 h-4 text-orange-400 fill-orange-400" />
+                        Daily Trivia Completed!
+                    </span>
+                </motion.div>
+            )}
 
             <h1 className="text-4xl font-epilogue font-extrabold text-white mb-2">
                 {newProgress.rank} - Level {newProgress.currentLevel}

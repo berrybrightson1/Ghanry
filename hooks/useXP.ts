@@ -19,45 +19,27 @@ export function useXP() {
 
     // Load XP and Buffs on mount
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            // 1. Initial Local Load
-            const storedXP = Number(localStorage.getItem('ghanry_xp') || '0');
-            setXp(storedXP);
+        const loadXP = () => {
+            if (typeof window !== 'undefined') {
+                const storedXP = Number(localStorage.getItem('ghanry_xp') || '0');
+                setXp(storedXP);
 
-            const storedBuffs = localStorage.getItem('ghanry_buffs');
-            if (storedBuffs) {
-                const parsed = JSON.parse(storedBuffs);
-                const now = Date.now();
-                const valid = parsed.filter((b: Buff) => !b.expiresAt || b.expiresAt > now);
-                setActiveBuffs(valid);
+                const storedBuffs = localStorage.getItem('ghanry_buffs');
+                if (storedBuffs) {
+                    const parsed = JSON.parse(storedBuffs);
+                    const now = Date.now();
+                    const valid = parsed.filter((b: Buff) => !b.expiresAt || b.expiresAt > now);
+                    setActiveBuffs(valid);
+                }
             }
+        };
 
-            // 2. Sync from Firestore (Source of Truth)
-            const passportId = localStorage.getItem('ghanry_passport_id');
-            if (passportId) {
-                const fetchRemoteXP = async () => {
-                    try {
-                        const { getDoc, doc } = await import("firebase/firestore"); // Dynamic import
-                        const docRef = doc(db, "users", passportId);
-                        const docSnap = await getDoc(docRef);
-
-                        if (docSnap.exists()) {
-                            const remoteXP = docSnap.data().xp || 0;
-                            // If remote is different, trust remote (or max of both to be safe against overwrites, 
-                            // but usually remote is truth). Let's trust remote to fix sync.
-                            if (remoteXP !== storedXP) {
-                                setXp(remoteXP);
-                                localStorage.setItem('ghanry_xp', remoteXP.toString());
-                            }
-                        }
-                    } catch (err) {
-                        console.error("Failed to sync XP from cloud:", err);
-                    }
-                };
-                fetchRemoteXP();
-            }
-        }
+        loadXP();
+        window.addEventListener('ghanry_xp_update', loadXP);
+        return () => window.removeEventListener('ghanry_xp_update', loadXP);
     }, []);
+
+    // ... (keep remote sync logic separate or integrate if needed, but for UI sync local is fast)
 
     // Helper to sync with Firestore
     const syncXPToFirestore = async (newXP: number) => {
@@ -65,6 +47,7 @@ export function useXP() {
             const passportId = localStorage.getItem('ghanry_passport_id');
             if (passportId) {
                 try {
+                    const { doc, updateDoc } = await import("firebase/firestore"); // Ensure import
                     const docRef = doc(db, "users", passportId);
                     await updateDoc(docRef, { xp: newXP });
                 } catch (error) {
@@ -95,6 +78,7 @@ export function useXP() {
         setXp(newXP);
         localStorage.setItem('ghanry_xp', newXP.toString());
         syncXPToFirestore(newXP);
+        window.dispatchEvent(new Event('ghanry_xp_update'));
         return totalAmount;
     };
 

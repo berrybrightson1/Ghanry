@@ -1,10 +1,26 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, ChevronUp, Copy, AlertTriangle, Eye, EyeOff, Check, X, LogOut, Star } from 'lucide-react';
+import {
+    ChevronDown, ChevronUp, Copy, AlertTriangle, Eye, EyeOff, Check, X, LogOut, Star,
+    Square, Circle, Triangle, Hexagon, Octagon, Zap, Shield, Heart, Ghost
+} from 'lucide-react';
 import { useStreak } from '@/hooks/useStreak';
 import { useXP } from '@/hooks/useXP';
 import { toast } from 'sonner';
+
+const SHAPES = [
+    { name: 'Star', icon: Star },
+    { name: 'Circle', icon: Circle },
+    { name: 'Square', icon: Square },
+    { name: 'Triangle', icon: Triangle },
+    { name: 'Hexagon', icon: Hexagon },
+    { name: 'Zap', icon: Zap },
+    { name: 'Shield', icon: Shield },
+    { name: 'Heart', icon: Heart },
+    { name: 'Ghost', icon: Ghost },
+    { name: 'Octagon', icon: Octagon },
+];
 
 export default function SettingsPage() {
     const router = useRouter();
@@ -253,19 +269,23 @@ export default function SettingsPage() {
                     <div>
                         <label className="block font-jakarta font-medium mb-1.5 text-sm text-gray-700">Profile Avatar</label>
                         <div className="grid grid-cols-5 gap-2">
-                            {["🦁", "🦅", "🐘", "🐢", "🕷️", "👑", "🇬🇭", "🌍", "⭐", "🛡️"].map((av) => (
-                                <button
-                                    key={av}
-                                    type="button"
-                                    onClick={() => handleAvatarChange(av)}
-                                    className={`aspect-square rounded-xl flex items-center justify-center text-2xl transition-all ${avatar === av
-                                        ? "bg-[#006B3F] border-2 border-[#FCD116] scale-110 shadow-md"
-                                        : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
-                                        }`}
-                                >
-                                    {av}
-                                </button>
-                            ))}
+                            {SHAPES.map((shape) => {
+                                const value = `icon:${shape.name}`;
+                                const isSelected = avatar === value;
+                                return (
+                                    <button
+                                        key={shape.name}
+                                        type="button"
+                                        onClick={() => handleAvatarChange(value)}
+                                        className={`aspect-square rounded-xl flex items-center justify-center transition-all ${isSelected
+                                            ? "bg-[#006B3F] text-white border-2 border-[#FCD116] scale-110 shadow-md"
+                                            : "bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100"
+                                            }`}
+                                    >
+                                        <shape.icon size={24} />
+                                    </button>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 
 import MobileSidebar from "@/components/dashboard/MobileSidebar";
 
+import { usePathname } from 'next/navigation';
+
 export default function DashboardLayout({
     children,
 }: {
@@ -13,6 +15,8 @@ export default function DashboardLayout({
 }) {
     const [userData, setUserData] = useState<{ nickname: string; region: string; isGuest: boolean; avatar?: string } | null>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const pathname = usePathname();
+    const isChatPage = pathname === '/dashboard/ask';
 
     useEffect(() => {
         const loadUser = () => {
@@ -52,8 +56,8 @@ export default function DashboardLayout({
                 </div>
 
                 {/* Scrollable Content */}
-                <div className="flex-1 overflow-y-auto relative">
-                    <div className="min-h-full pb-24 sm:pb-8">
+                <div className={`flex-1 relative ${isChatPage ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
+                    <div className={`${isChatPage ? 'h-full flex flex-col' : 'min-h-full pb-24 sm:pb-8'}`}>
                         {children}
                     </div>
                 </div>

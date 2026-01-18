@@ -1,11 +1,15 @@
 "use client";
 
-import { Home, Trophy, Calendar, Settings, Flame, Gamepad2, MessageSquare, Scroll, Sparkles } from "lucide-react";
+import { Home, Trophy, Calendar, Settings, Flame, Gamepad2, MessageSquare, Scroll, Sparkles, Square, Circle, Triangle, Hexagon, Octagon, Star, Zap, Shield, Heart, Ghost } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useXP } from "@/hooks/useXP";
 import { calculateProgress, getRankColor } from "@/lib/gamification";
+
+const SHAPE_ICONS: Record<string, React.ElementType> = {
+    Square, Circle, Triangle, Hexagon, Octagon, Star, Zap, Shield, Heart, Ghost
+};
 
 interface SidebarProps {
     nickname: string;
@@ -43,7 +47,14 @@ export default function Sidebar({ nickname, isGuest = false, avatar }: SidebarPr
             <div className="p-6 border-b border-gray-50">
                 <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-full bg-gray-100 border-2 border-ghana-gold overflow-hidden flex items-center justify-center text-gray-500 font-bold text-xl">
-                        {avatar || nickname.slice(0, 2).toUpperCase()}
+                        {avatar?.startsWith('icon:') ? (
+                            (() => {
+                                const Icon = SHAPE_ICONS[avatar.split(':')[1]];
+                                return Icon ? <Icon size={24} className="text-[#006B3F]" /> : <span className="text-xl">?</span>;
+                            })()
+                        ) : (
+                            avatar || nickname.slice(0, 2).toUpperCase()
+                        )}
                     </div>
                     <div>
                         <h2 className="font-epilogue font-bold text-gray-900 leading-tight">{nickname}</h2>
