@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-// import { motion, AnimatePresence } from "framer-motion"; // Removed for simplicity/stability
 import { Send, Sparkles, Bot, Trash2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import ReactMarkdown from 'react-markdown';
+import { syncChatHistory } from "@/lib/userSync";
 
 interface Message {
     role: "user" | "bot";
@@ -36,12 +36,14 @@ export default function AskGhanryPage() {
         }
     }, []);
 
-    // Save history to localStorage (USER-SPECIFIC)
+    // Save history to localStorage AND Firestore (USER-SPECIFIC)
     useEffect(() => {
         if (messages.length > 0) {
             const passportId = localStorage.getItem("ghanry_passport_id") || "guest";
             const chatKey = `ghanry_chat_${passportId}`;
             localStorage.setItem(chatKey, JSON.stringify(messages));
+            // Sync to Firestore for registered users (auto-skips guests)
+            syncChatHistory(messages);
         }
     }, [messages]);
 

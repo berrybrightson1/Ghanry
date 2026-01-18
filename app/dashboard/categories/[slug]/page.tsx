@@ -106,7 +106,7 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
                 if (data.questions && Array.isArray(data.questions) && data.questions.length >= 5) {
                     // Success! Use AI questions
                     setCategoryQuestions(data.questions.slice(0, 5));
-                    console.log("Using AI Generated Questions ✨");
+
                 } else {
                     throw new Error("Invalid AI Response Format");
                 }

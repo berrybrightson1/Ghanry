@@ -162,7 +162,6 @@ export const LeaderboardService = {
                 });
             });
             await Promise.all(promises);
-            console.log("Seeding complete!");
         } catch (e) {
             console.error("Seeding failed", e);
         }

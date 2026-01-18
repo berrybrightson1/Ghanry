@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { db } from '@/lib/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { syncXP } from '@/lib/userSync';
 
 /**
  * useXP hook tracks the global XP of the user.
- * It stores the total XP in localStorage.
+ * Syncs to Firestore for registered users, localStorage only for guests.
  */
 export interface Buff {
     type: 'shield' | 'multiplier';
@@ -39,22 +38,9 @@ export function useXP() {
         return () => window.removeEventListener('ghanry_xp_update', loadXP);
     }, []);
 
-    // ... (keep remote sync logic separate or integrate if needed, but for UI sync local is fast)
-
-    // Helper to sync with Firestore
+    // Sync XP to Firestore (auto-skips for guests)
     const syncXPToFirestore = async (newXP: number) => {
-        if (typeof window !== 'undefined') {
-            const passportId = localStorage.getItem('ghanry_passport_id');
-            if (passportId) {
-                try {
-                    const { doc, updateDoc } = await import("firebase/firestore"); // Ensure import
-                    const docRef = doc(db, "users", passportId);
-                    await updateDoc(docRef, { xp: newXP });
-                } catch (error) {
-                    console.error("Firestore sync error:", error);
-                }
-            }
-        }
+        await syncXP(newXP);
     };
 
     const level = Math.floor(xp / XP_PER_LEVEL) + 1;

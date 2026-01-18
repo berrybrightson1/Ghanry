@@ -85,7 +85,7 @@ export const verifyUser = async (passportId: string, pin: string) => {
 
 export const getUser = async (passportId: string) => {
     try {
-        console.log("Looking up user:", passportId); // Debug log
+
         const docRef = doc(db, "users", passportId);
         const docSnap = await getDoc(docRef);
 
