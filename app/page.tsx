@@ -146,7 +146,7 @@ export default function Home() {
       setViewMode("success");
       toast.success("Passport Issued Successfully!");
     } else {
-      toast.error("Registration failed. Try again.");
+      toast.error(`Registration failed: ${result.error?.toString() || "Unknown error"}`);
     }
   };
 

@@ -83,7 +83,7 @@ export default function DashboardLayout({
             <div className="flex-1 h-full relative flex flex-col overflow-hidden">
                 {/* Fixed Header */}
                 <div className="flex-shrink-0 sticky top-0 z-30 w-full bg-gray-50/90 backdrop-blur-md border-b border-gray-100/50">
-                    <Breadcrumbs onMenuClick={() => setIsMobileMenuOpen(true)} />
+                    <Breadcrumbs />
                 </div>
 
                 {/* Scrollable Content */}
