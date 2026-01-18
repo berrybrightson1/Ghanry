@@ -25,7 +25,7 @@ export default function Home() {
   const [newPassportId, setNewPassportId] = useState("");
 
   // Login
-  const [loginId, setLoginId] = useState("GH-1193-F");
+  const [loginId, setLoginId] = useState("");
   const [loginPin, setLoginPin] = useState("");
   const [loginAttempts, setLoginAttempts] = useState(0);
 

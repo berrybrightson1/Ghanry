@@ -15,8 +15,8 @@ export default function Breadcrumbs({ onMenuClick }: BreadcrumbsProps) {
     const { xp } = useXP();
 
     return (
-        <div className="w-full px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-2">
+        <div className="w-full px-6 py-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
                 {/* Mobile Menu Trigger */}
                 <button
                     onClick={onMenuClick}
@@ -27,7 +27,7 @@ export default function Breadcrumbs({ onMenuClick }: BreadcrumbsProps) {
                     <Menu className="w-5 h-5" />
                 </button>
 
-                <div className="inline-flex items-center gap-1.5 px-4 h-12 bg-white/80 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm text-sm font-jakarta flex-1 overflow-hidden min-w-0">
+                <div className="inline-flex items-center gap-1.5 px-4 h-12 bg-white/80 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm text-sm font-jakarta overflow-hidden min-w-0 max-w-full">
                     <Link href="/dashboard" className="text-gray-400 font-bold hover:text-[#006B3F] transition-colors flex-shrink-0">
                         Ghanry
                     </Link>
