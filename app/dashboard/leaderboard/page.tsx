@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Trophy, MapPin, Globe, Loader2 } from "lucide-react";
+import { Trophy, MapPin, Globe, Loader2, BadgeCheck } from "lucide-react";
+
 import { LeaderboardService, type LeaderboardEntry } from "@/lib/leaderboard";
 import { useXP } from "@/hooks/useXP";
 
@@ -139,8 +140,9 @@ export default function Leaderboard() {
                                         {user.rank <= 3 ? <Trophy className="w-5 h-5" /> : user.rank}
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className={`font-epilogue font-bold ${user.isCurrentUser ? "text-[#006B3F]" : "text-gray-800"}`}>
+                                        <h3 className={`font-epilogue font-bold flex items-center gap-1 ${user.isCurrentUser ? "text-[#006B3F]" : "text-gray-800"}`}>
                                             {user.nickname} {user.isCurrentUser && "(You)"}
+                                            {user.verified && <BadgeCheck className="w-4 h-4 text-blue-500 fill-blue-500/10" />}
                                         </h3>
                                         <div className="flex items-center gap-1 text-xs text-gray-400 font-bold">
                                             <MapPin className="w-3 h-3" /> {user.region}
@@ -176,8 +178,9 @@ export default function Leaderboard() {
                                         {user.rank <= 3 ? <Trophy className="w-5 h-5" /> : user.rank}
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className={`font-epilogue font-bold ${user.isCurrentUser ? "text-[#006B3F]" : "text-gray-800"}`}>
+                                        <h3 className={`font-epilogue font-bold flex items-center gap-1 ${user.isCurrentUser ? "text-[#006B3F]" : "text-gray-800"}`}>
                                             {user.nickname} {user.isCurrentUser && "(You)"}
+                                            {user.verified && <BadgeCheck className="w-4 h-4 text-blue-500 fill-blue-500/10" />}
                                         </h3>
                                         <div className="flex items-center gap-1 text-xs text-gray-400 font-bold">
                                             <MapPin className="w-3 h-3" /> {user.region}

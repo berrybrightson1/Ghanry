@@ -16,7 +16,6 @@ export default function AskGhanryPage() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
-    const scrollRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Load history from localStorage
@@ -43,10 +42,12 @@ export default function AskGhanryPage() {
     }, [messages]);
 
     // Auto-scroll to bottom
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-        }
+        scrollToBottom();
     }, [messages]);
 
     const sendMessage = async () => {

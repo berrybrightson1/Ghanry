@@ -521,10 +521,10 @@ export default function SettingsPage() {
                             {/* Option 1: Purchase */}
                             <button
                                 onClick={() => {
-                                    if (xp >= 5000) {
-                                        if (window.confirm("Spend 5,000 XP to get verified?")) {
+                                    if (xp >= 50000) {
+                                        if (window.confirm("Spend 50,000 XP to get verified?")) {
                                             const currentxp = parseInt(localStorage.getItem('ghanry_xp') || '0');
-                                            localStorage.setItem('ghanry_xp', (currentxp - 5000).toString());
+                                            localStorage.setItem('ghanry_xp', (currentxp - 50000).toString());
 
                                             setVerified(true);
                                             localStorage.setItem('ghanry_verified', 'true');
@@ -535,7 +535,7 @@ export default function SettingsPage() {
                                             window.dispatchEvent(new Event('ghanry_profile_update'));
                                         }
                                     } else {
-                                        toast.error(`Insufficient XP. You need 5,000 XP. (Current: ${xp})`);
+                                        toast.error(`Insufficient XP. You need 50,000 XP. (Current: ${xp})`);
                                     }
                                 }}
                                 className="w-full p-4 rounded-xl border-2 border-blue-100 hover:border-blue-500 bg-blue-50 transition-all flex items-center justify-between group"
@@ -545,7 +545,7 @@ export default function SettingsPage() {
                                     <span className="text-xs text-blue-600 font-medium">Purchase with XP</span>
                                 </div>
                                 <div className="text-right">
-                                    <div className="font-black text-lg text-blue-600">5,000 XP</div>
+                                    <div className="font-black text-lg text-blue-600">50,000 XP</div>
                                 </div>
                             </button>
 

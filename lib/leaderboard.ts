@@ -9,6 +9,7 @@ export interface LeaderboardEntry {
     xp: number;
     rankName?: string;
     isCurrentUser?: boolean;
+    verified?: boolean;
 }
 
 export const LeaderboardService = {
@@ -35,7 +36,8 @@ export const LeaderboardService = {
                     region: data.region || "Unknown",
                     xp: data.xp || 0,
                     rankName: rankName,
-                    isCurrentUser: data.nickname === localNickname && data.region === localRegion && data.xp === localXP
+                    isCurrentUser: data.nickname === localNickname && data.region === localRegion && data.xp === localXP,
+                    verified: data.verified || false
                 };
 
                 if (entry.isCurrentUser) currentFound = true;
@@ -64,7 +66,8 @@ export const LeaderboardService = {
                     region: localRegion,
                     xp: localXP,
                     rankName: localRankName,
-                    isCurrentUser: true
+                    isCurrentUser: true,
+                    verified: false // Fallback
                 });
             }
 
@@ -105,7 +108,8 @@ export const LeaderboardService = {
                     region: data.region || region,
                     xp: data.xp || 0,
                     rankName: rank,
-                    isCurrentUser: false
+                    isCurrentUser: false,
+                    verified: data.verified || false
                 });
             });
 
