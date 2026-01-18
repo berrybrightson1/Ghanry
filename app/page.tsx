@@ -476,8 +476,8 @@ export default function Home() {
                 {viewMode === 'signup' ? "Home Region" : (locationStatus === 'tourist' ? "Select your base" : "Home Region")}
               </label>
               <CustomSelect
-                options={viewMode === 'signup' ? regions : (locationStatus === 'tourist' ? diasporaLocations : regions)}
-                placeholder="Select Region"
+                options={locationStatus === 'tourist' ? diasporaLocations : regions}
+                placeholder={locationStatus === 'tourist' ? "Select your base" : "Select Region"}
                 value={selectedRegion}
                 onChange={setSelectedRegion}
               />

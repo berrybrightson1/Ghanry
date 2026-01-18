@@ -49,20 +49,24 @@ export default function Dashboard() {
     };
 
     useEffect(() => {
-        // Check for user data
-        const storedNickname = localStorage.getItem("ghanry_nickname");
-        const storedRegion = localStorage.getItem("ghanry_region");
+        const pid = localStorage.getItem("ghanry_passport_id");
+        const status = localStorage.getItem("ghanry_status");
 
-        if (!storedNickname || !storedRegion) {
-            // Redirect to onboarding if missing
+        if (!pid && !status) {
             router.push("/");
-        } else {
-            setUserData({ nickname: storedNickname, region: storedRegion });
+            return;
         }
 
-        // Initial content
+        const nick = localStorage.getItem("ghanry_nickname") || "Citizen";
+        const reg = localStorage.getItem("ghanry_region") || "Ghana";
+
+        setUserData({ nickname: nick, region: reg });
+
+        // Load daily content
         getRandomContent();
     }, [router]);
+
+    const isGuest = typeof window !== 'undefined' && !localStorage.getItem("ghanry_passport_id");
 
     if (!userData) return null; // Or a loading spinner
 

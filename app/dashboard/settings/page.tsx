@@ -12,6 +12,7 @@ export default function SettingsPage() {
     const router = useRouter();
     const [nickname, setNickname] = useState('');
     const [passportId, setPassportId] = useState('');
+    const [avatar, setAvatar] = useState('🇬🇭'); // Default
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [sound, setSound] = useState(false); // Default to OFF
@@ -22,15 +23,18 @@ export default function SettingsPage() {
     // Track original values for dirty state detection
     const [originalNickname, setOriginalNickname] = useState('');
     const [originalPassportId, setOriginalPassportId] = useState('');
+    const [originalAvatar, setOriginalAvatar] = useState('🇬🇭');
     const [originalSound, setOriginalSound] = useState(false);
 
     useEffect(() => {
         const storedNick = localStorage.getItem('ghanry_nickname') || '';
         const storedId = localStorage.getItem('ghanry_passport_id') || '';
         const storedSound = localStorage.getItem('ghanry_sound');
+        const storedAvatar = localStorage.getItem('ghanry_avatar') || '🇬🇭';
 
         setNickname(storedNick);
         setPassportId(storedId);
+        setAvatar(storedAvatar);
         // Sound defaults to false (OFF)
         const soundValue = storedSound === 'true';
         setSound(soundValue);
@@ -38,6 +42,7 @@ export default function SettingsPage() {
         // Store original values
         setOriginalNickname(storedNick);
         setOriginalPassportId(storedId);
+        setOriginalAvatar(storedAvatar);
         setOriginalSound(soundValue);
     }, []);
 
@@ -45,10 +50,11 @@ export default function SettingsPage() {
     const hasChanges =
         nickname !== originalNickname ||
         passportId !== originalPassportId ||
+        avatar !== originalAvatar ||
         sound !== originalSound ||
         password.trim() !== '';
 
-    const handleSaveChanges = () => {
+    const handleSaveChanges = async () => {
         // Validation
         if (!nickname.trim()) {
             toast.error('Nickname cannot be empty', { duration: 2000 });
@@ -63,7 +69,24 @@ export default function SettingsPage() {
         // Save changes
         localStorage.setItem('ghanry_nickname', nickname);
         localStorage.setItem('ghanry_passport_id', passportId);
+        localStorage.setItem('ghanry_avatar', avatar);
         localStorage.setItem('ghanry_sound', sound.toString());
+
+        // Sync with Firestore if connected
+        if (passportId) {
+            try {
+                const { doc, updateDoc, getFirestore } = await import('firebase/firestore');
+                // We assume firebase app is initialized in lib/firebase, but importing db directly is better if available
+                // Fallback to simple local storage logic if imports fail, but let's try strict
+                const db = getFirestore();
+                await updateDoc(doc(db, "users", passportId), {
+                    nickname,
+                    avatar
+                });
+            } catch (e) {
+                console.warn("Could not sync profile to cloud", e);
+            }
+        }
 
         if (password.trim()) {
             // Save password (in real app this would be hashed and sent to server)
@@ -76,6 +99,7 @@ export default function SettingsPage() {
         // Update original values
         setOriginalNickname(nickname);
         setOriginalPassportId(passportId);
+        setOriginalAvatar(avatar);
         setOriginalSound(sound);
         setPassword('');
 
@@ -86,6 +110,7 @@ export default function SettingsPage() {
         // Revert to original values
         setNickname(originalNickname);
         setPassportId(originalPassportId);
+        setAvatar(originalAvatar);
         setSound(originalSound);
         setPassword('');
         router.back();
@@ -152,6 +177,26 @@ export default function SettingsPage() {
                             </button>
                         </div>
                     </div>
+
+                    {/* Avatar Selection */}
+                    <div>
+                        <label className="block font-jakarta font-medium mb-1.5 text-sm text-gray-700">Profile Avatar</label>
+                        <div className="grid grid-cols-5 gap-2">
+                            {["🦁", "🦅", "🐘", "🐢", "🕷️", "👑", "🇬🇭", "🌍", "⭐", "🛡️"].map((av) => (
+                                <button
+                                    key={av}
+                                    type="button"
+                                    onClick={() => setAvatar(av)}
+                                    className={`aspect-square rounded-xl flex items-center justify-center text-2xl transition-all ${avatar === av
+                                        ? "bg-[#006B3F] border-2 border-[#FCD116] scale-110 shadow-md"
+                                        : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
+                                        }`}
+                                >
+                                    {av}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Preferences */}
@@ -162,7 +207,7 @@ export default function SettingsPage() {
                         <button
                             id="sound-toggle"
                             onClick={() => setSound(!sound)}
-                            aria-pressed={sound}
+                            aria-pressed={sound ? "true" : "false"}
                             className={`px-3 py-1.5 rounded-full transition-all flex items-center gap-1 ${sound ? 'bg-[#006B3F] text-white' : 'bg-gray-100 text-gray-500'}`}
                         >
                             <span className="text-xs font-bold mr-1">{sound ? "ON" : "OFF"}</span>
@@ -232,6 +277,6 @@ export default function SettingsPage() {
                     Log Out
                 </button>
             </div>
-        </div>
+        </div >
     );
 }

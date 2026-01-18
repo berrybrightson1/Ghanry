@@ -20,69 +20,74 @@ export default function Leaderboard() {
             const passportId = localStorage.getItem("ghanry_passport_id");
 
             // Only include user if they have a valid passport ID
-            if (!passportId) {
-                setRankings([]);
-                setIsLoading(false);
-                return;
-            }
+            // Modified: Guests can view, but not participate
+            const isGuest = !passportId;
 
             let data: LeaderboardEntry[] = [];
             if (activeTab === "global") {
                 data = await LeaderboardService.getRankings(nickname, region, realXP);
             } else {
                 data = await LeaderboardService.getRegionRankings(region);
-                // Mark current user in regional data
-                data = data.map(u => ({
-                    ...u,
-                    isCurrentUser: u.nickname === nickname
-                }));
+                if (!isGuest) {
+                    data = data.map(u => ({
+                        ...u,
+                        isCurrentUser: u.nickname === nickname
+                    }));
+                }
             }
 
-            // Filter to only show users with valid IDs (in production, this would be handled server-side)
-            const validRankings = data.filter(user => user.isCurrentUser || user.nickname !== "Guest");
+            // Filter to only show citizens
+            const validRankings = data.filter(user => user.nickname !== "Guest");
 
             setRankings(validRankings);
-            setUserRank(validRankings.find(p => p.isCurrentUser));
+            if (!isGuest) {
+                setUserRank(validRankings.find(p => p.isCurrentUser));
+            }
             setIsLoading(false);
         };
 
         fetchRankings();
     }, [realXP, activeTab]);
 
+    const isGuest = typeof window !== 'undefined' && !localStorage.getItem("ghanry_passport_id");
+
     return (
         <div className="w-full min-h-screen bg-gray-50 pb-24 flex flex-col items-center">
 
             {/* Header */}
             <div className="w-full bg-[#006B3F] pt-8 pb-16 px-6 rounded-b-[2.5rem] shadow-xl text-center relative overflow-hidden group">
-                {/* Animated Background Shapes */}
+                {/* Visuals... */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     <div className="absolute top-[-50%] left-[-20%] w-[150%] h-[150%] opacity-10 animate-[spin_20s_linear_infinite]">
                         <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                             <path fill="#FCD116" d="M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.1,-19.2,95.8,-4.9C93.5,9.4,82.2,23.1,70.8,34.5C59.4,45.9,47.9,55,35.6,63.2C23.3,71.4,10.2,78.7,-1.8,81.8C-13.8,84.9,-25.6,83.8,-36.4,77.5C-47.2,71.2,-57,59.7,-65.4,47.3C-73.8,34.9,-80.8,21.6,-81.9,8C-83,-5.6,-78.2,-19.5,-68.8,-29.9C-59.4,-40.3,-45.4,-47.2,-32.1,-55.1C-18.8,-63,-6.2,-71.9,7.5,-84.9L44.7,-76.4Z" transform="translate(100 100)" />
                         </svg>
                     </div>
-                    <div className="absolute bottom-[-10%] right-[-10%] w-64 h-64 bg-white/5 rounded-full blur-3xl animate-pulse" />
                 </div>
-
-                <div className="absolute inset-0 bg-gradient-to-t from-[#006B3F] via-transparent to-transparent z-0" />
 
                 <h1 className="text-3xl font-epilogue font-extrabold text-white mb-2 relative z-10 filter drop-shadow-sm">Leaderboard</h1>
 
-                {/* User's Current Rank Card */}
-                {!isLoading && userRank && (
-                    <div className="mt-6 mx-auto max-w-xs bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl relative z-10 shadow-lg flex items-center gap-4 overflow-hidden group hover:bg-white/15 transition-all cursor-default">
-                        {/* Shine Effect */}
-                        <div className="absolute top-0 -left-[100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 animate-[shimmer_2s_infinite]" />
+                {/* Guest Banner or User Rank */}
+                {!isLoading && (
+                    isGuest ? (
+                        <div className="mt-6 mx-auto max-w-xs bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl relative z-10 shadow-lg text-white">
+                            <p className="font-bold text-sm">You are viewing as a Guest</p>
+                            <p className="text-xs opacity-80 mt-1">Sign up to see your name here!</p>
+                        </div>
+                    ) : userRank && (
+                        <div className="mt-6 mx-auto max-w-xs bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl relative z-10 shadow-lg flex items-center gap-4 overflow-hidden group hover:bg-white/15 transition-all cursor-default">
+                            {/* Shine Effect */}
+                            <div className="absolute top-0 -left-[100%] w-1/2 h-full bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 animate-[shimmer_2s_infinite]" />
 
-                        <div className="w-14 h-14 bg-ghana-gold rounded-xl flex items-center justify-center text-[#006B3F] font-extrabold text-2xl shadow-inner border border-yellow-300 transform group-hover:scale-110 transition-transform">
-                            #{userRank.rank}
+                            <div className="w-14 h-14 bg-ghana-gold rounded-xl flex items-center justify-center text-[#006B3F] font-extrabold text-2xl shadow-inner border border-yellow-300 transform group-hover:scale-110 transition-transform">
+                                #{userRank.rank}
+                            </div>
+                            <div className="flex-1 text-left">
+                                <p className="text-[10px] text-yellow-300 font-bold uppercase tracking-widest mb-1 opacity-90">Your Global Rank</p>
+                                <p className="text-white font-epilogue font-bold text-lg leading-none">Keep pushing!</p>
+                            </div>
                         </div>
-                        <div className="flex-1 text-left">
-                            <p className="text-[10px] text-yellow-300 font-bold uppercase tracking-widest mb-1 opacity-90">Your Global Rank</p>
-                            <p className="text-white font-epilogue font-bold text-lg leading-none">Keep pushing!</p>
-                        </div>
-                    </div>
-                )}
+                    ))}
             </div>
 
             {/* Content Container */}

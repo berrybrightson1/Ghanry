@@ -24,20 +24,129 @@ export default function WisdomPotPage() {
     const [unlockedIds, setUnlockedIds] = useState<number[]>([]);
     const [isRitualActive, setIsRitualActive] = useState(false);
     const [selectedProverb, setSelectedProverb] = useState<Proverb | null>(null);
-    const [activeTab, setActiveTab] = useState<"pot" | "scrolls">("pot");
+    const [activeTab, setActiveTab] = useState<"pot" | "scrolls" | "challenge">("pot");
+
+    // Challenge Mode State
+    const [challengeMode, setChallengeMode] = useState<"idle" | "playing" | "cooldown">("idle");
+    const [challengeQuestions, setChallengeQuestions] = useState<any[]>([]);
+    const [currentQIndex, setCurrentQIndex] = useState(0);
+    const [challengeWins, setChallengeWins] = useState(0);
+    const [cooldownTime, setCooldownTime] = useState(0);
+    const [timeRemaining, setTimeRemaining] = useState("");
 
     const COST_PER_KNOT = 200;
 
-    // Load unlocked proverbs
+    // Load unlocked proverbs & Check Cooldown
     useEffect(() => {
         const saved = localStorage.getItem("ghanry_unlocked_wisdom");
         if (saved) setUnlockedIds(JSON.parse(saved));
+
+        // Check Challenge Cooldown
+        const lastChallenge = localStorage.getItem("wisdom_last_challenge");
+        if (lastChallenge) {
+            const lastTime = parseInt(lastChallenge);
+            const now = Date.now();
+            if (now - lastTime < 3600000) { // 1 Hour Cooldown
+                setChallengeMode("cooldown");
+                setCooldownTime(lastTime + 3600000);
+            }
+        }
     }, []);
+
+    // Timer for Cooldown
+    useEffect(() => {
+        if (challengeMode === "cooldown" && cooldownTime > 0) {
+            const interval = setInterval(() => {
+                const now = Date.now();
+                const diff = cooldownTime - now;
+                if (diff <= 0) {
+                    setChallengeMode("idle");
+                    localStorage.removeItem("wisdom_last_challenge");
+                    clearInterval(interval);
+                } else {
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                    setTimeRemaining(`${minutes}m ${seconds}s`);
+                }
+            }, 1000);
+            return () => clearInterval(interval);
+        }
+    }, [challengeMode, cooldownTime]);
 
     const saveUnlock = (id: number) => {
         const updated = [...unlockedIds, id];
         setUnlockedIds(updated);
         localStorage.setItem("ghanry_unlocked_wisdom", JSON.stringify(updated));
+    };
+
+    const startChallenge = async () => {
+        if (challengeMode === "cooldown") {
+            toast.error("The Elders are resting. Come back later.");
+            return;
+        }
+
+        // Import logic safely or use reliable fetch if server-side
+        // For client-side simple demo:
+        try {
+            const { getRandomChallenge } = await import("@/lib/quiz");
+            const questions = getRandomChallenge(3); // Get 3, need to win 2
+            setChallengeQuestions(questions);
+            setCurrentQIndex(0);
+            setChallengeWins(0);
+            setChallengeMode("playing");
+            toast.info("Challenge Started! Answer 2 correctly.");
+        } catch (e) {
+            console.error("Failed to load quiz", e);
+            toast.error("Could not summon the elders.");
+        }
+    };
+
+    const handleAnswer = (selectedOption: string) => {
+        const currentQ = challengeQuestions[currentQIndex];
+        const isCorrect = selectedOption === currentQ.answer;
+
+        if (isCorrect) {
+            const newWins = challengeWins + 1;
+            setChallengeWins(newWins);
+            toast.success("Correct!", { position: 'top-center', duration: 1000 });
+
+            if (newWins >= 2) {
+                // Victory Condition
+                addXP(50);
+                toast.success("Challenge Completed! +50 XP Earned.", { duration: 4000 });
+                finishChallenge();
+            } else {
+                // Next Question
+                nextQuestion();
+            }
+        } else {
+            // Failure Condition
+            toast.error(`Wrong! The answer was: ${currentQ.answer}`);
+            finishChallenge(true); // True = Failed
+        }
+    };
+
+    const nextQuestion = () => {
+        if (currentQIndex + 1 < challengeQuestions.length) {
+            setCurrentQIndex(currentQIndex + 1);
+        } else {
+            // Ran out of questions but only 1 win? (Shouldn't happen if logic is answer 2 out of 3, but if they get 1 wrong it fails immediately anyway per prompt "if you lose thats it")
+            // Prompt said: "if you lose, thats it". So 1 wrong answer = GAME OVER.
+            finishChallenge(true);
+        }
+    };
+
+    const finishChallenge = (failed = false) => {
+        setChallengeMode("cooldown");
+        const nextAvailable = Date.now() + 3600000;
+        setCooldownTime(nextAvailable);
+        localStorage.setItem("wisdom_last_challenge", nextAvailable.toString());
+
+        if (failed) {
+            toast.error("Challenge Failed. The specific wisdom eludes you.", {
+                description: "The Elders require rest. Try again in an hour."
+            });
+        }
     };
 
     const handleSacrifice = () => {
@@ -105,24 +214,31 @@ export default function WisdomPotPage() {
 
             <div className="max-w-4xl mx-auto px-6 pt-12">
                 {/* Tabs */}
-                <div className="flex gap-4 mb-12">
+                <div className="flex gap-4 mb-12 overflow-x-auto pb-2 scrollbar-hide">
                     <button
                         onClick={() => setActiveTab("pot")}
-                        className={`flex-1 py-4 rounded-2xl font-epilogue font-bold transition-all border ${activeTab === "pot" ? "bg-[#FCD116] text-black border-[#FCD116]" : "bg-white/5 text-white/60 border-white/10"
+                        className={`flex-1 min-w-[120px] py-4 rounded-2xl font-epilogue font-bold transition-all border ${activeTab === "pot" ? "bg-[#FCD116] text-black border-[#FCD116]" : "bg-white/5 text-white/60 border-white/10"
                             }`}
                     >
                         Untie Knots
                     </button>
                     <button
+                        onClick={() => setActiveTab("challenge")}
+                        className={`flex-1 min-w-[120px] py-4 rounded-2xl font-epilogue font-bold transition-all border ${activeTab === "challenge" ? "bg-[#FCD116] text-black border-[#FCD116]" : "bg-white/5 text-white/60 border-white/10"
+                            }`}
+                    >
+                        Challenge Elders
+                    </button>
+                    <button
                         onClick={() => setActiveTab("scrolls")}
-                        className={`flex-1 py-4 rounded-2xl font-epilogue font-bold transition-all border ${activeTab === "scrolls" ? "bg-[#FCD116] text-black border-[#FCD116]" : "bg-white/5 text-white/60 border-white/10"
+                        className={`flex-1 min-w-[120px] py-4 rounded-2xl font-epilogue font-bold transition-all border ${activeTab === "scrolls" ? "bg-[#FCD116] text-black border-[#FCD116]" : "bg-white/5 text-white/60 border-white/10"
                             }`}
                     >
                         Your Scrolls ({unlockedIds.length})
                     </button>
                 </div>
 
-                {activeTab === "pot" ? (
+                {activeTab === "pot" && (
                     <div className="flex flex-col items-center justify-center py-12 text-center space-y-12">
                         {/* The Pot Ritual UI */}
                         <div className="relative">
@@ -173,7 +289,79 @@ export default function WisdomPotPage() {
                             </div>
                         )}
                     </div>
-                ) : (
+                )}
+
+                {activeTab === "challenge" && (
+                    <div className="flex flex-col items-center justify-center py-6 text-center">
+                        {challengeMode === "idle" && (
+                            <div className="max-w-md w-full bg-white/5 border border-white/10 rounded-3xl p-8 space-y-6">
+                                <Shield className="w-16 h-16 text-[#FCD116] mx-auto" />
+                                <div>
+                                    <h2 className="text-2xl font-epilogue font-bold text-white mb-2">Challenge the Elders</h2>
+                                    <p className="text-white/60 font-jakarta text-sm leading-relaxed">
+                                        Prove your worth. Need some investment capital for the Pot?
+                                        <br /><br />
+                                        <span className="text-[#FCD116]">Win 2 Questions</span> to earn <span className="text-[#FCD116]">50 XP</span>.
+                                        But be warned: <span className="text-red-400">One wrong move</span> and the opportunity vanishes for an hour.
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={startChallenge}
+                                    className="w-full py-4 bg-[#FCD116] text-black font-bold rounded-xl hover:scale-105 transition-transform"
+                                >
+                                    Accept Challenge
+                                </button>
+                            </div>
+                        )}
+
+                        {challengeMode === "cooldown" && (
+                            <div className="max-w-md w-full bg-white/5 border border-white/10 rounded-3xl p-8 space-y-6 opacity-80">
+                                <Lock className="w-16 h-16 text-white/20 mx-auto" />
+                                <div>
+                                    <h2 className="text-xl font-epilogue font-bold text-white mb-2">The Elders are Resting</h2>
+                                    <p className="text-white/40 font-jakarta text-sm">You simply weren't ready. Come back later.</p>
+                                </div>
+                                <div className="text-3xl font-mono font-bold text-[#FCD116]">
+                                    {timeRemaining || "Loading..."}
+                                </div>
+                            </div>
+                        )}
+
+                        {challengeMode === "playing" && challengeQuestions.length > 0 && (
+                            <div className="max-w-md w-full space-y-6">
+                                <div className="flex justify-between items-center text-xs font-bold uppercase tracking-widest text-white/40 mb-4">
+                                    <span>Question {currentQIndex + 1} / 2 required</span>
+                                    <span>Wins: {challengeWins}</span>
+                                </div>
+
+                                <motion.div
+                                    key={currentQIndex}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    className="bg-white/10 border border-white/20 rounded-3xl p-8 text-left"
+                                >
+                                    <h3 className="text-lg font-epilogue font-bold text-white mb-6 leading-relaxed">
+                                        {challengeQuestions[currentQIndex].question}
+                                    </h3>
+
+                                    <div className="space-y-3">
+                                        {challengeQuestions[currentQIndex].options.map((opt: string, i: number) => (
+                                            <button
+                                                key={i}
+                                                onClick={() => handleAnswer(opt)}
+                                                className="w-full p-4 text-left bg-black/40 hover:bg-[#FCD116] hover:text-black rounded-xl border border-white/10 hover:border-[#FCD116] transition-all font-jakarta text-sm font-medium"
+                                            >
+                                                {opt}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {activeTab === "scrolls" && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {unlockedIds.length > 0 ? (
                             proverbsData.filter(p => unlockedIds.includes(p.id)).map(proverb => (
