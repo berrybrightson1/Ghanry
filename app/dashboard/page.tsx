@@ -66,7 +66,6 @@ export default function Dashboard() {
         getRandomContent();
     }, [router]);
 
-    const isGuest = typeof window !== 'undefined' && !localStorage.getItem("ghanry_passport_id");
 
     if (!userData) return null; // Or a loading spinner
 

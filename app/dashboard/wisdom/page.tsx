@@ -28,7 +28,7 @@ export default function WisdomPotPage() {
 
     // Challenge Mode State
     const [challengeMode, setChallengeMode] = useState<"idle" | "playing" | "cooldown">("idle");
-    const [challengeQuestions, setChallengeQuestions] = useState<any[]>([]);
+    const [challengeQuestions, setChallengeQuestions] = useState<{ id: number; question: string; options: string[]; answer: string }[]>([]);
     const [currentQIndex, setCurrentQIndex] = useState(0);
     const [challengeWins, setChallengeWins] = useState(0);
     const [cooldownTime, setCooldownTime] = useState(0);
@@ -319,7 +319,7 @@ export default function WisdomPotPage() {
                                 <Lock className="w-16 h-16 text-white/20 mx-auto" />
                                 <div>
                                     <h2 className="text-xl font-epilogue font-bold text-white mb-2">The Elders are Resting</h2>
-                                    <p className="text-white/40 font-jakarta text-sm">You simply weren't ready. Come back later.</p>
+                                    <p className="text-white/40 font-jakarta text-sm">You simply weren&apos;t ready. Come back later.</p>
                                 </div>
                                 <div className="text-3xl font-mono font-bold text-[#FCD116]">
                                     {timeRemaining || "Loading..."}
