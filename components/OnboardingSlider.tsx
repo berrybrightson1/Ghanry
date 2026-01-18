@@ -4,7 +4,7 @@ import Image from "next/image";
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Globe, GraduationCap, ShieldCheck, Scroll } from "lucide-react";
+import { Sparkles, Globe, GraduationCap, ShieldCheck, Scroll, Star } from "lucide-react";
 
 export default function OnboardingSlider() {
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -26,17 +26,23 @@ export default function OnboardingSlider() {
         {
             id: 2,
             type: "features",
-            title: "More Than A Quiz",
-            description: "The complete specialist experience.",
-            // Features list for the grid
+            title: "Rise to Glory",
+            description: "From Tourist to Legend. Level up your status.",
             features: [
                 { icon: <GraduationCap className="w-5 h-5 text-[#FCD116]" />, label: "Trivia Battles" },
-                { icon: <ShieldCheck className="w-5 h-5 text-blue-400" />, label: "Passport ID" },
-                { icon: <Sparkles className="w-5 h-5 text-ghana-gold" />, label: "Ask Ghanry" },
+                { icon: <ShieldCheck className="w-5 h-5 text-blue-400" />, label: "Get Verified" },
+                { icon: <Sparkles className="w-5 h-5 text-ghana-gold" />, label: "Citizenship" },
                 { icon: <Globe className="w-5 h-5 text-green-400" />, label: "Leaderboard" },
                 { icon: <Scroll className="w-5 h-5 text-[#CE1126]" />, label: "Wisdom Pot" },
-                { icon: <Image src="/Flame.svg" width={20} height={20} alt="Streak" />, label: "Journey" },
+                { icon: <Image src="/Flame.svg" width={20} height={20} alt="Streak" />, label: "Daily Streak" },
             ]
+        },
+        {
+            id: 3,
+            type: "summary",
+            title: "Claim Your Heritage",
+            description: "Start as a Tourist (1.5x XP Boost). Pass the Citizenship Test to become a true Ghanaian and unlock exclusive badges.",
+            icon: <Star className="w-12 h-12 text-[#CE1126] fill-[#CE1126]" />
         }
     ];
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Trophy, Calendar, Settings, Flame, Gamepad2, MessageSquare, Scroll, Sparkles, Square, Circle, Triangle, Hexagon, Octagon, Star, Zap, Shield, Heart, Ghost } from "lucide-react";
+import { Home, Trophy, Calendar, Settings, Flame, Gamepad2, MessageSquare, Scroll, Sparkles, Square, Circle, Triangle, Hexagon, Octagon, Star, Zap, Shield, Heart, Ghost, BadgeCheck } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -15,13 +15,25 @@ interface SidebarProps {
     nickname: string;
     isGuest?: boolean;
     avatar?: string;
+    status?: 'citizen' | 'tourist';
+    verified?: boolean;
 }
 
-export default function Sidebar({ nickname, isGuest = false, avatar }: SidebarProps) {
+export default function Sidebar({ nickname, isGuest = false, avatar, status, verified = false }: SidebarProps) {
     const pathname = usePathname();
     const { xp } = useXP();
     const { rank } = calculateProgress(xp);
-    const rankColor = getRankColor(rank);
+
+    // Override Rank Label for Citizens if XP is low (avoid calling them "Tourist")
+    // If status is citizen, use "Ghanaian" as base rank if calculated rank is "Tourist".
+    // Otherwise respect higher calculated ranks (e.g. Expat, Patriot).
+    let displayRank = rank;
+    if (status === 'citizen' && (rank === 'Tourist' || rank === 'Expat')) {
+        displayRank = "GHANAIAN";
+    }
+
+    const rankColor = getRankColor(rank); // Keep color logic based on XP for progression feeling? Or match status?
+    // Let's keep color logic based on XP for now, but label based on Status.
 
     const isActive = (path: string) => {
         if (path === "/dashboard" && pathname === "/dashboard") return true;
@@ -46,7 +58,7 @@ export default function Sidebar({ nickname, isGuest = false, avatar }: SidebarPr
             {/* Header: Passport Info */}
             <div className="p-6 border-b border-gray-50">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-gray-100 border-2 border-ghana-gold overflow-hidden flex items-center justify-center text-gray-500 font-bold text-xl">
+                    <div className="w-12 h-12 rounded-full bg-gray-100 border-2 border-ghana-gold overflow-hidden flex items-center justify-center text-gray-500 font-bold text-xl relative shrink-0">
                         {avatar?.startsWith('icon:') ? (
                             (() => {
                                 const Icon = SHAPE_ICONS[avatar.split(':')[1]];
@@ -57,11 +69,18 @@ export default function Sidebar({ nickname, isGuest = false, avatar }: SidebarPr
                         )}
                     </div>
                     <div>
-                        <h2 className="font-epilogue font-bold text-gray-900 leading-tight">{nickname}</h2>
+                        <div className="flex items-center gap-1">
+                            <h2 className="font-epilogue font-bold text-gray-900 leading-tight truncate max-w-[140px]" title={nickname}>
+                                {nickname}
+                            </h2>
+                            {verified && (
+                                <BadgeCheck className="w-4 h-4 text-blue-500 fill-blue-500/10" />
+                            )}
+                        </div>
 
                         {/* Status Badge */}
                         <div className={`text-[10px] font-bold uppercase tracking-widest mt-0.5 ${isGuest ? "text-gray-400" : rankColor}`}>
-                            {isGuest ? "GUEST ACCOUNT" : rank}
+                            {isGuest ? "GUEST ACCOUNT" : displayRank}
                         </div>
                     </div>
                 </div>

@@ -13,7 +13,14 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const [userData, setUserData] = useState<{ nickname: string; region: string; isGuest: boolean; avatar?: string } | null>(null);
+    const [userData, setUserData] = useState<{
+        nickname: string;
+        region: string;
+        isGuest: boolean;
+        avatar?: string;
+        status?: 'citizen' | 'tourist';
+        verified?: boolean;
+    } | null>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const pathname = usePathname();
     const isChatPage = pathname === '/dashboard/ask';
@@ -21,10 +28,19 @@ export default function DashboardLayout({
     useEffect(() => {
         const loadUser = () => {
             const storedNickname = localStorage.getItem("ghanry_nickname") || "Guest";
-            const storedRegion = localStorage.getItem("ghanry_region") || "Ghana";
+            const storedStatus = localStorage.getItem("ghanry_status") as 'citizen' | 'tourist' | null;
+            const storedVerified = localStorage.getItem("ghanry_verified") === 'true';
             const storedAvatar = localStorage.getItem("ghanry_avatar");
             const isGuest = !localStorage.getItem("ghanry_passport_id");
-            setUserData({ nickname: storedNickname, region: storedRegion, isGuest, avatar: storedAvatar || undefined });
+
+            setUserData({
+                nickname: storedNickname,
+                region: "Ghana", // Default region if not explicitly stored or needed
+                isGuest,
+                avatar: storedAvatar || undefined,
+                status: storedStatus || undefined,
+                verified: storedVerified
+            });
         };
 
         loadUser();
@@ -45,7 +61,13 @@ export default function DashboardLayout({
 
             {/* Desktop Sidebar (Hidden on Mobile) */}
             <div className="hidden sm:block w-[280px] h-full flex-shrink-0 shadow-xl z-20">
-                <Sidebar nickname={userData.nickname} isGuest={userData.isGuest} avatar={userData.avatar} />
+                <Sidebar
+                    nickname={userData.nickname}
+                    isGuest={userData.isGuest}
+                    avatar={userData.avatar}
+                    status={userData.status}
+                    verified={userData.verified}
+                />
             </div>
 
             {/* Main Content Area */}

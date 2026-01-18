@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     ChevronDown, ChevronUp, Copy, AlertTriangle, Eye, EyeOff, Check, X, LogOut, Star,
-    Square, Circle, Triangle, Hexagon, Octagon, Zap, Shield, Heart, Ghost
+    Square, Circle, Triangle, Hexagon, Octagon, Zap, Shield, Heart, Ghost, BadgeCheck
 } from 'lucide-react';
 import { useStreak } from '@/hooks/useStreak';
 import { useXP } from '@/hooks/useXP';
@@ -41,7 +41,9 @@ export default function SettingsPage() {
 
     // Citizenship / Status State
     const [status, setStatus] = useState<string>('tourist');
+    const [verified, setVerified] = useState(false);
     const [showCitizenshipTest, setShowCitizenshipTest] = useState(false);
+    const [showVerificationModal, setShowVerificationModal] = useState(false);
 
     // Track original values for dirty state detection
     const [originalNickname, setOriginalNickname] = useState('');
@@ -55,11 +57,13 @@ export default function SettingsPage() {
         const storedSound = localStorage.getItem('ghanry_sound');
         const storedAvatar = localStorage.getItem('ghanry_avatar') || '🇬🇭';
         const storedStatus = localStorage.getItem('ghanry_status') || 'tourist';
+        const storedVerified = localStorage.getItem('ghanry_verified') === 'true';
 
         setNickname(storedNick);
         setPassportId(storedId);
         setAvatar(storedAvatar);
         setStatus(storedStatus);
+        setVerified(storedVerified);
         // Sound defaults to false (OFF)
         const soundValue = storedSound === 'true';
         setSound(soundValue);
@@ -143,6 +147,7 @@ export default function SettingsPage() {
         setOriginalPassportId(passportId);
         setOriginalAvatar(avatar);
         setOriginalSound(sound);
+        localStorage.setItem('ghanry_verified', verified.toString());
         setNewPassword('');
         setCurrentPassword('');
 
@@ -212,7 +217,22 @@ export default function SettingsPage() {
                     <h2 className="font-bold text-gray-400 text-xs uppercase tracking-wider">Profile</h2>
 
                     <div>
-                        <label htmlFor="nickname" className="block font-jakarta font-medium mb-1.5 text-sm text-gray-700">Nickname</label>
+                        <div className="flex items-center justify-between mb-1.5">
+                            <label htmlFor="nickname" className="block font-jakarta font-medium text-sm text-gray-700">Nickname</label>
+                            {verified ? (
+                                <div className="flex items-center gap-1 text-[10px] font-bold text-blue-500 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-100">
+                                    <BadgeCheck size={12} className="fill-blue-500/10" />
+                                    VERIFIED
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => setShowVerificationModal(true)}
+                                    className="text-[10px] font-bold text-gray-400 hover:text-[#006B3F] flex items-center gap-1 transition-colors"
+                                >
+                                    Get Verified <Shield size={10} />
+                                </button>
+                            )}
+                        </div>
                         <input
                             id="nickname"
                             type="text"
@@ -308,7 +328,7 @@ export default function SettingsPage() {
                         <button
                             id="sound-toggle"
                             onClick={() => setSound(!sound)}
-                            aria-pressed={sound}
+                            aria-pressed={sound ? "true" : "false"}
                             className={`px-3 py-1.5 rounded-full transition-all flex items-center gap-1 ${sound ? 'bg-[#006B3F] text-white' : 'bg-gray-100 text-gray-500'}`}
                         >
                             <span className="text-xs font-bold mr-1">{sound ? "ON" : "OFF"}</span>
@@ -467,6 +487,84 @@ export default function SettingsPage() {
                                 }}
                                 onCancel={() => setShowCitizenshipTest(false)}
                             />
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Verification Modal */}
+            {showVerificationModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                    <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in-50 duration-200 relative">
+                        {/* Close Button */}
+                        <button
+                            onClick={() => setShowVerificationModal(false)}
+                            title="Close"
+                            className="absolute top-4 right-4 p-2 bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200 transition-colors z-10"
+                        >
+                            <X size={16} />
+                        </button>
+
+                        <div className="bg-blue-600 p-8 text-white text-center relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
+                            <div className="relative z-10 flex flex-col items-center gap-3">
+                                <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center text-blue-600 shadow-xl">
+                                    <BadgeCheck size={32} />
+                                </div>
+                                <div>
+                                    <h3 className="font-epilogue font-bold text-xl">Get Verified</h3>
+                                    <p className="text-blue-100 text-xs font-medium">Stand out with the blue badge.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-6 space-y-4">
+                            {/* Option 1: Purchase */}
+                            <button
+                                onClick={() => {
+                                    if (xp >= 5000) {
+                                        if (window.confirm("Spend 5,000 XP to get verified?")) {
+                                            const currentxp = parseInt(localStorage.getItem('ghanry_xp') || '0');
+                                            localStorage.setItem('ghanry_xp', (currentxp - 5000).toString());
+
+                                            setVerified(true);
+                                            localStorage.setItem('ghanry_verified', 'true');
+                                            setShowVerificationModal(false);
+                                            toast.success("Verification Purchased! Welcome to the club.");
+                                            confetti({ colors: ['#3b82f6', '#ffffff'] });
+                                            window.dispatchEvent(new Event('ghanry_xp_update'));
+                                            window.dispatchEvent(new Event('ghanry_profile_update'));
+                                        }
+                                    } else {
+                                        toast.error(`Insufficient XP. You need 5,000 XP. (Current: ${xp})`);
+                                    }
+                                }}
+                                className="w-full p-4 rounded-xl border-2 border-blue-100 hover:border-blue-500 bg-blue-50 transition-all flex items-center justify-between group"
+                            >
+                                <div className="flex flex-col items-start">
+                                    <span className="font-bold text-blue-900 text-sm">Instant Verification</span>
+                                    <span className="text-xs text-blue-600 font-medium">Purchase with XP</span>
+                                </div>
+                                <div className="text-right">
+                                    <div className="font-black text-lg text-blue-600">5,000 XP</div>
+                                </div>
+                            </button>
+
+                            <div className="relative flex py-2 items-center">
+                                <div className="flex-grow border-t border-gray-100"></div>
+                                <span className="flex-shrink mx-4 text-gray-300 text-xs font-bold uppercase">OR</span>
+                                <div className="flex-grow border-t border-gray-100"></div>
+                            </div>
+
+                            {/* Option 2: Earn (Disabled/Preview) */}
+                            <button disabled className="w-full p-4 rounded-xl border border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed flex items-center justify-between">
+                                <div className="flex flex-col items-start">
+                                    <span className="font-bold text-gray-500 text-sm">Earned Status</span>
+                                    <span className="text-xs text-gray-400">Win 5 Unique Categories</span>
+                                </div>
+                                <div className="bg-gray-200 text-gray-500 text-[10px] font-bold px-2 py-1 rounded">
+                                    LOCKED
+                                </div>
+                            </button>
                         </div>
                     </div>
                 </div>
