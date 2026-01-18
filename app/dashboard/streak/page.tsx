@@ -25,32 +25,32 @@ interface Milestone {
 const MILESTONES: Milestone[] = [
     {
         id: 1, type: "rank", value: "Tourist", title: "The Beginning",
-        message: "Akwaaba! I've officially started my journey to master everything about my roots. 🇬🇭",
+        message: "Akwaaba! I've officially started my journey to master everything about my roots.",
         threshold: 0, icon: Star, color: "bg-blue-400"
     },
     {
         id: 2, type: "streak", value: 3, title: "Heating Up",
-        message: "Consistency is key. 3 days of pure Ghana wisdom down, forever to go! 🔥",
+        message: "Consistency is key. 3 days of pure Ghana wisdom down, forever to go!",
         threshold: 3, icon: Flame, color: "bg-orange-400"
     },
     {
         id: 3, type: "rank", value: "Expat", title: "Settling In",
-        message: "I'm becoming a regular! I've moved from Tourist to Expat status. Ghana knowledge is growing! 🇬🇭✨",
+        message: "I'm becoming a regular! I've moved from Tourist to Expat status. Ghana knowledge is growing!",
         threshold: 900, icon: Shield, color: "bg-purple-500"
     },
     {
         id: 4, type: "streak", value: 7, title: "Flame On",
-        message: "A perfect week! I'm officially a master of the daily gist. Ghana knowledge on lock! 🔒",
+        message: "A perfect week! I'm officially a master of the daily gist. Ghana knowledge on lock!",
         threshold: 7, icon: Flame, color: "bg-red-500"
     },
     {
         id: 5, type: "rank", value: "Citizen", title: "True Citizen",
-        message: "Official recognition! I've reached Citizen status on Ghanry. My roots are deep! 🌳🇬🇭",
+        message: "Official recognition! I've reached Citizen status on Ghanry. My roots are deep!",
         threshold: 24650, icon: Crown, color: "bg-[#006B3F]"
     },
     {
         id: 6, type: "rank", value: "Legend", title: "National Treasure",
-        message: "Rank: LEGEND. My knowledge of Ghana is unmatched. I am a living archive of the Motherland! 👑🏛️🇬🇭",
+        message: "Rank: LEGEND. My knowledge of Ghana is unmatched. I am a living archive of the Motherland!",
         threshold: 59750, icon: Sparkles, color: "bg-ghana-gold"
     },
 ];
@@ -187,7 +187,7 @@ export default function JourneyPage() {
                             <button
                                 onClick={handleExport}
                                 disabled={isExporting}
-                                className="py-4 bg-[#006B3F] hover:bg-[#005a35] text-white font-epilogue font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                className="py-4 bg-[#006B3F] hover:bg-[#005a35] text-white font-epilogue font-bold rounded-lg shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                             >
                                 {isExporting ? (
                                     <>Saving...</>
@@ -201,11 +201,11 @@ export default function JourneyPage() {
                             <button
                                 onClick={() => {
                                     if (!selectedMilestone) return;
-                                    const text = encodeURIComponent(`${selectedMilestone.message}\n\nJoin me on Ghanry to learn more about the Motherland! 🇬🇭✨`);
+                                    const text = encodeURIComponent(`${selectedMilestone.message}\n\nJoin me on Ghanry to learn more about the Motherland!`);
                                     window.open(`https://wa.me/?text=${text}`, "_blank");
                                 }}
                                 disabled={isExporting}
-                                className="py-4 bg-[#25D366] hover:bg-[#128C7E] text-white font-epilogue font-bold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                                className="py-4 bg-[#25D366] hover:bg-[#128C7E] text-white font-epilogue font-bold rounded-lg shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                             >
                                 <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.067 2.877 1.215 3.076.149.198 2.095 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.659 1.437 5.634 1.437h.005c6.558 0 11.893-5.335 11.896-11.893a11.826 11.826 0 00-3.48-8.413z" />
@@ -216,7 +216,7 @@ export default function JourneyPage() {
                         <button
                             onClick={() => setSelectedMilestone(null)}
                             disabled={isExporting}
-                            className="w-full py-4 mt-3 bg-white/10 hover:bg-white/20 text-white font-epilogue font-bold rounded-2xl border border-white/20 transition-all disabled:opacity-50"
+                            className="w-full py-4 mt-3 bg-white/10 hover:bg-white/20 text-white font-epilogue font-bold rounded-lg border border-white/20 transition-all disabled:opacity-50"
                         >
                             Close
                         </button>

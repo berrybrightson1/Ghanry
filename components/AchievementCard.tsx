@@ -18,7 +18,7 @@ const AchievementCard = forwardRef<HTMLDivElement, AchievementCardProps>(({ type
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
-            className="relative w-full aspect-square bg-white rounded-[40px] shadow-2xl overflow-hidden p-8 flex flex-col justify-between group cursor-pointer active:scale-[0.98] transition-all"
+            className="relative w-full aspect-square bg-white rounded-lg shadow-2xl overflow-hidden p-8 flex flex-col justify-between group cursor-pointer active:scale-[0.98] transition-all"
             onClick={onClose}
         >
             {/* Background Decorative Shapes */}
