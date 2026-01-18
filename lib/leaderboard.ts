@@ -19,19 +19,18 @@ export const LeaderboardService = {
         try {
             const usersRef = collection(db, "users");
             // Secondary sort by nickname ensures stable ordering for tied XP
-            const q = query(usersRef, orderBy("xp", "desc"), orderBy("nickname", "asc"), limit(10));
+            const q = query(usersRef, orderBy("xp", "desc"), limit(20)); // Fetch slightly more to sort client-side
             const querySnapshot = await getDocs(q);
 
-            const fetchedRankings: LeaderboardEntry[] = [];
+            let fetchedRankings: LeaderboardEntry[] = [];
             let currentFound = false;
-            let index = 1;
 
             querySnapshot.forEach((doc) => {
                 const data = doc.data();
                 const { rank: rankName } = calculateProgress(data.xp || 0);
 
                 const entry: LeaderboardEntry = {
-                    rank: index,
+                    rank: 0, // Assigned after sort
                     nickname: data.nickname || "Anonymous",
                     region: data.region || "Unknown",
                     xp: data.xp || 0,
@@ -41,10 +40,21 @@ export const LeaderboardService = {
 
                 if (entry.isCurrentUser) currentFound = true;
                 fetchedRankings.push(entry);
-                index++;
             });
 
-            // If current user is not in top 10, we could theoretically fetch their personal rank
+            // Client-side Sort: XP Descending, then Nickname Ascending
+            fetchedRankings.sort((a, b) => {
+                if (b.xp !== a.xp) return b.xp - a.xp;
+                return a.nickname.localeCompare(b.nickname);
+            });
+
+            // Re-assign ranks and limit to 10
+            fetchedRankings = fetchedRankings.slice(0, 10).map((entry, i) => ({
+                ...entry,
+                rank: i + 1
+            }));
+
+            // If current user is not in top 10...
             // For now, if not found and they have XP, we can append them or just let the UI handle the "Your Rank" card
             if (!currentFound && localXP > 0) {
                 const { rank: localRankName } = calculateProgress(localXP);
@@ -80,24 +90,36 @@ export const LeaderboardService = {
     getRegionRankings: async (region: string) => {
         try {
             const usersRef = collection(db, "users");
-            const q = query(usersRef, where("region", "==", region), orderBy("xp", "desc"), orderBy("nickname", "asc"), limit(10));
+            // Removed secondary orderBy to avoid index error
+            const q = query(usersRef, where("region", "==", region), orderBy("xp", "desc"), limit(20));
             const querySnapshot = await getDocs(q);
 
-            const fetchedRankings: LeaderboardEntry[] = [];
-            let index = 1;
+            let fetchedRankings: LeaderboardEntry[] = [];
+
             querySnapshot.forEach((docSnap) => {
                 const data = docSnap.data();
                 const { rank } = calculateProgress(data.xp || 0);
                 fetchedRankings.push({
-                    rank: index,
+                    rank: 0,
                     nickname: data.nickname || "Citizen",
                     region: data.region || region,
                     xp: data.xp || 0,
                     rankName: rank,
-                    isCurrentUser: false // This will be handled in the component
+                    isCurrentUser: false
                 });
-                index++;
             });
+
+            // Client-side Sort
+            fetchedRankings.sort((a, b) => {
+                if (b.xp !== a.xp) return b.xp - a.xp;
+                return a.nickname.localeCompare(b.nickname);
+            });
+
+            // Apply Ranks
+            fetchedRankings = fetchedRankings.slice(0, 10).map((entry, i) => ({
+                ...entry,
+                rank: i + 1
+            }));
 
             return fetchedRankings;
         } catch (error) {
