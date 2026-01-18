@@ -55,11 +55,14 @@ const AchievementCard = forwardRef<HTMLDivElement, AchievementCardProps>(({ type
             </div>
 
             {/* Main Content: Message centered */}
-            <div className="relative z-10 flex flex-col items-center justify-center flex-1 py-8 px-4">
-                <p className="text-gray-800 font-jakarta font-bold text-xl leading-tight">
+            <div className="relative z-10 flex flex-col items-center justify-center flex-1">
+                <p className="text-gray-800 font-jakarta font-bold text-xl leading-tight text-center">
                     &ldquo;{message}&rdquo;
                 </p>
+            </div>
 
+            {/* Bottom: Logo & Dots */}
+            <div className="relative z-10">
                 <div className="flex justify-between items-end pt-2 border-t border-gray-100">
                     <span className="text-2xl font-epilogue font-black text-[#006B3F] tracking-tighter flex items-center gap-1">
                         Ghanry
