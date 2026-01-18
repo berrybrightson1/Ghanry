@@ -1,0 +1,251 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { useXP } from "@/hooks/useXP";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
+
+export default function TrotroRun() {
+    const { xp, spendXP, addXP } = useXP();
+
+    // Game States
+    const [gameState, setGameState] = useState<"IDLE" | "BETTING" | "RUNNING" | "CRASHED">("IDLE");
+    const [betAmount, setBetAmount] = useState<number>(100);
+    const [multiplier, setMultiplier] = useState<number>(1.00);
+    const [crashPoint, setCrashPoint] = useState<number>(0);
+    const [countdown, setCountdown] = useState<number>(0);
+    const [cashedOutAt, setCashedOutAt] = useState<number | null>(null); // If user cashed out
+
+    // Animation Refs
+    const requestRef = useRef<number>();
+    const startTimeRef = useRef<number>();
+    const lastMultiplierRef = useRef<number>(1.00);
+
+    // BETTING PHASE
+    const startBettingPhase = () => {
+        setGameState("BETTING");
+        setMultiplier(1.00);
+        setCashedOutAt(null);
+        setCrashPoint(generateCrashPoint()); // Determine fate in advance (Provably Fair-ish)
+
+        let timeLeft = 5; // 5 seconds to bet
+        setCountdown(timeLeft);
+
+        const timer = setInterval(() => {
+            timeLeft -= 1;
+            setCountdown(timeLeft);
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                if (spendXP(betAmount)) {
+                    startGameRun();
+                } else {
+                    toast.error("Not enough XP to ride!", { description: "Fuel shortage." });
+                    setGameState("IDLE");
+                }
+            }
+        }, 1000);
+    };
+
+    // GENERATE CRASH POINT (Weighted House Edge)
+    // 3% chance of instant crash (1.00x)
+    // Average crash around 2.0x
+    const generateCrashPoint = () => {
+        // Simpler reliable algorithm for demo:
+        // Multiplier = 0.99 / (1 - random)
+        // Check if crash < 1.00 => set to 1.00
+        const m = 0.96 / (1 - Math.random());
+        return Math.max(1.00, Math.floor(m * 100) / 100);
+    };
+
+    // GAME LOOP
+    const startGameRun = () => {
+        setGameState("RUNNING");
+        startTimeRef.current = Date.now();
+        lastMultiplierRef.current = 1.00;
+        requestRef.current = requestAnimationFrame(animateGame);
+    };
+
+    const animateGame = () => {
+        if (!startTimeRef.current) return;
+
+        const now = Date.now();
+        const elapsed = (now - startTimeRef.current) / 1000; // Seconds
+
+        // Growth Function: Exponential
+        // M(t) = e^(0.06 * t)  -> Slower start, speeds up
+        const growth = Math.exp(0.15 * elapsed);
+        const currentM = Math.floor(growth * 100) / 100;
+
+        setMultiplier(currentM);
+        lastMultiplierRef.current = currentM;
+
+        if (currentM >= crashPoint) {
+            // CRASH!
+            handleCrash(currentM);
+        } else {
+            requestRef.current = requestAnimationFrame(animateGame);
+        }
+    };
+
+    const handleCrash = (finalM: number) => {
+        cancelAnimationFrame(requestRef.current!);
+        setGameState("CRASHED");
+        setMultiplier(finalM); // Show final crash value
+        // If user didn't cash out, they lost. Nothing to do.
+        toast.error("POLICE STOP!", { description: `Driver arrested at ${finalM.toFixed(2)}x` });
+
+        // Auto restart after 3s
+        setTimeout(() => setGameState("IDLE"), 4000);
+    };
+
+    const handleCashOut = () => {
+        if (gameState !== "RUNNING") return;
+        if (cashedOutAt) return; // Already cashed out
+
+        const winM = lastMultiplierRef.current;
+        setCashedOutAt(winM);
+
+        const winnings = Math.floor(betAmount * winM);
+        addXP(winnings);
+        notifyWin(winnings, winM);
+
+        // Note: Game continues running in background visually until crash, 
+        // effectively user is "safe" on the curb watching the bus crash later.
+    };
+
+    const notifyWin = (amount: number, mult: number) => {
+        toast.success(`ALIGHTED SAFELY!`, {
+            description: `Pocketed +${amount} XP (${mult.toFixed(2)}x)`
+        });
+    };
+
+    // Cleanup
+    useEffect(() => {
+        return () => cancelAnimationFrame(requestRef.current!);
+    }, []);
+
+    return (
+        <div className="w-full max-w-md mx-auto py-8">
+            {/* Game Screen */}
+            <div className="relative h-64 bg-slate-900 rounded-3xl overflow-hidden border border-white/10 shadow-2xl mb-6 group">
+                {/* Background (Moving Road) */}
+                <div className={`absolute inset-0 bg-[#1a1a1a] transition-opacity ${gameState === "RUNNING" ? "opacity-100" : "opacity-50"}`}>
+                    {/* Road Lines Animation */}
+                    <div className="absolute inset-x-0 bottom-0 h-16 bg-[#2a2a2a] border-t border-white/5">
+                        <div className={`w-full h-full flex justify-around items-center ${gameState === "RUNNING" ? "animate-road-scroll" : ""}`}>
+                            {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-8 h-2 bg-yellow-500/50 rounded-full" />)}
+                        </div>
+                    </div>
+                    {/* Stars/Dust */}
+                    <div className={`absolute inset-0 ${gameState === "RUNNING" ? "animate-stars-scroll" : ""}`}>
+                        {/* CSS handled animation would be better, simplifying for React */}
+                    </div>
+                </div>
+
+                {/* THE TROTRO */}
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                    {/* Multiplier Display */}
+                    <div className={`text-6xl font-black font-mono transition-all duration-100 ${gameState === "CRASHED" ? "text-red-500 scale-110 drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]" :
+                        cashedOutAt ? "text-green-400 opacity-50" :
+                            "text-[#FCD116] drop-shadow-[0_0_15px_rgba(252,209,22,0.5)]"
+                        }`}>
+                        {multiplier.toFixed(2)}x
+                    </div>
+                </div>
+
+                {/* Bus Graphic */}
+                <motion.div
+                    animate={gameState === "RUNNING" ? {
+                        y: [0, -2, 0],
+                        x: [0, 1, 0]
+                    } : gameState === "CRASHED" ? {
+                        rotate: [0, 10, -5, 0],
+                        scale: 0.9
+                    } : {}}
+                    transition={{ repeat: Infinity, duration: 0.5 }}
+                    className="absolute bottom-12 left-1/2 -translate-x-1/2 text-6xl"
+                >
+                    {gameState === "CRASHED" ? "🚓" : "🚐"}
+                </motion.div>
+
+                {/* Status Overlay */}
+                {gameState === "BETTING" && (
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20 backdrop-blur-sm">
+                        <div className="text-center">
+                            <p className="text-white/60 font-bold uppercase tracking-widest text-xs mb-2">Departing In</p>
+                            <div className="text-5xl font-black text-white">{countdown}</div>
+                        </div>
+                    </div>
+                )}
+
+                {gameState === "CRASHED" && (
+                    <div className="absolute inset-x-0 top-4 text-center z-20">
+                        <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider animate-pulse">
+                            BUSTED
+                        </span>
+                    </div>
+                )}
+            </div>
+
+            {/* Controls */}
+            <div className="space-y-4">
+                {/* Bet Slider / Input */}
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex justify-between items-center">
+                    <div className="text-xs uppercase text-white/40 font-bold">Wager</div>
+                    <div className="flex items-center gap-4">
+                        <button onClick={() => setBetAmount(Math.max(50, betAmount - 50))} className="p-2 hover:bg-white/10 rounded-full text-white/60">-</button>
+                        <div className="font-mono font-bold text-xl text-[#FCD116] w-20 text-center">{betAmount}</div>
+                        <button onClick={() => setBetAmount(Math.min(xp, betAmount + 50))} className="p-2 hover:bg-white/10 rounded-full text-white/60">+</button>
+                    </div>
+                </div>
+
+                {/* Action Button */}
+                {gameState === "RUNNING" ? (
+                    <button
+                        onClick={handleCashOut}
+                        disabled={!!cashedOutAt}
+                        className={`w-full py-6 rounded-2xl font-black text-2xl uppercase tracking-wider shadow-lg transition-all transform active:scale-95 flex flex-col items-center justify-center leading-none gap-1 ${cashedOutAt ? "bg-gray-700 text-gray-500 cursor-not-allowed" : "bg-orange-500 hover:bg-orange-400 text-white shadow-orange-500/20"
+                            }`}
+                    >
+                        {cashedOutAt ? "ALIGHTED" : "ALIGHT NOW"}
+                        {!cashedOutAt && (
+                            <span className="text-sm font-bold opacity-80 font-mono">
+                                +{Math.floor(betAmount * multiplier)} XP
+                            </span>
+                        )}
+                    </button>
+                ) : gameState === "BETTING" ? (
+                    <button
+                        disabled
+                        className="w-full py-6 bg-gray-800 text-gray-400 rounded-2xl font-bold font-mono text-xl cursor-wait"
+                    >
+                        Loading Passengers...
+                    </button>
+                ) : (
+                    <button
+                        onClick={startBettingPhase}
+                        className="w-full py-6 bg-[#006B3F] hover:bg-[#005a35] text-white rounded-2xl font-black text-xl uppercase tracking-wider shadow-lg shadow-green-900/20 transition-all transform active:scale-95"
+                    >
+                        LOAD BUS ({betAmount} XP)
+                    </button>
+                )}
+
+                {cashedOutAt && gameState === "RUNNING" && (
+                    <div className="text-center text-green-400 font-bold text-sm animate-bounce">
+                        Safe! Waiting for crash...
+                    </div>
+                )}
+            </div>
+
+            <style jsx global>{`
+                @keyframes road-scroll {
+                    0% { transform: translateX(0); }
+                    100% { transform: translateX(-50px); }
+                }
+                .animate-road-scroll {
+                    animation: road-scroll 0.2s linear infinite;
+                }
+            `}</style>
+        </div>
+    );
+}
