@@ -212,29 +212,29 @@ export default function WisdomPotPage() {
                 </div>
             </div>
 
-            <div className="max-w-4xl mx-auto px-6 pt-12">
+            <div className="max-w-4xl mx-auto px-4 md:px-6 pt-8 md:pt-12">
                 {/* Tabs */}
-                <div className="flex gap-4 mb-12 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex gap-2 md:gap-4 mb-8 md:mb-12 overflow-x-auto pb-2 scrollbar-hide">
                     <button
                         onClick={() => setActiveTab("pot")}
-                        className={`flex-1 min-w-[120px] py-4 rounded-2xl font-epilogue font-bold transition-all border ${activeTab === "pot" ? "bg-[#FCD116] text-black border-[#FCD116]" : "bg-white/5 text-white/60 border-white/10"
+                        className={`flex-1 min-w-[100px] md:min-w-[120px] py-3 md:py-4 rounded-xl md:rounded-2xl font-epilogue font-bold text-xs md:text-base transition-all border ${activeTab === "pot" ? "bg-[#FCD116] text-black border-[#FCD116]" : "bg-white/5 text-white/60 border-white/10"
                             }`}
                     >
-                        Untie Knots
+                        <span className="truncate">Untie Knots</span>
                     </button>
                     <button
                         onClick={() => setActiveTab("challenge")}
-                        className={`flex-1 min-w-[120px] py-4 rounded-2xl font-epilogue font-bold transition-all border ${activeTab === "challenge" ? "bg-[#FCD116] text-black border-[#FCD116]" : "bg-white/5 text-white/60 border-white/10"
+                        className={`flex-1 min-w-[100px] md:min-w-[120px] py-3 md:py-4 rounded-xl md:rounded-2xl font-epilogue font-bold text-xs md:text-base transition-all border ${activeTab === "challenge" ? "bg-[#FCD116] text-black border-[#FCD116]" : "bg-white/5 text-white/60 border-white/10"
                             }`}
                     >
-                        Challenge Elders
+                        <span className="truncate">Challenge Elders</span>
                     </button>
                     <button
                         onClick={() => setActiveTab("scrolls")}
-                        className={`flex-1 min-w-[120px] py-4 rounded-2xl font-epilogue font-bold transition-all border ${activeTab === "scrolls" ? "bg-[#FCD116] text-black border-[#FCD116]" : "bg-white/5 text-white/60 border-white/10"
+                        className={`flex-1 min-w-[100px] md:min-w-[120px] py-3 md:py-4 rounded-xl md:rounded-2xl font-epilogue font-bold text-xs md:text-base transition-all border ${activeTab === "scrolls" ? "bg-[#FCD116] text-black border-[#FCD116]" : "bg-white/5 text-white/60 border-white/10"
                             }`}
                     >
-                        Your Scrolls ({unlockedIds.length})
+                        <span className="truncate">Scrolls ({unlockedIds.length})</span>
                     </button>
                 </div>
 

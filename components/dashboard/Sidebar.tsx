@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useXP } from "@/hooks/useXP";
 import { calculateProgress, getRankColor } from "@/lib/gamification";
+import { useState, useEffect } from "react";
 
 const SHAPE_ICONS: Record<string, React.ElementType> = {
     Square, Circle, Triangle, Hexagon, Octagon, Star, Zap, Shield, Heart, Ghost
@@ -19,10 +20,27 @@ interface SidebarProps {
     verified?: boolean;
 }
 
-export default function Sidebar({ nickname, isGuest = false, avatar, status, verified = false }: SidebarProps) {
+export default function Sidebar({ nickname, isGuest = false, avatar: initialAvatar, status, verified: initialVerified = false }: SidebarProps) {
     const pathname = usePathname();
     const { xp } = useXP();
     const { rank } = calculateProgress(xp);
+
+    // Local state for avatar and verified status to allow real-time updates
+    const [avatar, setAvatar] = useState(initialAvatar);
+    const [verified, setVerified] = useState(initialVerified);
+
+    // Listen for profile updates
+    useEffect(() => {
+        const handleProfileUpdate = () => {
+            const newAvatar = localStorage.getItem("ghanry_avatar");
+            const newVerified = localStorage.getItem("ghanry_verified") === "true";
+            setAvatar(newAvatar || undefined);
+            setVerified(newVerified);
+        };
+
+        window.addEventListener('ghanry_profile_update', handleProfileUpdate);
+        return () => window.removeEventListener('ghanry_profile_update', handleProfileUpdate);
+    }, []);
 
     // Override Rank Label for Citizens if XP is low (avoid calling them "Tourist")
     // If status is citizen, use "Ghanaian" as base rank if calculated rank is "Tourist".
