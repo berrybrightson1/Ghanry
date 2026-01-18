@@ -41,10 +41,10 @@ export default function GistPage() {
             </div>
 
             {/* Tab Toggle */}
-            <div className="mb-6 bg-gray-100 rounded-lg p-1 flex gap-1">
+            <div className="mb-6 bg-gray-100 rounded-full p-1 flex gap-1">
                 <button
                     onClick={() => setActiveTab("news")}
-                    className={`flex-1 py-3 rounded-lg font-epilogue font-bold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === "news"
+                    className={`flex-1 py-3 rounded-full font-epilogue font-bold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === "news"
                         ? "bg-white text-[#006B3F] shadow-sm"
                         : "text-gray-500 hover:text-gray-700"
                         }`}
@@ -54,7 +54,7 @@ export default function GistPage() {
                 </button>
                 <button
                     onClick={() => setActiveTab("legends")}
-                    className={`flex-1 py-3 rounded-lg font-epilogue font-bold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === "legends"
+                    className={`flex-1 py-3 rounded-full font-epilogue font-bold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === "legends"
                         ? "bg-white text-ghana-gold shadow-sm"
                         : "text-gray-500 hover:text-gray-700"
                         }`}
