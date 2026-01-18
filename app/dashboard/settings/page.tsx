@@ -116,6 +116,29 @@ export default function SettingsPage() {
         router.back();
     };
 
+    const handleDeleteAccount = () => {
+        toast("Are you sure?", {
+            description: passportId ? "This will permanently delete your rank, streaks, and account." : "This will wipe your guest progress.",
+            action: {
+                label: "Delete Everything",
+                onClick: async () => {
+                    if (passportId) {
+                        try {
+                            const { deleteDoc, doc, getFirestore } = await import('firebase/firestore');
+                            const db = getFirestore();
+                            await deleteDoc(doc(db, "users", passportId));
+                        } catch (e) {
+                            console.error("Delete failed", e);
+                        }
+                    }
+                    handleLogout();
+                    toast.success("Account deleted.");
+                }
+            },
+            cancel: { label: "Cancel", onClick: () => { } }
+        });
+    };
+
     const handleLogout = () => {
         // Clear session
         localStorage.removeItem("ghanry_passport_id");
@@ -207,7 +230,7 @@ export default function SettingsPage() {
                         <button
                             id="sound-toggle"
                             onClick={() => setSound(!sound)}
-                            aria-pressed={sound ? "true" : "false"}
+                            aria-pressed={sound}
                             className={`px-3 py-1.5 rounded-full transition-all flex items-center gap-1 ${sound ? 'bg-[#006B3F] text-white' : 'bg-gray-100 text-gray-500'}`}
                         >
                             <span className="text-xs font-bold mr-1">{sound ? "ON" : "OFF"}</span>
@@ -268,12 +291,28 @@ export default function SettingsPage() {
                     </div>
                 )}
 
+                {/* Danger Zone */}
+                <div className="bg-red-50 p-6 rounded-2xl border border-red-100 space-y-4">
+                    <h2 className="font-bold text-red-400 text-xs uppercase tracking-wider flex items-center gap-2">
+                        Danger Zone
+                    </h2>
+                    <p className="text-sm text-red-800/60 font-jakarta">
+                        {passportId ? "Delete your passport and all associated data permanently." : "Clear your guest session and local progress."}
+                    </p>
+                    <button
+                        onClick={handleDeleteAccount}
+                        className="w-full py-3 bg-white text-red-600 border border-red-200 font-bold rounded-xl hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                    >
+                        <LogOut size={16} />
+                        {passportId ? "Delete Account" : "Reset Guest Session"}
+                    </button>
+                </div>
+
                 {/* Logout - Always visible */}
                 <button
                     onClick={handleLogout}
-                    className="w-full py-3 text-red-500 font-bold hover:bg-red-50 rounded-xl transition-colors flex items-center justify-center gap-2 group"
+                    className="w-full py-3 text-gray-400 font-bold hover:bg-gray-50 rounded-xl transition-colors flex items-center justify-center gap-2 group text-sm"
                 >
-                    <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
                     Log Out
                 </button>
             </div>

@@ -11,14 +11,15 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const [userData, setUserData] = useState<{ nickname: string; region: string } | null>(null);
+    const [userData, setUserData] = useState<{ nickname: string; region: string; isGuest: boolean } | null>(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         // Basic auth/data check
         const storedNickname = localStorage.getItem("ghanry_nickname") || "Guest";
         const storedRegion = localStorage.getItem("ghanry_region") || "Ghana";
-        setUserData({ nickname: storedNickname, region: storedRegion });
+        const isGuest = !localStorage.getItem("ghanry_passport_id");
+        setUserData({ nickname: storedNickname, region: storedRegion, isGuest });
     }, []);
 
     if (!userData) return null;
@@ -33,7 +34,7 @@ export default function DashboardLayout({
 
             {/* Desktop Sidebar (Hidden on Mobile) */}
             <div className="hidden sm:block w-[280px] h-full flex-shrink-0 shadow-xl z-20">
-                <Sidebar nickname={userData.nickname} />
+                <Sidebar nickname={userData.nickname} isGuest={userData.isGuest} />
             </div>
 
             {/* Main Content Area */}

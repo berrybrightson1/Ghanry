@@ -9,9 +9,10 @@ import { calculateProgress, getRankColor } from "@/lib/gamification";
 
 interface SidebarProps {
     nickname: string;
+    isGuest?: boolean;
 }
 
-export default function Sidebar({ nickname }: SidebarProps) {
+export default function Sidebar({ nickname, isGuest = false }: SidebarProps) {
     const pathname = usePathname();
     const { xp } = useXP();
     const { rank } = calculateProgress(xp);
@@ -47,8 +48,8 @@ export default function Sidebar({ nickname }: SidebarProps) {
                         <h2 className="font-epilogue font-bold text-gray-900 leading-tight">{nickname}</h2>
 
                         {/* Status Badge */}
-                        <div className={`text-[10px] font-bold uppercase tracking-widest mt-0.5 ${rankColor}`}>
-                            {rank}
+                        <div className={`text-[10px] font-bold uppercase tracking-widest mt-0.5 ${isGuest ? "text-gray-400" : rankColor}`}>
+                            {isGuest ? "GUEST ACCOUNT" : rank}
                         </div>
                     </div>
                 </div>
