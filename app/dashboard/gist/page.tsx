@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { fetchNews, type NewsItem } from "@/lib/news";
+import { getGist } from "@/app/actions/news";
+import { type NewsItem } from "@/lib/news";
 import GistFeed from "@/components/GistFeed";
 import DidYouKnow from "@/components/DidYouKnow";
 import { Sparkles, Newspaper, Lightbulb } from "lucide-react";
@@ -17,9 +18,7 @@ export default function GistPage() {
 
     useEffect(() => {
         const loadNews = async () => {
-            const fetchedNews = await fetchNews();
-            // Optional: Client-side filter for 'positive' keywords could go here
-            // For now, rely on source selection
+            const fetchedNews = await getGist();
             setNews(fetchedNews);
             setLoading(false);
         };
