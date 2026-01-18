@@ -44,6 +44,7 @@ export default function SettingsPage() {
     const [verified, setVerified] = useState(false);
     const [showCitizenshipTest, setShowCitizenshipTest] = useState(false);
     const [showVerificationModal, setShowVerificationModal] = useState(false);
+    const [showStrictTest, setShowStrictTest] = useState(false);
 
     // Track original values for dirty state detection
     const [originalNickname, setOriginalNickname] = useState('');
@@ -58,6 +59,18 @@ export default function SettingsPage() {
         const storedAvatar = localStorage.getItem('ghanry_avatar') || '🇬🇭';
         const storedStatus = localStorage.getItem('ghanry_status') || 'tourist';
         const storedVerified = localStorage.getItem('ghanry_verified') === 'true';
+
+        // Check verification cooldown
+        const cooldown = localStorage.getItem('ghanry_verification_cooldown');
+        if (cooldown) {
+            const timePassed = Date.now() - parseInt(cooldown);
+            const hoursLeft = 48 - (timePassed / (1000 * 60 * 60));
+            if (hoursLeft > 0) {
+                // Still locked, but we don't need to do anything here, just checking
+            } else {
+                localStorage.removeItem('ghanry_verification_cooldown'); // Expired
+            }
+        }
 
         setNickname(storedNick);
         setPassportId(storedId);
@@ -521,10 +534,10 @@ export default function SettingsPage() {
                             {/* Option 1: Purchase */}
                             <button
                                 onClick={() => {
-                                    if (xp >= 50000) {
-                                        if (window.confirm("Spend 50,000 XP to get verified?")) {
+                                    if (xp >= 10000) {
+                                        if (window.confirm("Spend 10,000 XP to get verified?")) {
                                             const currentxp = parseInt(localStorage.getItem('ghanry_xp') || '0');
-                                            localStorage.setItem('ghanry_xp', (currentxp - 50000).toString());
+                                            localStorage.setItem('ghanry_xp', (currentxp - 10000).toString());
 
                                             setVerified(true);
                                             localStorage.setItem('ghanry_verified', 'true');
@@ -535,7 +548,7 @@ export default function SettingsPage() {
                                             window.dispatchEvent(new Event('ghanry_profile_update'));
                                         }
                                     } else {
-                                        toast.error(`Insufficient XP. You need 50,000 XP. (Current: ${xp})`);
+                                        toast.error(`Insufficient XP. You need 10,000 XP. (Current: ${xp})`);
                                     }
                                 }}
                                 className="w-full p-4 rounded-xl border-2 border-blue-100 hover:border-blue-500 bg-blue-50 transition-all flex items-center justify-between group"
@@ -545,7 +558,7 @@ export default function SettingsPage() {
                                     <span className="text-xs text-blue-600 font-medium">Purchase with XP</span>
                                 </div>
                                 <div className="text-right">
-                                    <div className="font-black text-lg text-blue-600">50,000 XP</div>
+                                    <div className="font-black text-lg text-blue-600">10,000 XP</div>
                                 </div>
                             </button>
 
@@ -556,15 +569,70 @@ export default function SettingsPage() {
                             </div>
 
                             {/* Option 2: Earn (Disabled/Preview) */}
-                            <button disabled className="w-full p-4 rounded-xl border border-gray-100 bg-gray-50 opacity-60 cursor-not-allowed flex items-center justify-between">
-                                <div className="flex flex-col items-start">
-                                    <span className="font-bold text-gray-500 text-sm">Earned Status</span>
-                                    <span className="text-xs text-gray-400">Win 5 Unique Categories</span>
+                            {/* Option 2: Earn (Strict Mode) */}
+                            <button
+                                onClick={() => {
+                                    const cooldown = localStorage.getItem('ghanry_verification_cooldown');
+                                    if (cooldown) {
+                                        const timePassed = Date.now() - parseInt(cooldown);
+                                        const hoursLeft = 48 - (timePassed / (1000 * 60 * 60));
+                                        if (hoursLeft > 0) {
+                                            toast.error(`Verification Failed. Locked for ${Math.ceil(hoursLeft)} more hours.`);
+                                            return;
+                                        } else {
+                                            localStorage.removeItem('ghanry_verification_cooldown');
+                                        }
+                                    }
+                                    // Start Test
+                                    setShowVerificationModal(false); // Close menu
+                                    // You would trigger a new modal state here for the Strict Test
+                                    // For now, let's reuse showCitizenshipTest logic but pass a 'verification' mode prop if I refactor, 
+                                    // or better, create a new separate state for this strict test to keep it clean.
+                                    // Let's create `showStrictTest` state.
+                                    setShowStrictTest(true);
+                                }}
+                                className="w-full p-4 rounded-xl border border-gray-100 bg-white hover:border-[#006B3F] hover:bg-green-50 transition-all flex items-center justify-between group"
+                            >
+                                <div className="flex flex-col items-start text-left">
+                                    <span className="font-bold text-gray-800 text-sm group-hover:text-[#006B3F]">Earn Earned Status</span>
+                                    <span className="text-xs text-gray-400">Pass strict 10-question test</span>
                                 </div>
-                                <div className="bg-gray-200 text-gray-500 text-[10px] font-bold px-2 py-1 rounded">
-                                    LOCKED
+                                <div className="bg-gray-100 text-gray-500 text-[10px] font-bold px-2 py-1 rounded group-hover:bg-[#006B3F] group-hover:text-white transition-colors">
+                                    START
                                 </div>
                             </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Strict Verification Test Modal */}
+            {showStrictTest && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-50 duration-200">
+                        <div className="bg-red-600 p-6 text-white text-center">
+                            <h3 className="font-epilogue font-bold text-xl mb-1 flex items-center justify-center gap-2">
+                                <AlertTriangle size={20} className="text-white" />
+                                Strict Examination
+                            </h3>
+                            <p className="text-red-100 text-sm">0 Tolerance policy. One mistake = 48h Lockout.</p>
+                        </div>
+                        <div className="p-6">
+                            <StrictVerificationTest
+                                onSuccess={() => {
+                                    setVerified(true);
+                                    localStorage.setItem('ghanry_verified', 'true');
+                                    setShowStrictTest(false);
+                                    toast.success("VERIFIED! Welcome to the elite.");
+                                    confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+                                    window.dispatchEvent(new Event('ghanry_profile_update'));
+                                }}
+                                onFail={() => {
+                                    setShowStrictTest(false);
+                                    localStorage.setItem('ghanry_verification_cooldown', Date.now().toString());
+                                    toast.error("Application Failed. You are locked out for 48 hours.");
+                                }}
+                                onCancel={() => setShowStrictTest(false)}
+                            />
                         </div>
                     </div>
                 </div>
@@ -636,6 +704,64 @@ function CitizenshipTest({ onSuccess, onCancel }: { onSuccess: () => void, onCan
                 className="w-full py-3 text-gray-400 font-bold hover:text-gray-600 transition-colors"
             >
                 Cancel Application
+            </button>
+        </div>
+    );
+}
+
+import { historyQuestions } from '@/lib/data/history';
+
+function StrictVerificationTest({ onSuccess, onFail, onCancel }: { onSuccess: () => void, onFail: () => void, onCancel: () => void }) {
+    // We use all 10 history questions or a random subset. 
+    // User requested "10 most difficult questions". history.ts has exactly 10.
+    // We shuffle them to make it interesting.
+    const [questions] = useState(() => [...historyQuestions].sort(() => Math.random() - 0.5));
+    const [currentQ, setCurrentQ] = useState(0);
+
+    const handleAnswer = (optionText: string, isCorrect: boolean) => {
+        if (isCorrect) {
+            if (currentQ < questions.length - 1) {
+                setCurrentQ(currentQ + 1);
+            } else {
+                onSuccess();
+            }
+        } else {
+            onFail(); // Immediate failure mechanism
+        }
+    };
+
+    const q = questions[currentQ];
+
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-between items-center text-xs font-bold text-red-500 uppercase tracking-widest">
+                <span>Question {currentQ + 1}/{questions.length}</span>
+                <span className="flex items-center gap-1"><AlertTriangle size={12} /> DO OR DIE</span>
+            </div>
+
+            <div className="bg-red-50 p-4 rounded-xl border border-red-100">
+                <h4 className="font-epilogue font-bold text-lg text-gray-900 leading-tight">
+                    {q.text}
+                </h4>
+            </div>
+
+            <div className="space-y-2">
+                {q.options.sort(() => Math.random() - 0.5).map((opt) => (
+                    <button
+                        key={opt.id}
+                        onClick={() => handleAnswer(opt.text, opt.isCorrect)}
+                        className="w-full p-4 rounded-xl border-2 border-gray-100 hover:border-red-500 hover:bg-red-50 font-bold text-gray-700 transition-colors text-left"
+                    >
+                        {opt.text}
+                    </button>
+                ))}
+            </div>
+
+            <button
+                onClick={onCancel}
+                className="w-full py-3 text-gray-400 font-bold hover:text-gray-600 transition-colors text-xs uppercase tracking-wider"
+            >
+                Forfeit & Exit
             </button>
         </div>
     );
