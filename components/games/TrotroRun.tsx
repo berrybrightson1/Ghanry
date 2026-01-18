@@ -47,11 +47,19 @@ export default function TrotroRun() {
         }, 1000);
     };
 
-    // GENERATE CRASH POINT (Weighted House Edge)
-    // 1% chance of house edge (More player friendly)
+    // GENERATE CRASH POINT (Weighted Generosity)
+    // User requested "30x or 60x more often".
+    // We implement a "Golden Ride" mechanic: 15% chance of valid high multiplier.
     const generateCrashPoint = () => {
-        // Multiplier = 0.99 / (1 - random)
-        const m = 0.99 / (1 - Math.random());
+        const r = Math.random();
+
+        // 15% chance of a "Golden Ride" (guaranteed > 10x, up to 100x)
+        if (r < 0.15) {
+            return 10 + (Math.random() * 90);
+        }
+
+        // Standard inverse distribution for the rest, but fair (1.00 edge)
+        const m = 1.00 / (1 - Math.random());
         return Math.max(1.00, Math.floor(m * 100) / 100);
     };
 
@@ -70,7 +78,7 @@ export default function TrotroRun() {
         const elapsed = (now - startTimeRef.current) / 1000; // Seconds
 
         // Growth Function: Exponential
-        // M(t) = e^(0.06 * t)  -> Slower start, speeds up
+        // M(t) = e^(0.15 * t)  -> Slower start, speeds up
         const growth = Math.exp(0.15 * elapsed);
         const currentM = Math.floor(growth * 100) / 100;
 
@@ -106,13 +114,15 @@ export default function TrotroRun() {
         const winnings = Math.floor(betAmount * winM);
         addXP(winnings);
         notifyWin(winnings, winM);
-
-        // Note: Game continues running in background visually until crash, 
-        // effectively user is "safe" on the curb watching the bus crash later.
     };
 
     const notifyWin = (amount: number, mult: number) => {
-        // Custom "Aviator Style" Toast
+        // Haptic Feedback (if available)
+        if (typeof navigator !== "undefined" && navigator.vibrate) {
+            navigator.vibrate([100, 50, 100]);
+        }
+
+        // Custom "Aviator Style" Toast - Backup
         toast.custom(() => (
             <div className="bg-[#006B3F] border-2 border-[#FCD116] p-4 rounded-2xl shadow-[0_0_50px_rgba(0,107,63,0.6)] flex items-center gap-4 min-w-[300px] animate-in slide-in-from-top-full duration-500">
                 <div className="bg-[#FCD116] p-3 rounded-full">
@@ -152,18 +162,14 @@ export default function TrotroRun() {
                             {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-8 h-2 bg-yellow-500/50 rounded-full" />)}
                         </div>
                     </div>
-                    {/* Stars/Dust */}
-                    <div className={`absolute inset-0 ${gameState === "RUNNING" ? "animate-stars-scroll" : ""}`}>
-                        {/* CSS handled animation would be better, simplifying for React */}
-                    </div>
                 </div>
 
                 {/* THE TROTRO */}
                 <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
                     {/* Multiplier Display */}
                     <div className={`font-black font-mono transition-all duration-100 ${gameState === "CRASHED" ? "text-6xl text-red-600 drop-shadow-[0_0_30px_rgba(220,38,38,1)]" :
-                        cashedOutAt ? "text-6xl text-green-400 opacity-50 blur-sm" :
-                            `text-7xl ${getIntensityStyles(multiplier)}`
+                            cashedOutAt ? "text-6xl text-green-400 opacity-50 blur-sm" :
+                                `text-7xl ${getIntensityStyles(multiplier)}`
                         }`}>
                         {multiplier.toFixed(2)}x
                     </div>
@@ -184,12 +190,28 @@ export default function TrotroRun() {
                     {gameState === "CRASHED" ? "🚓" : "🚐"}
                 </motion.div>
 
-                {/* Status Overlay */}
+                {/* Status Overlay: BETTING */}
                 {gameState === "BETTING" && (
                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-20 backdrop-blur-sm">
                         <div className="text-center">
                             <p className="text-white/60 font-bold uppercase tracking-widest text-xs mb-2">Departing In</p>
                             <div className="text-5xl font-black text-white">{countdown}</div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Status Overlay: WIN (In-Game Modal) */}
+                {cashedOutAt && (
+                    <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+                        <div className="bg-[#006B3F]/90 backdrop-blur-md p-6 rounded-3xl border-2 border-[#FCD116] shadow-[0_0_50px_rgba(252,209,22,0.4)] animate-in zoom-in duration-300 text-center transform scale-100">
+                            <div className="bg-[#FCD116] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 shadow-lg">
+                                <Coins className="w-6 h-6 text-[#006B3F]" />
+                            </div>
+                            <div className="text-[#FCD116] text-xs font-bold uppercase tracking-widest mb-1">YOU ESCAPED!</div>
+                            <div className="text-4xl font-black text-white mb-2 leading-none">+{Math.floor(betAmount * cashedOutAt).toLocaleString()} XP</div>
+                            <div className="bg-black/20 rounded-lg py-1 px-3 inline-block">
+                                <div className="text-white/80 font-mono text-xs">@ {cashedOutAt.toFixed(2)}x</div>
+                            </div>
                         </div>
                     </div>
                 )}
