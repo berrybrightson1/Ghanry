@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useXP } from "@/hooks/useXP";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { Coins } from "lucide-react";
 
 export default function TrotroRun() {
     const { xp, spendXP, addXP } = useXP();
@@ -111,9 +112,27 @@ export default function TrotroRun() {
     };
 
     const notifyWin = (amount: number, mult: number) => {
-        toast.success(`ALIGHTED SAFELY!`, {
-            description: `Pocketed +${amount} XP (${mult.toFixed(2)}x)`
-        });
+        // Custom "Aviator Style" Toast
+        toast.custom(() => (
+            <div className="bg-[#006B3F] border-2 border-[#FCD116] p-4 rounded-2xl shadow-[0_0_50px_rgba(0,107,63,0.6)] flex items-center gap-4 min-w-[300px] animate-in slide-in-from-top-full duration-500">
+                <div className="bg-[#FCD116] p-3 rounded-full">
+                    <Coins className="w-8 h-8 text-black" />
+                </div>
+                <div>
+                    <p className="text-[#FCD116] text-xs font-bold uppercase tracking-widest mb-0.5">YOU WON</p>
+                    <p className="text-3xl font-black text-white leading-none">+{amount.toLocaleString()} XP</p>
+                    <p className="text-white/60 text-xs font-mono mt-1">@ {mult.toFixed(2)}x Multiplier</p>
+                </div>
+            </div>
+        ), { duration: 5000 });
+    };
+
+    // Helper to determine text intensity based on multiplier
+    const getIntensityStyles = (m: number) => {
+        if (m < 2) return "text-[#FCD116]";
+        if (m < 5) return "text-[#FCD116] scale-110 drop-shadow-[0_0_10px_rgba(252,209,22,0.8)]";
+        if (m < 10) return "text-orange-400 scale-125 drop-shadow-[0_0_20px_rgba(251,146,60,0.8)] animate-pulse";
+        return "text-red-500 scale-150 drop-shadow-[0_0_30px_rgba(239,68,68,1)] animate-bounce";
     };
 
     // Cleanup
@@ -140,11 +159,11 @@ export default function TrotroRun() {
                 </div>
 
                 {/* THE TROTRO */}
-                <div className="absolute inset-0 flex items-center justify-center z-10">
+                <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
                     {/* Multiplier Display */}
-                    <div className={`text-6xl font-black font-mono transition-all duration-100 ${gameState === "CRASHED" ? "text-red-500 scale-110 drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]" :
-                        cashedOutAt ? "text-green-400 opacity-50" :
-                            "text-[#FCD116] drop-shadow-[0_0_15px_rgba(252,209,22,0.5)]"
+                    <div className={`font-black font-mono transition-all duration-100 ${gameState === "CRASHED" ? "text-6xl text-red-600 drop-shadow-[0_0_30px_rgba(220,38,38,1)]" :
+                        cashedOutAt ? "text-6xl text-green-400 opacity-50 blur-sm" :
+                            `text-7xl ${getIntensityStyles(multiplier)}`
                         }`}>
                         {multiplier.toFixed(2)}x
                     </div>
