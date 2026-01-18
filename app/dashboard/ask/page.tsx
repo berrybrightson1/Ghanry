@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Send, Sparkles, User, Bot, Trash2, ArrowLeft } from "lucide-react";
+// import { motion, AnimatePresence } from "framer-motion"; // Removed for simplicity/stability
+import { Send, Sparkles, Bot, Trash2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
     role: "user" | "bot";
@@ -16,6 +17,7 @@ export default function AskGhanryPage() {
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Load history from localStorage
     useEffect(() => {
@@ -47,7 +49,7 @@ export default function AskGhanryPage() {
         }
     }, [messages]);
 
-    const handleSend = async () => {
+    const sendMessage = async () => {
         if (!input.trim() || isLoading) return;
 
         const userMsg: Message = { role: "user", content: input };
@@ -125,80 +127,81 @@ export default function AskGhanryPage() {
             </div>
 
             {/* Chat Area */}
-            <div
-                ref={scrollRef}
-                className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-6 no-scrollbar"
-            >
-                <AnimatePresence initial={false}>
-                    {messages.map((msg, idx) => (
-                        <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                        >
-                            <div className={`flex gap-3 max-w-[90%] md:max-w-[80%] ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
-                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm ${msg.role === "user" ? "bg-[#006B3F] text-white" : "bg-ghana-gold text-green-900"
-                                    }`}>
-                                    {msg.role === "user" ? <User className="w-4 h-4" /> : <Bot className="w-5 h-5" />}
-                                </div>
-                                <div className={`p-4 rounded-2xl shadow-sm text-sm ${msg.role === "user"
-                                    ? "bg-[#006B3F] text-white rounded-tr-none"
-                                    : "bg-white text-gray-800 rounded-tl-none border border-gray-100"
-                                    }`}>
-                                    <p className="font-jakarta leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 pb-24 md:pb-6 scroll-smooth">
+                {messages.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-center p-8 opacity-50">
+                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                            <span className="text-4xl">🇬🇭</span>
+                        </div>
+                        <p className="font-epilogue font-bold text-gray-500 text-lg">&quot;Chale, ask me anything about Ghana!&quot;</p>
+                    </div>
+                ) : (
+                    <>
+                        {messages.map((msg, idx) => (
+                            <div
+                                key={idx}
+                                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                            >
+                                <div
+                                    className={`max-w-[85%] md:max-w-[70%] p-4 rounded-2xl text-sm md:text-base leading-relaxed ${msg.role === "user"
+                                        ? "bg-[#006B3F] text-white rounded-br-none shadow-md"
+                                        : "bg-gray-100 text-gray-800 rounded-bl-none"
+                                        }`}
+                                >
+                                    <ReactMarkdown>{msg.content}</ReactMarkdown>
                                 </div>
                             </div>
-                        </motion.div>
-                    ))}
-                    {isLoading && (
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="flex justify-start"
-                        >
-                            <div className="flex gap-3">
-                                <div className="w-8 h-8 rounded-xl bg-ghana-gold text-green-900 flex items-center justify-center shadow-sm">
-                                    <Bot className="w-5 h-5 animate-bounce" />
-                                </div>
-                                <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm">
-                                    <div className="flex gap-1 items-center h-4">
-                                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.3s]" />
-                                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.15s]" />
-                                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" />
+                        ))}
+                        {isLoading && (
+                            <div className="flex justify-start">
+                                <div className="flex gap-3">
+                                    <div className="w-8 h-8 rounded-xl bg-ghana-gold text-green-900 flex items-center justify-center shadow-sm">
+                                        <Bot className="w-5 h-5 animate-bounce" />
+                                    </div>
+                                    <div className="bg-white p-4 rounded-2xl rounded-tl-none border border-gray-100 shadow-sm">
+                                        <div className="flex gap-1 items-center h-4">
+                                            <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                                            <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                                            <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                        )}
+                    </>
+                )}
+                <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Area */}
-            <div className="p-4 bg-white border-t border-gray-100 relative z-20">
-                <div className="max-w-4xl mx-auto flex gap-2">
-                    <div className="flex-1 relative">
-                        <input
-                            type="text"
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                            placeholder="Ask me anything..."
-                            className="w-full p-4 pr-12 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#006B3F] focus:border-transparent transition-all font-jakarta text-sm"
-                        />
-                        <button
-                            onClick={handleSend}
-                            disabled={isLoading || !input.trim()}
-                            aria-label="Send message"
-                            className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all ${input.trim() && !isLoading
-                                ? "bg-[#006B3F] text-white shadow-md shadow-green-900/20"
-                                : "text-gray-300"
-                                }`}
-                        >
-                            <Send className="w-5 h-5" />
-                        </button>
-                    </div>
-                </div>
+            {/* Input Area - Fixed at bottom */}
+            <div className="flex-shrink-0 border-t border-gray-100 bg-white p-4 md:p-6 z-20 sticky bottom-0 md:static w-full">
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        sendMessage();
+                    }}
+                    className="relative max-w-4xl mx-auto flex items-center gap-2"
+                >
+                    <input
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        placeholder="Ask anything about Ghana..."
+                        className="w-full pl-5 pr-14 py-4 bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all font-jakarta text-gray-700"
+                        disabled={isLoading} // Changed 'loading' to 'isLoading'
+                    />
+                    <button
+                        type="submit"
+                        disabled={isLoading || !input.trim()}
+                        title="Send message"
+                        className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl transition-all ${input.trim() && !isLoading
+                            ? "bg-[#006B3F] text-white shadow-md shadow-green-900/20"
+                            : "text-gray-300"
+                            }`}
+                    >
+                        <Send className="w-5 h-5" />
+                    </button>
+                </form>
                 <p className="text-[10px] text-center text-gray-400 mt-2 font-jakarta uppercase tracking-widest">
                     AI may make mistakes. Verify important info.
                 </p>

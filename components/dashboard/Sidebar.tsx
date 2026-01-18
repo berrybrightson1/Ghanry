@@ -10,9 +10,10 @@ import { calculateProgress, getRankColor } from "@/lib/gamification";
 interface SidebarProps {
     nickname: string;
     isGuest?: boolean;
+    avatar?: string;
 }
 
-export default function Sidebar({ nickname, isGuest = false }: SidebarProps) {
+export default function Sidebar({ nickname, isGuest = false, avatar }: SidebarProps) {
     const pathname = usePathname();
     const { xp } = useXP();
     const { rank } = calculateProgress(xp);
@@ -41,8 +42,8 @@ export default function Sidebar({ nickname, isGuest = false }: SidebarProps) {
             {/* Header: Passport Info */}
             <div className="p-6 border-b border-gray-50">
                 <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-gray-100 border-2 border-ghana-gold overflow-hidden flex items-center justify-center text-gray-500 font-bold">
-                        {nickname.slice(0, 2).toUpperCase()}
+                    <div className="w-12 h-12 rounded-full bg-gray-100 border-2 border-ghana-gold overflow-hidden flex items-center justify-center text-gray-500 font-bold text-xl">
+                        {avatar || nickname.slice(0, 2).toUpperCase()}
                     </div>
                     <div>
                         <h2 className="font-epilogue font-bold text-gray-900 leading-tight">{nickname}</h2>

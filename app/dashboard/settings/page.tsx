@@ -1,11 +1,9 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, X, LogOut, Star, Eye, EyeOff } from 'lucide-react';
+import { ChevronDown, ChevronUp, Copy, AlertTriangle, Eye, EyeOff, Check, X, LogOut, Star } from 'lucide-react';
 import { useStreak } from '@/hooks/useStreak';
-import { usePWA } from '@/hooks/usePWA';
 import { useXP } from '@/hooks/useXP';
-import { Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
@@ -13,12 +11,16 @@ export default function SettingsPage() {
     const [nickname, setNickname] = useState('');
     const [passportId, setPassportId] = useState('');
     const [avatar, setAvatar] = useState('🇬🇭'); // Default
-    const [password, setPassword] = useState('');
+
+    // Password state
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+
     const [sound, setSound] = useState(false); // Default to OFF
     const { streak } = useStreak();
     const { xp } = useXP();
-    const { isInstallable, handleInstall } = usePWA();
+    const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
     // Track original values for dirty state detection
     const [originalNickname, setOriginalNickname] = useState('');
@@ -52,7 +54,18 @@ export default function SettingsPage() {
         passportId !== originalPassportId ||
         avatar !== originalAvatar ||
         sound !== originalSound ||
-        password.trim() !== '';
+        newPassword.trim() !== '';
+
+    const handleCopyID = () => {
+        navigator.clipboard.writeText(passportId);
+        toast.success("Passport ID copied!");
+    };
+
+    const handleAvatarChange = (newAv: string) => {
+        setAvatar(newAv);
+        // Immediate visual feedback is handled by local state, 
+        // but 'save' handles the persistent sync.
+    };
 
     const handleSaveChanges = async () => {
         // Validation
@@ -72,12 +85,13 @@ export default function SettingsPage() {
         localStorage.setItem('ghanry_avatar', avatar);
         localStorage.setItem('ghanry_sound', sound.toString());
 
+        // Dispatch Event for Sidebar Sync
+        window.dispatchEvent(new Event('ghanry_profile_update'));
+
         // Sync with Firestore if connected
         if (passportId) {
             try {
                 const { doc, updateDoc, getFirestore } = await import('firebase/firestore');
-                // We assume firebase app is initialized in lib/firebase, but importing db directly is better if available
-                // Fallback to simple local storage logic if imports fail, but let's try strict
                 const db = getFirestore();
                 await updateDoc(doc(db, "users", passportId), {
                     nickname,
@@ -88,22 +102,28 @@ export default function SettingsPage() {
             }
         }
 
-        if (password.trim()) {
+        if (newPassword.trim()) {
             // Save password (in real app this would be hashed and sent to server)
-            localStorage.setItem('ghanry_password', password);
+            localStorage.setItem('ghanry_password', newPassword);
             toast.success('Password updated successfully!', { duration: 2000 });
         }
 
-        toast.success('Settings saved!', { duration: 2000 });
+        // Minimal confirmation as requested
+        toast.success('Settings Saved', {
+            position: 'bottom-center',
+            className: 'bg-black text-white border-0',
+            duration: 1500
+        });
 
         // Update original values
         setOriginalNickname(nickname);
         setOriginalPassportId(passportId);
         setOriginalAvatar(avatar);
         setOriginalSound(sound);
-        setPassword('');
+        setNewPassword('');
+        setCurrentPassword('');
 
-        setTimeout(() => router.push('/dashboard'), 500);
+        // No forced redirect, let them stay
     };
 
     const handleCancel = () => {
@@ -112,31 +132,38 @@ export default function SettingsPage() {
         setPassportId(originalPassportId);
         setAvatar(originalAvatar);
         setSound(originalSound);
-        setPassword('');
-        router.back();
+        setNewPassword('');
+        setCurrentPassword('');
     };
 
     const handleDeleteAccount = () => {
-        toast("Are you sure?", {
-            description: passportId ? "This will permanently delete your rank, streaks, and account." : "This will wipe your guest progress.",
-            action: {
-                label: "Delete Everything",
-                onClick: async () => {
-                    if (passportId) {
-                        try {
-                            const { deleteDoc, doc, getFirestore } = await import('firebase/firestore');
-                            const db = getFirestore();
-                            await deleteDoc(doc(db, "users", passportId));
-                        } catch (e) {
-                            console.error("Delete failed", e);
-                        }
-                    }
+        // Step 1: Prompt for reason (using Sonner for a simple inline-like flow or custom modal)
+        // Since user asked for "answering 1 question or telling us why", we'll simulate this with a toast action for now 
+        // or effectively we can assume the clicking of the button IS the start of that flow.
+
+        // Let's implement a simple prompt using window.prompt or just a direct confirm for V1 efficiency 
+        // respecting the "click to unfold then select delete" instruction.
+
+        const reason = window.prompt("We're sad to see you go. Please tell us why you are leaving:");
+
+        if (reason !== null) { // If they didn't cancel the prompt
+            if (passportId) {
+                // Delete logic
+                toast("Deleting Account...", { description: "Goodbye, friend." });
+                // Async delete...
+                (async () => {
+                    try {
+                        const { deleteDoc, doc, getFirestore } = await import('firebase/firestore');
+                        const db = getFirestore();
+                        await deleteDoc(doc(db, "users", passportId));
+                    } catch (e) { console.error(e) }
                     handleLogout();
-                    toast.success("Account deleted.");
-                }
-            },
-            cancel: { label: "Cancel", onClick: () => { } }
-        });
+                })();
+            } else {
+                handleLogout();
+                toast.success("Guest Session Reset.");
+            }
+        }
     };
 
     const handleLogout = () => {
@@ -146,6 +173,9 @@ export default function SettingsPage() {
         localStorage.removeItem("ghanry_region");
         localStorage.removeItem("ghanry_status");
         localStorage.removeItem("ghanry_password");
+        localStorage.removeItem("ghanry_avatar");
+        // Dispatch cleanup
+        window.dispatchEvent(new Event('ghanry_profile_update'));
         router.push("/");
     };
 
@@ -171,33 +201,51 @@ export default function SettingsPage() {
 
                     <div>
                         <label htmlFor="passport-id" className="block font-jakarta font-medium mb-1.5 text-sm text-gray-700">Passport ID</label>
-                        <input
-                            id="passport-id"
-                            type="text"
-                            value={passportId}
-                            onChange={e => setPassportId(e.target.value)}
-                            className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] font-epilogue font-bold text-gray-900"
-                        />
+                        <div className="relative">
+                            <input
+                                id="passport-id"
+                                type="text"
+                                value={passportId}
+                                onChange={e => setPassportId(e.target.value)}
+                                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 pr-10 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] font-epilogue font-bold text-gray-900 uppercase"
+                            />
+                            <button
+                                onClick={handleCopyID}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#006B3F] transition-colors"
+                            >
+                                <Copy size={18} />
+                            </button>
+                        </div>
                     </div>
 
                     <div>
-                        <label htmlFor="password" className="block font-jakarta font-medium mb-1.5 text-sm text-gray-700">Change Password</label>
-                        <div className="relative">
-                            <input
-                                id="password"
-                                type={showPassword ? "text" : "password"}
-                                value={password}
-                                onChange={e => setPassword(e.target.value)}
-                                placeholder="Enter new password (optional)"
-                                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 pr-12 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] font-epilogue font-bold text-gray-900"
-                            />
-                            <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                            >
-                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
+                        <label className="block font-jakarta font-medium mb-1.5 text-sm text-gray-700">Security</label>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={currentPassword}
+                                    onChange={e => setCurrentPassword(e.target.value)}
+                                    placeholder="Current Password"
+                                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] font-jakarta text-sm"
+                                />
+                            </div>
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={newPassword}
+                                    onChange={e => setNewPassword(e.target.value)}
+                                    placeholder="New Password"
+                                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 pr-12 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] font-jakarta text-sm"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                >
+                                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -209,7 +257,7 @@ export default function SettingsPage() {
                                 <button
                                     key={av}
                                     type="button"
-                                    onClick={() => setAvatar(av)}
+                                    onClick={() => handleAvatarChange(av)}
                                     className={`aspect-square rounded-xl flex items-center justify-center text-2xl transition-all ${avatar === av
                                         ? "bg-[#006B3F] border-2 border-[#FCD116] scale-110 shadow-md"
                                         : "bg-gray-50 border border-gray-200 hover:bg-gray-100"
@@ -251,26 +299,6 @@ export default function SettingsPage() {
                     </div>
                 </div>
 
-                {/* App Install */}
-                {isInstallable && (
-                    <div className="p-6 bg-[#006B3F] rounded-3xl text-white shadow-xl shadow-green-900/20 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-                        <div className="relative z-10 flex flex-col gap-4">
-                            <div>
-                                <h3 className="text-lg font-epilogue font-bold mb-1">Install Ghanry</h3>
-                                <p className="text-white/80 text-sm font-jakarta">Play offline and access faster.</p>
-                            </div>
-                            <button
-                                onClick={handleInstall}
-                                className="w-full py-3 bg-white text-[#006B3F] font-epilogue font-bold rounded-xl hover:bg-green-50 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <Download size={18} />
-                                Install App
-                            </button>
-                        </div>
-                    </div>
-                )}
-
                 {/* Actions - Only show if changes made */}
                 {hasChanges && (
                     <div className="pt-4 flex flex-col gap-3">
@@ -291,21 +319,36 @@ export default function SettingsPage() {
                     </div>
                 )}
 
-                {/* Danger Zone */}
-                <div className="bg-red-50 p-6 rounded-2xl border border-red-100 space-y-4">
-                    <h2 className="font-bold text-red-400 text-xs uppercase tracking-wider flex items-center gap-2">
-                        Danger Zone
-                    </h2>
-                    <p className="text-sm text-red-800/60 font-jakarta">
-                        {passportId ? "Delete your passport and all associated data permanently." : "Clear your guest session and local progress."}
-                    </p>
+                {/* Advanced Settings (Collapse) */}
+                <div className="border border-gray-200 rounded-2xl overflow-hidden bg-gray-50">
                     <button
-                        onClick={handleDeleteAccount}
-                        className="w-full py-3 bg-white text-red-600 border border-red-200 font-bold rounded-xl hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+                        onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
+                        className="w-full flex items-center justify-between p-4 bg-white hover:bg-gray-50 transition-colors"
                     >
-                        <LogOut size={16} />
-                        {passportId ? "Delete Account" : "Reset Guest Session"}
+                        <span className="font-bold text-gray-700 font-epilogue">Advanced Settings</span>
+                        {isAdvancedOpen ? <ChevronUp size={20} className="text-gray-400" /> : <ChevronDown size={20} className="text-gray-400" />}
                     </button>
+
+                    {isAdvancedOpen && (
+                        <div className="p-6 border-t border-gray-100 bg-gray-50 space-y-4 animate-in slide-in-from-top-2 duration-200">
+                            {/* Danger Zone */}
+                            <div className="space-y-4">
+                                <h3 className="font-bold text-red-500 text-xs uppercase tracking-wider flex items-center gap-2">
+                                    <AlertTriangle size={14} /> Danger Zone
+                                </h3>
+                                <p className="text-sm text-gray-500 font-jakarta">
+                                    Once you delete your account, there is no going back. Please be certain.
+                                </p>
+                                <button
+                                    onClick={handleDeleteAccount}
+                                    className="w-full py-3 bg-white text-red-600 border border-red-200 font-bold rounded-xl hover:bg-red-50 transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <LogOut size={16} />
+                                    {passportId ? "Delete Account" : "Reset Guest Session"}
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Logout - Always visible */}
