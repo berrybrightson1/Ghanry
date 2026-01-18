@@ -14,7 +14,9 @@ const firebaseConfig = {
 // Initialize Firebase (Singleton pattern to avoid multiple instances in Next.js)
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-const auth = getAuth(app);
+// Authentication is NOT used in this app (we use custom Firestore implementation)
+// Disabling getAuth() prevents "400 Bad Request" errors on Identity Platform
+const auth = null; // getAuth(app);
 const db = getFirestore(app);
 
 export { app, auth, db };
