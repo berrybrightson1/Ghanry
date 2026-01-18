@@ -47,13 +47,10 @@ export default function TrotroRun() {
     };
 
     // GENERATE CRASH POINT (Weighted House Edge)
-    // 3% chance of instant crash (1.00x)
-    // Average crash around 2.0x
+    // 1% chance of house edge (More player friendly)
     const generateCrashPoint = () => {
-        // Simpler reliable algorithm for demo:
         // Multiplier = 0.99 / (1 - random)
-        // Check if crash < 1.00 => set to 1.00
-        const m = 0.96 / (1 - Math.random());
+        const m = 0.99 / (1 - Math.random());
         return Math.max(1.00, Math.floor(m * 100) / 100);
     };
 
@@ -193,9 +190,9 @@ export default function TrotroRun() {
                 <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex justify-between items-center">
                     <div className="text-xs uppercase text-white/40 font-bold">Wager</div>
                     <div className="flex items-center gap-4">
-                        <button onClick={() => setBetAmount(Math.max(50, betAmount - 50))} className="p-2 hover:bg-white/10 rounded-full text-white/60">-</button>
+                        <button onClick={() => setBetAmount(Math.max(10, betAmount - 10))} className="p-2 hover:bg-white/10 rounded-full text-white/60">-</button>
                         <div className="font-mono font-bold text-xl text-[#FCD116] w-20 text-center">{betAmount}</div>
-                        <button onClick={() => setBetAmount(Math.min(xp, betAmount + 50))} className="p-2 hover:bg-white/10 rounded-full text-white/60">+</button>
+                        <button onClick={() => setBetAmount(Math.min(xp, betAmount + 10))} className="p-2 hover:bg-white/10 rounded-full text-white/60">+</button>
                     </div>
                 </div>
 
