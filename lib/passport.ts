@@ -49,7 +49,7 @@ export const createAccount = async (nickname: string, region: string, pin: strin
             touristVisaUsed: status === 'tourist',
             joinedAt,
             badges: status === 'citizen' ? ["Citizen"] : ["New Arrival"],
-            avatar: status === 'citizen' ? undefined : undefined // Default to initials for now, or icon later
+            avatar: null // Default to null, Firestore does not support undefined
         };
 
         // Save to "users" collection with passportId as the Document ID
