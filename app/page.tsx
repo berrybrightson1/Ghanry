@@ -171,10 +171,8 @@ export default function Home() {
         localStorage.setItem("ghanry_xp", result.user.xp.toString());
       }
 
-      // DEV: Force Verify Owner Account
-      if (loginId.toUpperCase() === "GH-1193-F") {
-        localStorage.setItem("ghanry_verified", "true");
-      } else if (result.user?.verified) {
+      // Only sync verification status from database (don't auto-verify)
+      if (result.user?.verified) {
         localStorage.setItem("ghanry_verified", "true");
       }
 

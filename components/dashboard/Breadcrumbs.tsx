@@ -2,31 +2,30 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, Star } from "lucide-react";
+import { ChevronRight, Star, Menu } from "lucide-react";
 import { useXP } from "@/hooks/useXP";
 
-// interface BreadcrumbsProps {
-//     onMenuClick?: () => void;
-// }
+interface BreadcrumbsProps {
+    onMenuClick?: () => void;
+}
 
-export default function Breadcrumbs() {
-    // Mobile menu trigger removed, prop kept in interface for compatibility
+export default function Breadcrumbs({ onMenuClick }: BreadcrumbsProps) {
     const pathname = usePathname();
     const paths = pathname.split("/").filter(Boolean);
-    const { xp } = useXP(); // Get XP directly from hook for real-time updates
+    const { xp } = useXP();
 
     return (
         <div className="w-full px-6 py-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-                {/* Mobile Menu Trigger - REMOVED per user request (Bottom Nav used instead) */}
-                {/* <button
+                {/* Mobile Menu Trigger */}
+                <button
                     onClick={onMenuClick}
                     aria-label="Open mobile menu"
                     title="Open mobile menu"
                     className="sm:hidden h-12 w-12 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm transition-all active:scale-95 flex-shrink-0"
                 >
                     <Menu className="w-5 h-5" />
-                </button> */}
+                </button>
 
                 <div className="inline-flex items-center gap-1.5 px-4 h-12 bg-white/80 backdrop-blur-md border border-gray-200 rounded-xl shadow-sm text-sm font-jakarta flex-1 overflow-hidden min-w-0">
                     <Link href="/dashboard" className="text-gray-400 font-bold hover:text-[#006B3F] transition-colors flex-shrink-0">

@@ -5,7 +5,7 @@ import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
 import { useEffect, useState } from "react";
 
 import MobileSidebar from "@/components/dashboard/MobileSidebar";
-import BottomNav from "@/components/dashboard/BottomNav";
+// import BottomNav from "@/components/dashboard/BottomNav";
 
 import { usePathname } from 'next/navigation';
 
@@ -83,20 +83,20 @@ export default function DashboardLayout({
             <div className="flex-1 h-full relative flex flex-col overflow-hidden">
                 {/* Fixed Header */}
                 <div className="flex-shrink-0 sticky top-0 z-30 w-full bg-gray-50/90 backdrop-blur-md border-b border-gray-100/50">
-                    <Breadcrumbs />
+                    <Breadcrumbs onMenuClick={() => setIsMobileMenuOpen(true)} />
                 </div>
 
                 {/* Scrollable Content */}
                 <div className={`flex-1 relative ${isChatPage ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
-                    <div className={`${isChatPage ? 'h-full flex flex-col' : 'min-h-full pb-24 sm:pb-8'}`}>
+                    <div className={`${isChatPage ? 'h-full flex flex-col' : 'min-h-full pb-8'}`}>
                         {children}
                     </div>
                 </div>
 
-                {/* Mobile Bottom Nav */}
-                <div className="sm:hidden">
+                {/* Mobile Bottom Nav REMOVED per user request */}
+                {/* <div className="sm:hidden">
                     <BottomNav />
-                </div>
+                </div> */}
             </div>
 
         </div>

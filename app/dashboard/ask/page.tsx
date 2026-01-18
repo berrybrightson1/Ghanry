@@ -18,9 +18,11 @@ export default function AskGhanryPage() {
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // Load history from localStorage
+    // Load history from localStorage (USER-SPECIFIC)
     useEffect(() => {
-        const savedMessages = localStorage.getItem("ghanry_chat_history");
+        const passportId = localStorage.getItem("ghanry_passport_id") || "guest";
+        const chatKey = `ghanry_chat_${passportId}`;
+        const savedMessages = localStorage.getItem(chatKey);
         if (savedMessages) {
             setMessages(JSON.parse(savedMessages));
         } else {
@@ -34,10 +36,12 @@ export default function AskGhanryPage() {
         }
     }, []);
 
-    // Save history to localStorage
+    // Save history to localStorage (USER-SPECIFIC)
     useEffect(() => {
         if (messages.length > 0) {
-            localStorage.setItem("ghanry_chat_history", JSON.stringify(messages));
+            const passportId = localStorage.getItem("ghanry_passport_id") || "guest";
+            const chatKey = `ghanry_chat_${passportId}`;
+            localStorage.setItem(chatKey, JSON.stringify(messages));
         }
     }, [messages]);
 
@@ -91,7 +95,9 @@ export default function AskGhanryPage() {
                         content: "Akwaaba! I am Ghanry, your expert guide to the Motherland. Ask me anything about Ghana's history, food, culture, or even a tricky quiz question you're stuck on! 🇬🇭✨"
                     }];
                     setMessages(initial);
-                    localStorage.setItem("ghanry_chat_history", JSON.stringify(initial));
+                    const passportId = localStorage.getItem("ghanry_passport_id") || "guest";
+                    const chatKey = `ghanry_chat_${passportId}`;
+                    localStorage.setItem(chatKey, JSON.stringify(initial));
                     toast.success("History cleared!");
                 },
             },
