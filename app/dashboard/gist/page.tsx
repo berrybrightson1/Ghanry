@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { fetchNews, type NewsItem } from "@/lib/news";
 import GistFeed from "@/components/GistFeed";
-import HallOfFame from "@/components/HallOfFame";
-import { Sparkles, Newspaper, Crown } from "lucide-react";
+import DidYouKnow from "@/components/DidYouKnow";
+import { Sparkles, Newspaper, Lightbulb } from "lucide-react";
 import RefreshButton from "@/components/RefreshButton";
 import { useEffect } from "react";
 
-type Tab = "news" | "legends";
+type Tab = "news" | "facts";
 
 export default function GistPage() {
     const [activeTab, setActiveTab] = useState<Tab>("news");
@@ -18,6 +18,8 @@ export default function GistPage() {
     useEffect(() => {
         const loadNews = async () => {
             const fetchedNews = await fetchNews();
+            // Optional: Client-side filter for 'positive' keywords could go here
+            // For now, rely on source selection
             setNews(fetchedNews);
             setLoading(false);
         };
@@ -34,7 +36,7 @@ export default function GistPage() {
                         Gist Hub
                     </h1>
                     <p className="text-gray-500 font-jakarta text-sm lowercase">
-                        {activeTab === "news" ? "latest buzz from ghana & beyond." : "discover ghana's legends."}
+                        {activeTab === "news" ? "positive vibes only." : "discover ghana's hidden gems."}
                     </p>
                 </div>
                 {activeTab === "news" && <RefreshButton />}
@@ -53,14 +55,14 @@ export default function GistPage() {
                     The Gist
                 </button>
                 <button
-                    onClick={() => setActiveTab("legends")}
-                    className={`flex-1 py-3 rounded-full font-epilogue font-bold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === "legends"
+                    onClick={() => setActiveTab("facts")}
+                    className={`flex-1 py-3 rounded-full font-epilogue font-bold text-sm transition-all flex items-center justify-center gap-2 ${activeTab === "facts"
                         ? "bg-white text-ghana-gold shadow-sm"
                         : "text-gray-500 hover:text-gray-700"
                         }`}
                 >
-                    <Crown className="w-4 h-4" />
-                    Hall of Fame
+                    <Lightbulb className="w-4 h-4" />
+                    Did You Know?
                 </button>
             </div>
 
@@ -68,13 +70,13 @@ export default function GistPage() {
             {activeTab === "news" ? (
                 loading ? (
                     <div className="text-center py-12 text-gray-500 font-jakarta">
-                        Loading news...
+                        Loading vibes...
                     </div>
                 ) : (
                     <GistFeed initialNews={news} />
                 )
             ) : (
-                <HallOfFame />
+                <DidYouKnow />
             )}
         </div>
     );
