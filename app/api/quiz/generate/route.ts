@@ -35,7 +35,7 @@ export async function POST(req: Request) {
         }
 
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash", // Using standard stable model for JSON tasks
+            model: "gemini-1.5-flash-001", // Using standard stable model for JSON tasks
             systemInstruction: SYSTEM_PROMPT,
             generationConfig: {
                 responseMimeType: "application/json"

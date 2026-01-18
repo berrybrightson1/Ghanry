@@ -25,7 +25,7 @@ export default function Home() {
   const [newPassportId, setNewPassportId] = useState("");
 
   // Login
-  const [loginId, setLoginId] = useState("");
+  const [loginId, setLoginId] = useState("GH-1193-F");
   const [loginPin, setLoginPin] = useState("");
   const [loginAttempts, setLoginAttempts] = useState(0);
 
@@ -169,6 +169,13 @@ export default function Home() {
       }
       if (result.user?.xp !== undefined) {
         localStorage.setItem("ghanry_xp", result.user.xp.toString());
+      }
+
+      // DEV: Force Verify Owner Account
+      if (loginId.toUpperCase() === "GH-1193-F") {
+        localStorage.setItem("ghanry_verified", "true");
+      } else if (result.user?.verified) {
+        localStorage.setItem("ghanry_verified", "true");
       }
 
       setLoginAttempts(0);

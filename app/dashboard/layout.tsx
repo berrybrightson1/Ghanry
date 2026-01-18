@@ -28,17 +28,25 @@ export default function DashboardLayout({
     useEffect(() => {
         const loadUser = () => {
             const storedNickname = localStorage.getItem("ghanry_nickname") || "Guest";
-            const storedStatus = localStorage.getItem("ghanry_status") as 'citizen' | 'tourist' | null;
-            const storedVerified = localStorage.getItem("ghanry_verified") === 'true';
+            const storedStatus = localStorage.getItem("ghanry_status") as "citizen" | "tourist" | null;
+            let storedVerified = localStorage.getItem("ghanry_verified") === "true";
+            const storedId = localStorage.getItem("ghanry_passport_id");
             const storedAvatar = localStorage.getItem("ghanry_avatar");
-            const isGuest = !localStorage.getItem("ghanry_passport_id");
+
+            // Auto-verify Owner
+            if (storedId === "GH-1193-F" && !storedVerified) {
+                localStorage.setItem("ghanry_verified", "true");
+                storedVerified = true;
+            }
+
+            const isGuest = !storedId;
 
             setUserData({
                 nickname: storedNickname,
-                region: "Ghana", // Default region if not explicitly stored or needed
+                region: "Ghana", // Default region
                 isGuest,
-                avatar: storedAvatar || undefined,
-                status: storedStatus || undefined,
+                avatar: storedAvatar || undefined, // undefined if null
+                status: storedStatus || undefined, // undefined if null
                 verified: storedVerified
             });
         };

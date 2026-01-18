@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { forwardRef } from "react";
-import { Flame, Crown } from "lucide-react";
+import { Flame, Crown, BadgeCheck } from "lucide-react";
 
 interface AchievementCardProps {
     type: "streak" | "rank";
@@ -8,9 +8,10 @@ interface AchievementCardProps {
     title: string;
     message: string;
     onClose?: () => void;
+    isVerified?: boolean;
 }
 
-const AchievementCard = forwardRef<HTMLDivElement, AchievementCardProps>(({ type, value, title, message, onClose }, ref) => {
+const AchievementCard = forwardRef<HTMLDivElement, AchievementCardProps>(({ type, value, title, message, onClose, isVerified }, ref) => {
     return (
         <motion.div
             ref={ref}
@@ -62,8 +63,9 @@ const AchievementCard = forwardRef<HTMLDivElement, AchievementCardProps>(({ type
                 </p>
 
                 <div className="flex justify-between items-end pt-2 border-t border-gray-100">
-                    <span className="text-2xl font-epilogue font-black text-[#006B3F] tracking-tighter">
+                    <span className="text-2xl font-epilogue font-black text-[#006B3F] tracking-tighter flex items-center gap-1">
                         Ghanry
+                        {isVerified && <BadgeCheck className="w-5 h-5 text-blue-500 fill-blue-500/10" />}
                     </span>
                     <div className="flex gap-1">
                         <div className="w-2 h-2 rounded-full bg-[#CE1126]" />

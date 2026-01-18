@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Flame, Star, Shield, Crown, ArrowLeft, Download, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import AchievementCard from "@/components/AchievementCard";
 import { useXP } from "@/hooks/useXP";
 import { useStreak } from "@/hooks/useStreak";
@@ -59,8 +59,13 @@ export default function JourneyPage() {
     const { xp } = useXP();
     const { streak } = useStreak();
     const [selectedMilestone, setSelectedMilestone] = useState<Milestone | null>(null);
+    const [isVerified, setIsVerified] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setIsVerified(localStorage.getItem("ghanry_verified") === "true");
+    }, []);
 
     const isUnlocked = (milestone: Milestone) => {
         if (milestone.type === "rank") return xp >= milestone.threshold;
@@ -174,6 +179,7 @@ export default function JourneyPage() {
                             value={selectedMilestone.value}
                             title={selectedMilestone.title}
                             message={selectedMilestone.message}
+                            isVerified={isVerified}
                             onClose={() => !isExporting && setSelectedMilestone(null)}
                         />
 
