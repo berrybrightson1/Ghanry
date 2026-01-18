@@ -8,6 +8,7 @@ import {
 import { useStreak } from '@/hooks/useStreak';
 import { useXP } from '@/hooks/useXP';
 import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
 
 const SHAPES = [
     { name: 'Star', icon: Star },
@@ -38,6 +39,10 @@ export default function SettingsPage() {
     const { xp } = useXP();
     const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
+    // Citizenship / Status State
+    const [status, setStatus] = useState<string>('tourist');
+    const [showCitizenshipTest, setShowCitizenshipTest] = useState(false);
+
     // Track original values for dirty state detection
     const [originalNickname, setOriginalNickname] = useState('');
     const [originalPassportId, setOriginalPassportId] = useState('');
@@ -49,10 +54,12 @@ export default function SettingsPage() {
         const storedId = localStorage.getItem('ghanry_passport_id') || '';
         const storedSound = localStorage.getItem('ghanry_sound');
         const storedAvatar = localStorage.getItem('ghanry_avatar') || '🇬🇭';
+        const storedStatus = localStorage.getItem('ghanry_status') || 'tourist';
 
         setNickname(storedNick);
         setPassportId(storedId);
         setAvatar(storedAvatar);
+        setStatus(storedStatus);
         // Sound defaults to false (OFF)
         const soundValue = storedSound === 'true';
         setSound(soundValue);
@@ -227,6 +234,7 @@ export default function SettingsPage() {
                             />
                             <button
                                 onClick={handleCopyID}
+                                title="Copy Passport ID"
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#006B3F] transition-colors"
                             >
                                 <Copy size={18} />
@@ -257,6 +265,7 @@ export default function SettingsPage() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
+                                    title={showPassword ? "Hide password" : "Show password"}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                 >
                                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -277,6 +286,7 @@ export default function SettingsPage() {
                                         key={shape.name}
                                         type="button"
                                         onClick={() => handleAvatarChange(value)}
+                                        title={`Select ${shape.name}`}
                                         className={`aspect-square rounded-xl flex items-center justify-center transition-all ${isSelected
                                             ? "bg-[#006B3F] text-white border-2 border-[#FCD116] scale-110 shadow-md"
                                             : "bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100"
@@ -304,6 +314,54 @@ export default function SettingsPage() {
                             <span className="text-xs font-bold mr-1">{sound ? "ON" : "OFF"}</span>
                             {sound ? <Check size={14} /> : <X size={14} />}
                         </button>
+                    </div>
+                </div>
+
+                {/* Residency & Status */}
+                <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                    <h2 className="font-bold text-gray-400 text-xs uppercase tracking-wider">Residency & Status</h2>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <div className="font-epilogue font-bold text-gray-900 text-lg">
+                                {status === 'citizen' ? '🇬🇭 Ghanaian Citizen' : '🌍 International Tourist'}
+                            </div>
+                            <div className="text-xs text-gray-500 font-medium mt-1 max-w-[250px]">
+                                {status === 'citizen'
+                                    ? 'You are a recognized citizen. Enjoy full access to heritage badges.'
+                                    : 'You are visiting as a Tourist. You earn 1.5x XP (Underdog Bonus)!'}
+                            </div>
+                        </div>
+
+                        {status === 'citizen' ? (
+                            <button
+                                onClick={() => {
+                                    if (window.confirm("Switch to Tourist Visa?\n\nYou will lose your Citizenship rank but will earn 1.5x XP on all quizzes.")) {
+                                        localStorage.setItem('ghanry_status', 'tourist');
+                                        setStatus('tourist');
+                                        // Update Firestore if needed
+                                        if (passportId) {
+                                            import('firebase/firestore').then(async ({ getFirestore, doc, updateDoc }) => {
+                                                const db = getFirestore();
+                                                await updateDoc(doc(db, "users", passportId), { rank: "Tourist", touristVisaUsed: true });
+                                            });
+                                        }
+                                        toast.success("Switched to Tourist Visa");
+                                        window.dispatchEvent(new Event('ghanry_profile_update'));
+                                    }
+                                }}
+                                className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs transition-colors"
+                            >
+                                Switch to Tourist
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => setShowCitizenshipTest(true)}
+                                className="px-4 py-2 bg-[#006B3F] hover:bg-[#005a35] text-white font-bold rounded-xl text-xs transition-colors shadow-lg shadow-green-900/10 flex items-center gap-1"
+                            >
+                                <Star size={12} className="text-yellow-400 fill-yellow-400" />
+                                Apply for Citizenship
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -379,6 +437,108 @@ export default function SettingsPage() {
                     Log Out
                 </button>
             </div>
+
+            {/* Citizenship Test Modal */}
+            {showCitizenshipTest && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-50 duration-200">
+                        <div className="bg-[#006B3F] p-6 text-white text-center">
+                            <h3 className="font-epilogue font-bold text-xl mb-1">Citizenship Test</h3>
+                            <p className="text-green-100 text-sm">Pass to become a Ghanaian Citizen</p>
+                        </div>
+                        <div className="p-6">
+                            <CitizenshipTest
+                                onSuccess={() => {
+                                    localStorage.setItem('ghanry_status', 'citizen');
+                                    setStatus('citizen');
+                                    setShowCitizenshipTest(false);
+                                    if (passportId) {
+                                        import('firebase/firestore').then(async ({ getFirestore, doc, updateDoc, arrayUnion }) => {
+                                            const db = getFirestore();
+                                            await updateDoc(doc(db, "users", passportId), {
+                                                rank: "Ghanaian",
+                                                badges: arrayUnion("Citizen")
+                                            });
+                                        });
+                                    }
+                                    toast.success("Congratulations! You are now a Citizen! 🇬🇭");
+                                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                                    window.dispatchEvent(new Event('ghanry_profile_update'));
+                                }}
+                                onCancel={() => setShowCitizenshipTest(false)}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
+    );
+}
+
+// Inline Citizenship Test Component
+function CitizenshipTest({ onSuccess, onCancel }: { onSuccess: () => void, onCancel: () => void }) {
+    const questions = [
+        {
+            q: "Who led the War of the Golden Stool against the British?",
+            options: ["Kwame Nkrumah", "Yaa Asantewaa", "Osei Tutu I", "J.B. Danquah"],
+            a: "Yaa Asantewaa"
+        },
+        {
+            q: "Which of these represents the 'Soul of the Nation'?",
+            options: ["The Black Star", "The Golden Stool", "The Cocoa Pod", "The Eagle"],
+            a: "The Black Star"
+        },
+        {
+            q: "Who designed the national flag of Ghana?",
+            options: ["Theodosia Okoh", "Kofi Annan", "Efua Sutherland", "Jerry Rawlings"],
+            a: "Theodosia Okoh"
+        }
+    ];
+
+    const [currentQ, setCurrentQ] = useState(0);
+
+    const handleAnswer = (option: string) => {
+        if (option === questions[currentQ].a) {
+            if (currentQ < questions.length - 1) {
+                setCurrentQ(currentQ + 1);
+            } else {
+                onSuccess();
+            }
+        } else {
+            toast.error("Incorrect. Application Denied.");
+            onCancel();
+        }
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-between text-xs font-bold text-gray-400 uppercase tracking-widest">
+                <span>Question {currentQ + 1}/{questions.length}</span>
+                <span>Hard Difficulty</span>
+            </div>
+
+            <h4 className="font-epilogue font-bold text-lg text-gray-900">
+                {questions[currentQ].q}
+            </h4>
+
+            <div className="space-y-2">
+                {questions[currentQ].options.map((opt) => (
+                    <button
+                        key={opt}
+                        onClick={() => handleAnswer(opt)}
+                        className="w-full p-4 rounded-xl border-2 border-gray-100 hover:border-[#FCD116] hover:bg-yellow-50 font-bold text-gray-700 transition-colors text-left"
+                    >
+                        {opt}
+                    </button>
+                ))}
+            </div>
+
+            <button
+                onClick={onCancel}
+                className="w-full py-3 text-gray-400 font-bold hover:text-gray-600 transition-colors"
+            >
+                Cancel Application
+            </button>
+        </div>
     );
 }

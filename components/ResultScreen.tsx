@@ -136,6 +136,12 @@ export default function ResultScreen({
                         Streak +{quizReward.streakBonus} XP
                     </div>
                 )}
+                {/* Tourist Bonus Badge */}
+                {isTourist && (
+                    <div className="bg-purple-500/20 text-purple-300 text-[10px] font-bold px-2 py-1 rounded-full border border-purple-500/30">
+                        Tourist Buff x1.5
+                    </div>
+                )}
                 {multiplier > 1 && (
                     <div className="bg-[#FCD116]/20 text-[#FCD116] text-[10px] font-bold px-2 py-1 rounded-full border border-[#FCD116]/30 animate-pulse">
                         Wisdom x{multiplier} Active!
