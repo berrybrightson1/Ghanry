@@ -33,29 +33,28 @@ const AchievementCard = forwardRef<HTMLDivElement, AchievementCardProps>(({ type
                 <div className="h-1.5 w-12 bg-ghana-gold rounded-full" />
             </div>
 
-            {/* Badge - Top Right Corner */}
-            <div className="absolute top-6 right-6 z-20">
+            {/* Main Content: Badge + Message centered */}
+            <div className="relative z-10 flex flex-col items-center justify-center flex-1 gap-4">
+                {/* Badge - Smaller and Centered */}
                 {type === "streak" ? (
-                    <div className="relative bg-[#FCD116] rounded-lg px-4 py-2 shadow-lg">
-                        <span className="text-3xl font-epilogue font-black text-gray-900 leading-none">
+                    <div className="relative bg-[#FCD116] rounded-lg px-3 py-1.5 shadow-md">
+                        <span className="text-2xl font-epilogue font-black text-gray-900 leading-none">
                             {value}
                         </span>
-                        <Flame className="absolute -top-2 -right-2 w-6 h-6 text-[#CE1126] fill-[#CE1126]" />
+                        <Flame className="absolute -top-1.5 -right-1.5 w-5 h-5 text-[#CE1126] fill-[#CE1126]" />
                     </div>
                 ) : (
-                    <div className="relative bg-ghana-gold/20 backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg border-2 border-ghana-gold">
+                    <div className="relative bg-ghana-gold/20 backdrop-blur-sm rounded-lg px-3 py-2 shadow-md border-2 border-ghana-gold">
                         <div className="flex items-center gap-2">
-                            <Crown className="w-8 h-8 text-ghana-gold fill-ghana-gold" />
-                            <span className="text-xl font-epilogue font-black text-green-900">
+                            <Crown className="w-6 h-6 text-ghana-gold fill-ghana-gold" />
+                            <span className="text-lg font-epilogue font-black text-green-900">
                                 {value}
                             </span>
                         </div>
                     </div>
                 )}
-            </div>
 
-            {/* Main Content: Message centered */}
-            <div className="relative z-10 flex flex-col items-center justify-center flex-1">
+                {/* Message */}
                 <p className="text-gray-800 font-jakarta font-bold text-xl leading-tight text-center">
                     &ldquo;{message}&rdquo;
                 </p>
