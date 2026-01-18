@@ -162,6 +162,14 @@ export default function Home() {
       localStorage.setItem("ghanry_status", "citizen");
       localStorage.setItem("ghanry_nickname", result.user?.nickname || "Citizen");
       localStorage.setItem("ghanry_region", result.user?.region || "Greater Accra");
+
+      if (result.user?.avatar) {
+        localStorage.setItem("ghanry_avatar", result.user.avatar);
+      }
+      if (result.user?.xp !== undefined) {
+        localStorage.setItem("ghanry_xp", result.user.xp.toString());
+      }
+
       setLoginAttempts(0);
       toast.success(`Welcome back, ${result.user?.nickname || 'Citizen'}!`);
       router.push("/dashboard");
