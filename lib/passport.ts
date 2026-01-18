@@ -32,10 +32,11 @@ export const generatePassportID = async (): Promise<string> => {
 /**
  * Creates a new Citizen Account in Firestore
  */
-export const createAccount = async (nickname: string, region: string, pin: string) => {
+export const createAccount = async (nickname: string, region: string, pin: string, status: 'citizen' | 'tourist' = 'citizen') => {
     try {
         const passportId = await generatePassportID();
         const joinedAt = new Date().toISOString();
+        const initialRank = status === 'citizen' ? "Ghanaian" : "Tourist";
 
         // Data to save
         const userData = {
@@ -44,10 +45,11 @@ export const createAccount = async (nickname: string, region: string, pin: strin
             region,
             pin, // Note: In a real production app, you should hash this PIN before saving
             xp: 0,
-            rank: "Tourist", // Starting rank
-            touristVisaUsed: true,
+            rank: initialRank,
+            touristVisaUsed: status === 'tourist',
             joinedAt,
-            badges: ["New Citizen"]
+            badges: status === 'citizen' ? ["Citizen"] : ["New Arrival"],
+            avatar: status === 'citizen' ? undefined : undefined // Default to initials for now, or icon later
         };
 
         // Save to "users" collection with passportId as the Document ID

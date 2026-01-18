@@ -129,11 +129,12 @@ export default function Home() {
   const handleSignUp = async () => {
     if (!nickname.trim() || nickname.length < 3) return toast.error("Valid nickname required.");
     if (!selectedRegion) return toast.error("Home Region required.");
+    if (!locationStatus) return toast.error("Status required.");
     if (pin.length !== 4) return toast.error("PIN must be 4 digits.");
     if (pin !== confirmPin) return toast.error("PINs do not match.");
 
     setIsSubmitting(true);
-    const result = await createAccount(nickname, selectedRegion, pin);
+    const result = await createAccount(nickname, selectedRegion, pin, locationStatus);
     setIsSubmitting(false);
 
     if (result.success && result.passportId) {
