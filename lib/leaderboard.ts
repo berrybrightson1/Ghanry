@@ -18,7 +18,8 @@ export const LeaderboardService = {
     getRankings: async (localNickname: string, localRegion: string, localXP: number): Promise<LeaderboardEntry[]> => {
         try {
             const usersRef = collection(db, "users");
-            const q = query(usersRef, orderBy("xp", "desc"), limit(10));
+            // Secondary sort by nickname ensures stable ordering for tied XP
+            const q = query(usersRef, orderBy("xp", "desc"), orderBy("nickname", "asc"), limit(10));
             const querySnapshot = await getDocs(q);
 
             const fetchedRankings: LeaderboardEntry[] = [];
@@ -79,7 +80,7 @@ export const LeaderboardService = {
     getRegionRankings: async (region: string) => {
         try {
             const usersRef = collection(db, "users");
-            const q = query(usersRef, where("region", "==", region), orderBy("xp", "desc"), limit(10));
+            const q = query(usersRef, where("region", "==", region), orderBy("xp", "desc"), orderBy("nickname", "asc"), limit(10));
             const querySnapshot = await getDocs(q);
 
             const fetchedRankings: LeaderboardEntry[] = [];
@@ -102,6 +103,42 @@ export const LeaderboardService = {
         } catch (error) {
             console.error("Region player error:", error);
             return [];
+        }
+    },
+
+    /**
+     * seedMockData: (Dev Only) Populates Firestore with fake users
+     */
+    seedMockData: async () => {
+        const { doc, setDoc } = await import("firebase/firestore");
+        const MOCK_USERS = [
+            { nickname: "Kwame Jet", region: "Greater Accra", xp: 45000 },
+            { nickname: "Ama Ghana", region: "Greater Accra", xp: 32000 },
+            { nickname: "Kofi King", region: "Ashanti", xp: 28000 },
+            { nickname: "Adwoa Smart", region: "Greater Accra", xp: 15000 },
+            { nickname: "Yaw Dabo", region: "Ashanti", xp: 12000 },
+            { nickname: "Akosua Vee", region: "Volta", xp: 8500 },
+            { nickname: "Kojo Antwi", region: "Greater Accra", xp: 5000 },
+            { nickname: "Abena K", region: "Central", xp: 2500 },
+            { nickname: "Kwaku T", region: "Greater Accra", xp: 1200 },
+            { nickname: "Yaa Pono", region: "Eastern", xp: 500 },
+        ];
+
+        try {
+            const promises = MOCK_USERS.map((u, i) => {
+                const id = `MOCK_USER_${i}`;
+                return setDoc(doc(db, "users", id), {
+                    nickname: u.nickname,
+                    region: u.region,
+                    xp: u.xp,
+                    pin: "1234",
+                    createdAt: Date.now()
+                });
+            });
+            await Promise.all(promises);
+            console.log("Seeding complete!");
+        } catch (e) {
+            console.error("Seeding failed", e);
         }
     }
 };

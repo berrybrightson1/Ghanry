@@ -1,0 +1,302 @@
+[
+    {
+        "id": 1,
+        "category": "History",
+        "text": "The name 'Ghana' means 'Warrior King' and was the title of the kings of the medieval Ghana Empire.",
+        "icon": "Crown"
+    },
+    {
+        "id": 2,
+        "category": "Geography",
+        "text": "Lake Volt is the largest man-made lake in the world by surface area.",
+        "icon": "Waves"
+    },
+    {
+        "id": 3,
+        "category": "Culture",
+        "text": "Kente cloth originated from the Ashanti people and legend says it was inspired by a spider's web.",
+        "icon": "Shirt"
+    },
+    {
+        "id": 4,
+        "category": "Nature",
+        "text": "Ghana has a sanctuary for monkeys at Tafi Atome where they are considered sacred.",
+        "icon": "Tree"
+    },
+    {
+        "id": 5,
+        "category": "Food",
+        "text": "Fufu pounders often create rhythmic beats while preparing the meal, turning cooking into music.",
+        "icon": "Soup"
+    },
+    {
+        "id": 6,
+        "category": "History",
+        "text": "Ghana was the first country in sub-Saharan Africa to gain independence from colonial rule in 1957.",
+        "icon": "Flag"
+    },
+    {
+        "id": 7,
+        "category": "Geography",
+        "text": "Ghana is geographically closer to the center of the world (0°, 0°) than any other country.",
+        "icon": "Globe"
+    },
+    {
+        "id": 8,
+        "category": "Nature",
+        "text": "Mole National Park is Ghana's largest wildlife refuge, home to elephants, leopards, and antelopes.",
+        "icon": "PawPrint"
+    },
+    {
+        "id": 9,
+        "category": "Culture",
+        "text": "The Adinkra symbol 'Gye Nyame' signifies the supremacy of God and is unique to Ghana.",
+        "icon": "Sparkles"
+    },
+    {
+        "id": 10,
+        "category": "Food",
+        "text": "Jollof Rice wars between Ghana and Nigeria are a legendary, friendly culinary rivalry.",
+        "icon": "Utensils"
+    },
+    {
+        "id": 11,
+        "category": "Economy",
+        "text": "Ghana is the second-largest producer of cocoa beans in the world.",
+        "icon": "Coins"
+    },
+    {
+        "id": 12,
+        "category": "History",
+        "text": "Elmina Castle, built in 1482, is the oldest European building in existence below the Sahara.",
+        "icon": "Castle"
+    },
+    {
+        "id": 13,
+        "category": "Culture",
+        "text": "In Ghana, it is considered rude to use your left hand for greeting or eating.",
+        "icon": "Hand"
+    },
+    {
+        "id": 14,
+        "category": "Geography",
+        "text": "Mount Afadja (Afadjato) is the highest mountain in Ghana, standing at 885 meters.",
+        "icon": "Mountain"
+    },
+    {
+        "id": 15,
+        "category": "Nature",
+        "text": "Kakum National Park features one of only three canopy walkways in Africa.",
+        "icon": "Tree"
+    },
+    {
+        "id": 16,
+        "category": "History",
+        "text": "Yaa Asantewaa led the Ashanti war against the British in 1900 to protect the Golden Stool.",
+        "icon": "Sword"
+    },
+    {
+        "id": 17,
+        "category": "Food",
+        "text": "Kelewele is a popular spicy fried plantain snack often sold at night.",
+        "icon": "Flame"
+    },
+    {
+        "id": 18,
+        "category": "Culture",
+        "text": "Funerals in Ghana are often elaborate, weekend-long celebrations of life.",
+        "icon": "Music"
+    },
+    {
+        "id": 19,
+        "category": "Geography",
+        "text": "The Prime Meridian places Ghana in the same time zone as London (GMT).",
+        "icon": "Clock"
+    },
+    {
+        "id": 20,
+        "category": "Nature",
+        "text": "Ghana has over 1,000 species of butterflies, one of the highest densities in the world.",
+        "icon": "Bug"
+    },
+    {
+        "id": 21,
+        "category": "History",
+        "text": "Kwame Nkrumah was voted Africa's 'Man of the Millennium' by BBC listeners.",
+        "icon": "Star"
+    },
+    {
+        "id": 22,
+        "category": "Food",
+        "text": "Waakye is a dish of rice and beans cooked with red millet leaves for color.",
+        "icon": "Utensils"
+    },
+    {
+        "id": 23,
+        "category": "Culture",
+        "text": "Traditional chiefs are carried in palanquins during major festivals like Hodzwu.",
+        "icon": "Crown"
+    },
+    {
+        "id": 24,
+        "category": "Economy",
+        "text": "Gold is one of Ghana's major exports, giving it the colonial name 'Gold Coast'.",
+        "icon": "Gem"
+    },
+    {
+        "id": 25,
+        "category": "Nature",
+        "text": "The Wli Waterfalls is the highest waterfall in West Africa.",
+        "icon": "Droplets"
+    },
+    {
+        "id": 26,
+        "category": "History",
+        "text": "Accra became the capital of the Gold Coast in 1877, replacing Cape Coast.",
+        "icon": "MapPin"
+    },
+    {
+        "id": 27,
+        "category": "Geography",
+        "text": "The Volta River spans across much of the country, feeding the Akosombo Dam.",
+        "icon": "Waves"
+    },
+    {
+        "id": 28,
+        "category": "Culture",
+        "text": "Names in Ghana often correspond to the day of the week a person was born (e.g., Kofi for Friday).",
+        "icon": "Calendar"
+    },
+    {
+        "id": 29,
+        "category": "Food",
+        "text": "Banku and Tilapia is a staple dish, often eaten with fingers.",
+        "icon": "Fish"
+    },
+    {
+        "id": 30,
+        "category": "Nature",
+        "text": "Boabeng-Fiema Monkey Sanctuary hosts mona monkeys that live peacefully with humans.",
+        "icon": "Smile"
+    },
+    {
+        "id": 31,
+        "category": "History",
+        "text": "The Ashanti Empire was one of the most powerful kingdoms in Africa in the 18th century.",
+        "icon": "Shield"
+    },
+    {
+        "id": 32,
+        "category": "Innovation",
+        "text": "Ghana launched its first satellite, GhanaSat-1, into space in 2017.",
+        "icon": "Rocket"
+    },
+    {
+        "id": 33,
+        "category": "Culture",
+        "text": "Durbars are colorful festivals of chiefs and people, showcasing rich traditions.",
+        "icon": "Music"
+    },
+    {
+        "id": 34,
+        "category": "Geography",
+        "text": "Ghana shares borders with Ivory Coast, Burkina Faso, and Togo.",
+        "icon": "Map"
+    },
+    {
+        "id": 35,
+        "category": "Food",
+        "text": "Shito is a famous hot black pepper sauce used with almost every meal.",
+        "icon": "Flame"
+    },
+    {
+        "id": 36,
+        "category": "Nature",
+        "text": "Lake Bosomtwe is Ghana's only natural lake, formed in an ancient meteorite crater.",
+        "icon": "Circle"
+    },
+    {
+        "id": 37,
+        "category": "History",
+        "text": "Okomfo Anokye is a legendary priest said to have conjured the Golden Stool from the sky.",
+        "icon": "Zap"
+    },
+    {
+        "id": 38,
+        "category": "Culture",
+        "text": "Azonto is a communicative dance and music genre that originated in Ghana.",
+        "icon": "Music"
+    },
+    {
+        "id": 39,
+        "category": "Language",
+        "text": "While English is official, there are over 80 languages spoken in Ghana.",
+        "icon": "MessageCircle"
+    },
+    {
+        "id": 40,
+        "category": "Transportation",
+        "text": "Tro-tros are the colorful, slogan-decorated minibuses used for public transport.",
+        "icon": "Bus"
+    },
+    {
+        "id": 41,
+        "category": "History",
+        "text": "WEB Du Bois, the famous civil rights activist, spent his final years in Ghana.",
+        "icon": "Book"
+    },
+    {
+        "id": 42,
+        "category": "Geography",
+        "text": "The meridian rock in Tema marks the exact line of Greenwich Meridian.",
+        "icon": "MapPin"
+    },
+    {
+        "id": 43,
+        "category": "Nature",
+        "text": "Shea butter comes from the Shea tree, which grows widely in Northern Ghana.",
+        "icon": "Leaf"
+    },
+    {
+        "id": 44,
+        "category": "Culture",
+        "text": "'Akwaaba' means Welcome, and you will see it everywhere in Ghana.",
+        "icon": "Smile"
+    },
+    {
+        "id": 45,
+        "category": "Food",
+        "text": "Kenkey is a sourdough dumpling made from fermented white corn, wrapped in husks.",
+        "icon": "Package"
+    },
+    {
+        "id": 46,
+        "category": "Sports",
+        "text": "The national football team is called the Black Stars, named after the star in the flag.",
+        "icon": "Trophy"
+    },
+    {
+        "id": 47,
+        "category": "History",
+        "text": "Ghana was a founding member of the Non-Aligned Movement during the Cold War.",
+        "icon": "Globe"
+    },
+    {
+        "id": 48,
+        "category": "Nature",
+        "text": "Umbrella Rock in Koforidua is a huge rock naturally balanced in the shape of an umbrella.",
+        "icon": "Umbrella"
+    },
+    {
+        "id": 49,
+        "category": "Culture",
+        "text": "Fantasy coffins in Ghana are custom-made to reflect the deceased's profession (e.g., a fish for a fisherman).",
+        "icon": "Box"
+    },
+    {
+        "id": 50,
+        "category": "Geography",
+        "text": "Ghana has 550 kilometers of coastline with beautiful sandy beaches.",
+        "icon": "Sun"
+    }
+]

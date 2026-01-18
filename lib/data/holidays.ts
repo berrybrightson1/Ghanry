@@ -32,9 +32,13 @@ export const worldCelebrations: Holiday[] = [
     { date: "Aug 12", name: "International Youth Day", type: "UN Observance", description: "Celebrates youth and their contributions to society." },
     { date: "Sep 21", name: "International Day of Peace", type: "UN Observance", description: "Devoted to strengthening ideals of peace.", highlight: true },
     { date: "Oct 1", name: "International Coffee Day", type: "Cultural", description: "Celebrates coffee and the millions who work in the industry." },
+    { date: "Oct 3", name: "National Boyfriend Day", type: "Social", description: "A day to appreciate boyfriends and their support." },
     { date: "Oct 4", name: "World Animal Day", type: "Animal Welfare", description: "Celebrates animal rights and welfare worldwide." },
     { date: "Oct 31", name: "Halloween", type: "Cultural", description: "Traditional celebration with costumes and trick-or-treating." },
     { date: "Nov 13", name: "World Kindness Day", type: "Cultural", description: "Encourages acts of kindness to create a more caring world." },
+    { date: "Dec 3", name: "National Girlfriend Day", type: "Social", description: "Celebrating girlfriends and female friendships." },
     { date: "Dec 10", name: "Human Rights Day", type: "UN Observance", description: "Commemorates the adoption of the Universal Declaration of Human Rights." },
     { date: "Dec 25", name: "Christmas Day", type: "Religious", description: "Christian celebration of the birth of Jesus Christ." },
+    { date: "May 12", name: "Mother's Day", type: "Global", description: "Honoring the mother of the family and motherhood." },
+    { date: "Jun 16", name: "Father's Day", type: "Global", description: "Honoring fathers and celebrating fatherhood." },
 ];

@@ -192,9 +192,9 @@ export default function Leaderboard() {
                         )
                     )}
                 </div>
-            </div>
+            </div >
 
             {/* Bottom Nav handled by Layout */}
-        </div>
+        </div >
     );
 }

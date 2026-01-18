@@ -65,43 +65,67 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
     const { updateStreak } = useStreak();
     const { consumeShield } = useXP();
 
+    // Helper: Shuffle array
+    const shuffleArray = (array: Question[]) => {
+        return [...array].sort(() => Math.random() - 0.5);
+    };
+
     // Calculate Next Category for the Result Screen
     const currentCategoryIndex = CATEGORY_ORDER.indexOf(slug);
     const nextCategorySlug = CATEGORY_ORDER[(currentCategoryIndex + 1) % CATEGORY_ORDER.length];
     const nextPath = `/dashboard/categories/${nextCategorySlug}`;
 
     useEffect(() => {
-        // Load questions based on slug
-        let allQuestions: Question[] = [];
+        const fetchQuestions = async () => {
+            // 1. Identification of Static Fallback Data
+            let staticQuestions: Question[] = [];
+            switch (slug) {
+                case "history": staticQuestions = historyQuestions; break;
+                case "food": staticQuestions = foodQuestions; break;
+                case "music": staticQuestions = musicQuestions; break;
+                case "culture": staticQuestions = cultureQuestions; break;
+                case "geography": staticQuestions = geographyQuestions; break;
+                case "arts": staticQuestions = artsQuestions; break;
+                case "sports": staticQuestions = sportsQuestions; break;
+                case "general": staticQuestions = generalQuestions; break;
+                default: staticQuestions = generalQuestions;
+            }
 
-        switch (slug) {
-            case "history": allQuestions = historyQuestions; break;
-            case "food": allQuestions = foodQuestions; break;
-            case "music": allQuestions = musicQuestions; break;
-            case "culture": allQuestions = cultureQuestions; break;
-            case "geography": allQuestions = geographyQuestions; break;
-            case "arts": allQuestions = artsQuestions; break;
-            case "sports": allQuestions = sportsQuestions; break;
-            case "general": allQuestions = generalQuestions; break;
-            default: allQuestions = generalQuestions; // Fallback
-        }
+            try {
+                // 2. Attempt to fetch AI Questions
+                const response = await fetch("/api/quiz/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ topic: `${slug} in Ghana` })
+                });
 
-        // By default, show exactly 5 questions for this category
-        // But shuffle them to keep it fresh
-        const finalizedQuestions = shuffleArray(allQuestions).slice(0, 5);
+                if (!response.ok) throw new Error("AI Generation Failed");
 
-        const timer = setTimeout(() => {
-            setLoading(false);
-            setCategoryQuestions(finalizedQuestions);
-            startTimeRef.current = Date.now(); // Reset timer when loading finishes
-        }, 800);
-        return () => clearTimeout(timer);
+                const data = await response.json();
+
+                if (data.questions && Array.isArray(data.questions) && data.questions.length >= 5) {
+                    // Success! Use AI questions
+                    setCategoryQuestions(data.questions.slice(0, 5));
+                    console.log("Using AI Generated Questions ✨");
+                } else {
+                    throw new Error("Invalid AI Response Format");
+                }
+
+            } catch (error) {
+                console.warn("Falling back to static questions:", error);
+
+                // 3. Fallback to Static Data
+                const finalizedQuestions = shuffleArray(staticQuestions).slice(0, 5);
+                setCategoryQuestions(finalizedQuestions);
+            } finally {
+                setLoading(false);
+                startTimeRef.current = Date.now();
+            }
+        };
+
+        fetchQuestions();
     }, [slug]);
 
-    // Added shuffle helper
-    const shuffleArray = (array: Question[]) => {
-        return [...array].sort(() => Math.random() - 0.5);
-    };
 
     useEffect(() => {
         if (gameStatus === "finished" && score > 0) {
