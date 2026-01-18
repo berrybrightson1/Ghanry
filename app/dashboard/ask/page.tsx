@@ -103,7 +103,7 @@ export default function AskGhanryPage() {
     };
 
     return (
-        <div className="h-full flex flex-col bg-white">
+        <div className="h-[100dvh] flex flex-col bg-white">
             {/* Header */}
             <div className="bg-white border-b border-gray-100 p-4 flex-shrink-0 flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -175,7 +175,7 @@ export default function AskGhanryPage() {
             </div>
 
             {/* Input Area */}
-            <div className="flex-shrink-0 border-t border-gray-100 bg-white p-4 md:p-6 pb-6 md:pb-6 z-10 w-full">
+            <div className="flex-shrink-0 border-t border-gray-100 bg-white p-4 md:p-6 pb-24 md:pb-6 z-10 w-full">
                 <form
                     onSubmit={(e) => {
                         e.preventDefault();

@@ -5,6 +5,7 @@ import Breadcrumbs from "@/components/dashboard/Breadcrumbs";
 import { useEffect, useState } from "react";
 
 import MobileSidebar from "@/components/dashboard/MobileSidebar";
+import BottomNav from "@/components/dashboard/BottomNav";
 
 import { usePathname } from 'next/navigation';
 
@@ -92,10 +93,10 @@ export default function DashboardLayout({
                     </div>
                 </div>
 
-                {/* Mobile Bottom Nav removed per user request */}
-                {/* <div className="sm:hidden">
+                {/* Mobile Bottom Nav */}
+                <div className="sm:hidden">
                     <BottomNav />
-                </div> */}
+                </div>
             </div>
 
         </div>

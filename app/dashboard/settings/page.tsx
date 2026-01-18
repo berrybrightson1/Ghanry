@@ -474,7 +474,7 @@ export default function SettingsPage() {
             {/* Citizenship Test Modal */}
             {showCitizenshipTest && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-50 duration-200">
+                    <div className="bg-white rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-50 duration-200">
                         <div className="bg-[#006B3F] p-6 text-white text-center">
                             <h3 className="font-epilogue font-bold text-xl mb-1">Citizenship Test</h3>
                             <p className="text-green-100 text-sm">Pass to become a Ghanaian Citizen</p>
@@ -608,7 +608,7 @@ export default function SettingsPage() {
             {/* Strict Verification Test Modal */}
             {showStrictTest && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                    <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-in zoom-in-50 duration-200">
+                    <div className="bg-white rounded-3xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-50 duration-200">
                         <div className="bg-red-600 p-6 text-white text-center">
                             <h3 className="font-epilogue font-bold text-xl mb-1 flex items-center justify-center gap-2">
                                 <AlertTriangle size={20} className="text-white" />
