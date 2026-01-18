@@ -13,7 +13,6 @@ export default function TrotroRun() {
     const [gameState, setGameState] = useState<"IDLE" | "BETTING" | "RUNNING" | "CRASHED">("IDLE");
     const [betAmount, setBetAmount] = useState<number>(100);
     const [multiplier, setMultiplier] = useState<number>(1.00);
-    const [crashPoint, setCrashPoint] = useState<number>(0);
     const [countdown, setCountdown] = useState<number>(0);
     const [cashedOutAt, setCashedOutAt] = useState<number | null>(null); // If user cashed out
     const [showWinModal, setShowWinModal] = useState<boolean>(false); // Transient modal state
@@ -22,6 +21,7 @@ export default function TrotroRun() {
     const requestRef = useRef<number>();
     const startTimeRef = useRef<number>();
     const lastMultiplierRef = useRef<number>(1.00);
+    const crashPointRef = useRef<number>(0); // Fix stale closure in game loop
 
     // BETTING PHASE
     const startBettingPhase = () => {
@@ -29,7 +29,8 @@ export default function TrotroRun() {
         setMultiplier(1.00);
         setCashedOutAt(null);
         setShowWinModal(false);
-        setCrashPoint(generateCrashPoint()); // Determine fate in advance
+        const cp = generateCrashPoint();
+        crashPointRef.current = cp; // Update ref for loop access
 
         let timeLeft = 5; // 5 seconds to bet
         setCountdown(timeLeft);
@@ -81,8 +82,10 @@ export default function TrotroRun() {
 
     const animateGame = () => {
         if (!startTimeRef.current) return;
-        // Safety check
-        if (crashPoint === 0) return;
+
+        // Read from REF to avoid stale closure
+        const cp = crashPointRef.current;
+        if (cp === 0) return;
 
         const now = Date.now();
         const elapsed = (now - startTimeRef.current) / 1000; // Seconds
@@ -94,7 +97,7 @@ export default function TrotroRun() {
         setMultiplier(currentM);
         lastMultiplierRef.current = currentM;
 
-        if (currentM >= crashPoint) {
+        if (currentM >= cp) {
             // CRASH!
             handleCrash(currentM);
         } else {
