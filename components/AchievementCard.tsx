@@ -25,7 +25,7 @@ const AchievementCard = forwardRef<HTMLDivElement, AchievementCardProps>(({ type
             <div className="absolute top-[-10%] right-[-10%] w-2/3 h-2/3 bg-ghana-gold/20 rounded-full blur-3xl group-hover:bg-ghana-gold/30 transition-colors" />
             <div className="absolute bottom-[-5%] right-[20%] w-1/3 h-1/3 bg-[#CE1126]/10 rounded-full blur-2xl" />
 
-            {/* Top Branding/Title */}
+            {/* Top Title */}
             <div className="relative z-10">
                 <p className="text-[#006B3F] font-jakarta font-bold uppercase tracking-widest text-sm mb-1">
                     {title}
@@ -33,31 +33,29 @@ const AchievementCard = forwardRef<HTMLDivElement, AchievementCardProps>(({ type
                 <div className="h-1.5 w-12 bg-ghana-gold rounded-full" />
             </div>
 
-            {/* Main Content: Large Value/Icon */}
-            <div className="relative z-10 flex flex-col items-center justify-center flex-1 py-4">
-                <div className="relative">
-                    {type === "streak" ? (
-                        <div className="relative">
-                            <span className="text-[120px] font-epilogue font-black text-[#FCD116] leading-none drop-shadow-xl">
+            {/* Badge - Top Right Corner */}
+            <div className="absolute top-6 right-6 z-20">
+                {type === "streak" ? (
+                    <div className="relative bg-[#FCD116] rounded-lg px-4 py-2 shadow-lg">
+                        <span className="text-3xl font-epilogue font-black text-gray-900 leading-none">
+                            {value}
+                        </span>
+                        <Flame className="absolute -top-2 -right-2 w-6 h-6 text-[#CE1126] fill-[#CE1126]" />
+                    </div>
+                ) : (
+                    <div className="relative bg-ghana-gold/20 backdrop-blur-sm rounded-lg px-4 py-3 shadow-lg border-2 border-ghana-gold">
+                        <div className="flex items-center gap-2">
+                            <Crown className="w-8 h-8 text-ghana-gold fill-ghana-gold" />
+                            <span className="text-xl font-epilogue font-black text-green-900">
                                 {value}
                             </span>
-                            <Flame className="absolute -top-4 -right-8 w-16 h-16 text-[#CE1126] fill-[#CE1126] animate-bounce" />
                         </div>
-                    ) : (
-                        <div className="relative">
-                            <Crown className="w-32 h-32 text-ghana-gold fill-ghana-gold drop-shadow-lg" />
-                            <div className="absolute inset-0 flex items-center justify-center pt-8">
-                                <span className="text-2xl font-epilogue font-black text-green-900 bg-white/50 backdrop-blur-sm px-3 py-1 rounded-lg">
-                                    {value}
-                                </span>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
 
-            {/* Bottom: Message & Logo */}
-            <div className="relative z-10 space-y-4">
+            {/* Main Content: Message centered */}
+            <div className="relative z-10 flex flex-col items-center justify-center flex-1 py-8 px-4">
                 <p className="text-gray-800 font-jakarta font-bold text-xl leading-tight">
                     &ldquo;{message}&rdquo;
                 </p>
