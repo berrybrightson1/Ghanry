@@ -189,14 +189,7 @@ export default function TrotroRun() {
 
     return (
         <div className="w-full max-w-md mx-auto py-8">
-            {/* Balance Display */}
-            <div className="flex justify-between items-center mb-4 px-2">
-                <div className="text-white/60 text-sm font-bold uppercase tracking-wider">Your Balance</div>
-                <div className="bg-white/10 px-4 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
-                    <Coins className="w-4 h-4 text-[#FCD116]" />
-                    <span className="font-mono font-bold text-white tracking-wide">{xp.toLocaleString()} XP</span>
-                </div>
-            </div>
+
 
             {/* Game Screen */}
             <div className="relative h-64 bg-slate-900 rounded-3xl overflow-hidden border border-white/10 shadow-2xl mb-6 group">
@@ -270,16 +263,47 @@ export default function TrotroRun() {
             <div className="space-y-4">
                 <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex justify-between items-center gap-4">
                     <div className="text-xs uppercase text-white/40 font-bold shrink-0">Wager</div>
-                    <div className="flex-1">
+
+                    {/* Minimal Input Container */}
+                    <div className="flex-1 flex items-center justify-end gap-2 bg-black/20 rounded-lg px-3 py-2 border border-white/5 focus-within:border-white/20 transition-colors relative group/input">
+                        {/* Input */}
                         <input
                             type="number"
                             value={betAmount}
                             onChange={handleBetChange}
                             disabled={gameState !== "IDLE"}
                             placeholder="Min 10"
-                            className="w-full bg-transparent text-right font-mono font-bold text-xl text-[#FCD116] placeholder-white/20 focus:outline-none disabled:opacity-50"
+                            className="w-full bg-transparent text-right font-mono font-bold text-xl text-[#FCD116] placeholder-white/20 focus:outline-none disabled:opacity-50 appearance-none m-0"
+                            style={{ MozAppearance: "textfield" }} // Firefox
                         />
+
+                        {/* Custom Spinners */}
+                        <div className="flex flex-col gap-0.5 opacity-0 group-hover/input:opacity-100 transition-opacity">
+                            <button
+                                aria-label="Increase wager"
+                                onClick={() => {
+                                    const current = typeof betAmount === 'number' ? betAmount : 0;
+                                    setBetAmount(Math.min(xp, current + 10));
+                                }}
+                                disabled={gameState !== "IDLE"}
+                                className="text-white/40 hover:text-white hover:bg-white/10 rounded-[2px] p-0.5 transition-colors disabled:opacity-30"
+                            >
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6" /></svg>
+                            </button>
+                            <button
+                                aria-label="Decrease wager"
+                                onClick={() => {
+                                    const current = typeof betAmount === 'number' ? betAmount : 0;
+                                    setBetAmount(Math.max(10, current - 10));
+                                }}
+                                disabled={gameState !== "IDLE"}
+                                className="text-white/40 hover:text-white hover:bg-white/10 rounded-[2px] p-0.5 transition-colors disabled:opacity-30"
+                            >
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                            </button>
+                        </div>
                     </div>
+
                     <div className="flex gap-2 shrink-0">
                         <button
                             onClick={() => setBetAmount(Math.floor(xp / 2))}
@@ -297,6 +321,8 @@ export default function TrotroRun() {
                         </button>
                     </div>
                 </div>
+
+
 
                 {gameState === "RUNNING" ? (
                     <button
@@ -343,6 +369,12 @@ export default function TrotroRun() {
                 }
                 .animate-road-scroll {
                     animation: road-scroll 0.2s linear infinite;
+                }
+                /* Hide Chrome, Safari, Edge, Opera number spinner */
+                input.appearance-none::-webkit-outer-spin-button,
+                input.appearance-none::-webkit-inner-spin-button {
+                    -webkit-appearance: none;
+                    margin: 0;
                 }
             `}</style>
         </div>
