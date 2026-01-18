@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Flame, Star, Shield, Crown, ArrowLeft, Download } from "lucide-react";
+import { Flame, Star, Shield, Crown, ArrowLeft, Download, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useState, useRef, useCallback } from "react";
 import AchievementCard from "@/components/AchievementCard";
@@ -34,9 +34,9 @@ const MILESTONES: Milestone[] = [
         threshold: 3, icon: Flame, color: "bg-orange-400"
     },
     {
-        id: 3, type: "rank", value: "Citizen", title: "Moving Up",
-        message: "I'm not just a visitor anymore—I'm a Citizen of knowledge! Level 10 reached. 🛡️",
-        threshold: 5000, icon: Shield, color: "bg-green-500"
+        id: 3, type: "rank", value: "Expat", title: "Settling In",
+        message: "I'm becoming a regular! I've moved from Tourist to Expat status. Ghana knowledge is growing! 🇬🇭✨",
+        threshold: 900, icon: Shield, color: "bg-purple-500"
     },
     {
         id: 4, type: "streak", value: 7, title: "Flame On",
@@ -44,9 +44,14 @@ const MILESTONES: Milestone[] = [
         threshold: 7, icon: Flame, color: "bg-red-500"
     },
     {
-        id: 5, type: "rank", value: "Elder God", title: "Peak Knowledge",
-        message: "Rank: Elder God. My roots run deep and my knowledge of Ghana is now legendary! 👑🏛️",
-        threshold: 50000, icon: Crown, color: "bg-ghana-gold"
+        id: 5, type: "rank", value: "Citizen", title: "True Citizen",
+        message: "Official recognition! I've reached Citizen status on Ghanry. My roots are deep! 🌳🇬🇭",
+        threshold: 24650, icon: Crown, color: "bg-[#006B3F]"
+    },
+    {
+        id: 6, type: "rank", value: "Legend", title: "National Treasure",
+        message: "Rank: LEGEND. My knowledge of Ghana is unmatched. I am a living archive of the Motherland! 👑🏛️🇬🇭",
+        threshold: 59750, icon: Sparkles, color: "bg-ghana-gold"
     },
 ];
 

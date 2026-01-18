@@ -14,8 +14,9 @@ export default function Leaderboard() {
 
     useEffect(() => {
         const fetchRankings = async () => {
+            setIsLoading(true);
             const nickname = localStorage.getItem("ghanry_nickname") || "Guest";
-            const region = localStorage.getItem("ghanry_region") || "Ghana";
+            const region = localStorage.getItem("ghanry_region") || "Greater Accra";
             const passportId = localStorage.getItem("ghanry_passport_id");
 
             // Only include user if they have a valid passport ID
@@ -25,7 +26,17 @@ export default function Leaderboard() {
                 return;
             }
 
-            const data = await LeaderboardService.getRankings(nickname, region, realXP);
+            let data: LeaderboardEntry[] = [];
+            if (activeTab === "global") {
+                data = await LeaderboardService.getRankings(nickname, region, realXP);
+            } else {
+                data = await LeaderboardService.getRegionRankings(region);
+                // Mark current user in regional data
+                data = data.map(u => ({
+                    ...u,
+                    isCurrentUser: u.nickname === nickname
+                }));
+            }
 
             // Filter to only show users with valid IDs (in production, this would be handled server-side)
             const validRankings = data.filter(user => user.isCurrentUser || user.nickname !== "Guest");
@@ -36,7 +47,7 @@ export default function Leaderboard() {
         };
 
         fetchRankings();
-    }, [realXP]);
+    }, [realXP, activeTab]);
 
     return (
         <div className="w-full min-h-screen bg-gray-50 pb-24 flex flex-col items-center">
@@ -143,10 +154,42 @@ export default function Leaderboard() {
                             </div>
                         )
                     ) : (
-                        <div className="bg-white p-8 rounded-2xl text-center">
-                            <p className="text-gray-500 font-jakarta text-sm mb-2">Regional rankings coming soon!</p>
-                            <p className="text-xs text-gray-400">Compete with others from your region</p>
-                        </div>
+                        rankings.length > 0 ? (
+                            rankings.map((user) => (
+                                <div
+                                    key={user.rank}
+                                    className={`p-4 rounded-2xl shadow-sm flex items-center gap-4 transition-all ${user.isCurrentUser
+                                        ? "bg-green-50 border-2 border-[#006B3F] scale-[1.02] shadow-md"
+                                        : "bg-white hover:scale-[1.01]"
+                                        }`}
+                                >
+                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm shadow-sm ${user.rank === 1 ? "bg-yellow-400 text-yellow-900" :
+                                        user.rank === 2 ? "bg-gray-300 text-gray-800" :
+                                            user.rank === 3 ? "bg-orange-300 text-orange-900" :
+                                                "bg-gray-100 text-gray-500"
+                                        }`}>
+                                        {user.rank <= 3 ? <Trophy className="w-5 h-5" /> : user.rank}
+                                    </div>
+                                    <div className="flex-1">
+                                        <h3 className={`font-epilogue font-bold ${user.isCurrentUser ? "text-[#006B3F]" : "text-gray-800"}`}>
+                                            {user.nickname} {user.isCurrentUser && "(You)"}
+                                        </h3>
+                                        <div className="flex items-center gap-1 text-xs text-gray-400 font-bold">
+                                            <MapPin className="w-3 h-3" /> {user.region}
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-[#006B3F] font-extrabold text-sm">{user.xp.toLocaleString()} XP</div>
+                                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{user.rankName || "Citizen"}</div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="bg-white p-8 rounded-2xl text-center">
+                                <p className="text-gray-500 font-jakarta text-sm mb-2">Be the first to represent {localStorage.getItem("ghanry_region") || "your region"}!</p>
+                                <p className="text-xs text-gray-400">Complete quizzes to earn XP and top the local charts</p>
+                            </div>
+                        )
                     )}
                 </div>
             </div>

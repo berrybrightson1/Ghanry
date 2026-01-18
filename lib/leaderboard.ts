@@ -76,18 +76,32 @@ export const LeaderboardService = {
     /**
      * Get top player for a specific region
      */
-    getRegionTopPlayer: async (region: string) => {
+    getRegionRankings: async (region: string) => {
         try {
             const usersRef = collection(db, "users");
-            const q = query(usersRef, where("region", "==", region), orderBy("xp", "desc"), limit(1));
+            const q = query(usersRef, where("region", "==", region), orderBy("xp", "desc"), limit(10));
             const querySnapshot = await getDocs(q);
-            if (!querySnapshot.empty) {
-                return querySnapshot.docs[0].data();
-            }
-            return null;
+
+            const fetchedRankings: LeaderboardEntry[] = [];
+            let index = 1;
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const { rank } = calculateProgress(data.xp || 0);
+                fetchedRankings.push({
+                    rank: index,
+                    nickname: data.nickname || "Citizen",
+                    region: data.region || region,
+                    xp: data.xp || 0,
+                    rankName: rank,
+                    isCurrentUser: false // This will be handled in the component
+                });
+                index++;
+            });
+
+            return fetchedRankings;
         } catch (error) {
             console.error("Region player error:", error);
-            return null;
+            return [];
         }
     }
 };

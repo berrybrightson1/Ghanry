@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import HeroCarousel from "@/components/dashboard/HeroCarousel";
 import StatsGrid from "@/components/dashboard/StatsGrid";
 import TrendingSection from "@/components/dashboard/TrendingSection";
@@ -65,10 +64,10 @@ export default function Dashboard() {
                             The name &quot;Ghana&quot; means &quot;Warrior King&quot; and was the title of the kings of the medieval Ghana Empire.
                         </p>
                         <button
-                            onClick={() => toast.success("Feature coming soon!")}
-                            className="text-[#B38F00] font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all"
+                            onClick={() => router.push("/dashboard/gist")}
+                            className="text-[#B38F00] font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all cursor-pointer"
                         >
-                            Read More <ArrowRight className="w-4 h-4" />
+                            Explore More <ArrowRight className="w-4 h-4" />
                         </button>
                     </div>
                 </section>
