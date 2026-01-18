@@ -11,7 +11,11 @@ export default function TrotroRun() {
 
     // Game States
     const [gameState, setGameState] = useState<"IDLE" | "BETTING" | "RUNNING" | "CRASHED">("IDLE");
-    const [betAmount, setBetAmount] = useState<number>(100);
+
+    // Betting State
+    const [betAmount, setBetAmount] = useState<number | "">(""); // Allow empty string for input
+    const [lockedBet, setLockedBet] = useState<number>(0); // The bet actually placed for the current run
+
     const [multiplier, setMultiplier] = useState<number>(1.00);
     const [countdown, setCountdown] = useState<number>(0);
     const [cashedOutAt, setCashedOutAt] = useState<number | null>(null); // If user cashed out
@@ -25,6 +29,18 @@ export default function TrotroRun() {
 
     // BETTING PHASE
     const startBettingPhase = () => {
+        // Validate Bet Input
+        const actualBet = Number(betAmount);
+        if (!actualBet || actualBet <= 0) {
+            toast.error("Invalid Wager", { description: "Please enter a valid amount." });
+            return;
+        }
+        if (actualBet > xp) {
+            toast.error("Not enough XP!", { description: "You cannot bet more than you have." });
+            return;
+        }
+
+        setLockedBet(actualBet); // Lock the bet!
         setGameState("BETTING");
         setMultiplier(1.00);
         setCashedOutAt(null);
@@ -32,7 +48,7 @@ export default function TrotroRun() {
         const cp = generateCrashPoint();
         crashPointRef.current = cp; // Update ref for loop access
 
-        let timeLeft = 5; // 5 seconds to bet
+        let timeLeft = 3; // Reduced to 3s for snappier feel
         setCountdown(timeLeft);
 
         const timer = setInterval(() => {
@@ -40,36 +56,42 @@ export default function TrotroRun() {
             setCountdown(timeLeft);
             if (timeLeft <= 0) {
                 clearInterval(timer);
-                // Validate Bet
-                if (betAmount > xp) {
-                    toast.error("Not enough XP!", { description: "Reduce your wager." });
-                    setGameState("IDLE");
-                    return;
-                }
 
-                if (spendXP(betAmount)) {
+                // Final Check before run
+                // Note: We check against current XP again just in case.
+                // We use 'lockedBet' for the deduction.
+                if (spendXP(actualBet)) {
                     startGameRun();
                 } else {
+                    toast.error("Transaction Failed", { description: "Could not deduct XP." });
                     setGameState("IDLE");
                 }
             }
         }, 1000);
     };
 
-    // GENERATE CRASH POINT (Weighted Generosity)
-    // 15% chance of valid high multiplier.
+    // GENERATE CRASH POINT
     const generateCrashPoint = () => {
+        // Standard Crash Game Distribution: E = 0.99 / (1 - U)
+        // House Edge = 1%
         const r = Math.random();
 
-        // 15% chance of a "Golden Ride" (guaranteed > 10x, up to 100x)
-        if (r < 0.15) {
-            return 10 + (Math.random() * 90);
-        }
+        // 1.00x minimum implied by the formula logic (if r is low)
+        // But we want to allow explicit instant crashes.
 
-        // Standard inverse distribution
-        const m = 1.00 / (1 - Math.random());
-        // Force minimum 1.10x and CAP at 1000x to prevent infinite loops (User Report: "Never stops")
-        return Math.min(1000, Math.max(1.10, Math.floor(m * 100) / 100));
+        // Use a simpler curve that feels "fair" but risky.
+        // 3% chance of instant crash at 1.00x
+        if (r < 0.03) return 1.00;
+
+        // Otherwise generate multiplier
+        // M = 1 / (1 - r) with limits
+        // We adjust r range to be [0.03, 1] mapped to [0, 1] effectively?
+        // Let's stick to standard Provably Fair style logic simplifed:
+
+        const m = 0.97 / (1 - r);
+
+        // Cap at 500x for sanity
+        return Math.min(500, Math.max(1.00, Math.floor(m * 100) / 100));
     };
 
     // GAME LOOP
@@ -91,7 +113,8 @@ export default function TrotroRun() {
         const elapsed = (now - startTimeRef.current) / 1000; // Seconds
 
         // Growth Function: Exponential
-        const growth = Math.exp(0.15 * elapsed);
+        // Make it start slow and speed up
+        const growth = Math.exp(0.18 * elapsed); // Slightly faster curve
         const currentM = Math.floor(growth * 100) / 100;
 
         setMultiplier(currentM);
@@ -99,7 +122,7 @@ export default function TrotroRun() {
 
         if (currentM >= cp) {
             // CRASH!
-            handleCrash(currentM);
+            handleCrash(cp);
         } else {
             requestRef.current = requestAnimationFrame(animateGame);
         }
@@ -114,8 +137,8 @@ export default function TrotroRun() {
             toast.error("BUSTED!", { description: `Crashed at ${finalM.toFixed(2)}x` });
         }
 
-        // Auto restart after 4s
-        setTimeout(() => setGameState("IDLE"), 4000);
+        // Auto restart after 3s
+        setTimeout(() => setGameState("IDLE"), 3000);
     };
 
     const handleCashOut = () => {
@@ -125,9 +148,8 @@ export default function TrotroRun() {
         const winM = lastMultiplierRef.current;
         setCashedOutAt(winM);
 
-        // 2x BOOST as requested ("times 2 by default")
-        // User gets: Bet * Multiplier * 2
-        const winnings = Math.floor(betAmount * winM * 2);
+        // Win Calculation using LOCKED BET
+        const winnings = Math.floor(lockedBet * winM);
         addXP(winnings);
 
         // Show Win Modal Logic
@@ -152,8 +174,30 @@ export default function TrotroRun() {
         return () => cancelAnimationFrame(requestRef.current!);
     }, []);
 
+    // Helper for Input Change
+    const handleBetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        if (val === "") {
+            setBetAmount("");
+            return;
+        }
+        const num = parseInt(val);
+        if (!isNaN(num)) {
+            setBetAmount(num);
+        }
+    };
+
     return (
         <div className="w-full max-w-md mx-auto py-8">
+            {/* Balance Display */}
+            <div className="flex justify-between items-center mb-4 px-2">
+                <div className="text-white/60 text-sm font-bold uppercase tracking-wider">Your Balance</div>
+                <div className="bg-white/10 px-4 py-1.5 rounded-full border border-white/10 flex items-center gap-2">
+                    <Coins className="w-4 h-4 text-[#FCD116]" />
+                    <span className="font-mono font-bold text-white tracking-wide">{xp.toLocaleString()} XP</span>
+                </div>
+            </div>
+
             {/* Game Screen */}
             <div className="relative h-64 bg-slate-900 rounded-3xl overflow-hidden border border-white/10 shadow-2xl mb-6 group">
                 {/* Background (Moving Road) */}
@@ -207,11 +251,8 @@ export default function TrotroRun() {
                             <div className="bg-[#FCD116] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 shadow-lg">
                                 <Coins className="w-6 h-6 text-[#006B3F]" />
                             </div>
-                            <div className="text-[#FCD116] text-xs font-bold uppercase tracking-widest mb-1">YOU ESCAPED!</div>
-                            <div className="text-4xl font-black text-white mb-2 leading-none">+{Math.floor(betAmount * cashedOutAt * 2).toLocaleString()} XP</div>
-                            <div className="bg-black/20 rounded-lg py-1 px-3 inline-block">
-                                <div className="text-white/80 font-mono text-xs">@ {cashedOutAt.toFixed(2)}x (2x Boost)</div>
-                            </div>
+                            <div className="text-[#FCD116] text-xs font-bold uppercase tracking-widest mb-1">{cashedOutAt.toFixed(2)}x CASHOUT</div>
+                            <div className="text-4xl font-black text-white mb-2 leading-none">+{Math.floor(lockedBet * cashedOutAt).toLocaleString()} XP</div>
                         </div>
                     </div>
                 )}
@@ -227,12 +268,33 @@ export default function TrotroRun() {
 
             {/* Controls */}
             <div className="space-y-4">
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex justify-between items-center">
-                    <div className="text-xs uppercase text-white/40 font-bold">Wager</div>
-                    <div className="flex items-center gap-4">
-                        <button onClick={() => setBetAmount(Math.max(10, betAmount - 10))} className="p-2 hover:bg-white/10 rounded-full text-white/60">-</button>
-                        <div className="font-mono font-bold text-xl text-[#FCD116] w-20 text-center">{betAmount}</div>
-                        <button onClick={() => setBetAmount(Math.min(xp, betAmount + 10))} className="p-2 hover:bg-white/10 rounded-full text-white/60">+</button>
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/10 flex justify-between items-center gap-4">
+                    <div className="text-xs uppercase text-white/40 font-bold shrink-0">Wager</div>
+                    <div className="flex-1">
+                        <input
+                            type="number"
+                            value={betAmount}
+                            onChange={handleBetChange}
+                            disabled={gameState !== "IDLE"}
+                            placeholder="Min 10"
+                            className="w-full bg-transparent text-right font-mono font-bold text-xl text-[#FCD116] placeholder-white/20 focus:outline-none disabled:opacity-50"
+                        />
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                        <button
+                            onClick={() => setBetAmount(Math.floor(xp / 2))}
+                            disabled={gameState !== "IDLE"}
+                            className="bg-white/10 hover:bg-white/20 text-white/60 text-[10px] font-bold px-2 py-1 rounded disabled:opacity-50"
+                        >
+                            1/2
+                        </button>
+                        <button
+                            onClick={() => setBetAmount(xp)}
+                            disabled={gameState !== "IDLE"}
+                            className="bg-white/10 hover:bg-white/20 text-white/60 text-[10px] font-bold px-2 py-1 rounded disabled:opacity-50"
+                        >
+                            MAX
+                        </button>
                     </div>
                 </div>
 
@@ -246,7 +308,7 @@ export default function TrotroRun() {
                         {cashedOutAt ? "ALIGHTED" : "ALIGHT NOW"}
                         {!cashedOutAt && (
                             <span className="text-sm font-bold opacity-80 font-mono">
-                                +{Math.floor(betAmount * multiplier * 2)} XP
+                                +{Math.floor(lockedBet * multiplier)} XP
                             </span>
                         )}
                     </button>
@@ -255,22 +317,23 @@ export default function TrotroRun() {
                         disabled
                         className="w-full py-6 bg-gray-800 text-gray-400 rounded-2xl font-bold font-mono text-xl cursor-wait"
                     >
-                        Loading Passengers...
+                        Departing...
                     </button>
                 ) : (
                     <button
                         onClick={startBettingPhase}
-                        className="w-full py-6 bg-[#006B3F] hover:bg-[#005a35] text-white rounded-2xl font-black text-xl uppercase tracking-wider shadow-lg shadow-green-900/20 transition-all transform active:scale-95"
+                        disabled={!betAmount || Number(betAmount) <= 0}
+                        className="w-full py-6 bg-[#006B3F] hover:bg-[#005a35] disabled:bg-gray-800 disabled:text-gray-500 text-white rounded-2xl font-black text-xl uppercase tracking-wider shadow-lg shadow-green-900/20 transition-all transform active:scale-95"
                     >
-                        LOAD BUS ({betAmount} XP)
+                        START RIDE
                     </button>
                 )}
 
-                {cashedOutAt && gameState === "RUNNING" && (
-                    <div className="text-center text-green-400 font-bold text-sm animate-bounce">
-                        Safe! Waiting for crash...
-                    </div>
-                )}
+                <div className="text-center">
+                    <p className="text-[10px] text-white/20">
+                        Input wager manually to play. Bus can crash at 1.00x.
+                    </p>
+                </div>
             </div>
 
             <style jsx global>{`
