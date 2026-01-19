@@ -56,11 +56,14 @@ export function useXP() {
 
     // Add XP and persist
     const addXP = (amount: number) => {
+        // Always read fresh from storage to avoid stale closures (initially 0)
+        const currentXP = Number(localStorage.getItem('ghanry_xp') || '0');
+
         // Apply multiplier if active
         const multiplier = activeBuffs.find((b: Buff) => b.type === 'multiplier')?.value || 1;
         const totalAmount = amount * multiplier;
 
-        const newXP = xp + totalAmount;
+        const newXP = currentXP + totalAmount;
         setXp(newXP);
         localStorage.setItem('ghanry_xp', newXP.toString());
         syncXPToFirestore(newXP);
@@ -70,8 +73,11 @@ export function useXP() {
 
     // Spend XP
     const spendXP = (amount: number) => {
-        if (xp < amount) return false;
-        const newXP = xp - amount;
+        const currentXP = Number(localStorage.getItem('ghanry_xp') || '0');
+
+        if (currentXP < amount) return false;
+
+        const newXP = currentXP - amount;
         setXp(newXP);
         localStorage.setItem('ghanry_xp', newXP.toString());
         syncXPToFirestore(newXP);
