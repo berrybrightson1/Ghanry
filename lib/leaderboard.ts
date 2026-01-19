@@ -90,28 +90,52 @@ export const LeaderboardService = {
     /**
      * Get top player for a specific region
      */
-    getRegionRankings: async (region: string) => {
+    /**
+     * Get top player for a specific region
+     */
+    getRegionRankings: async (region: string, localNickname?: string, localXP?: number) => {
         try {
             const usersRef = collection(db, "users");
-            // Removed secondary orderBy to avoid index error
+            // Note: This query requires a Firestore Composite Index (Region ASC, XP DESC)
+            // If it fails, check browser console for the link to create it.
             const q = query(usersRef, where("region", "==", region), orderBy("xp", "desc"), limit(20));
             const querySnapshot = await getDocs(q);
 
             let fetchedRankings: LeaderboardEntry[] = [];
+            let currentFound = false;
 
             querySnapshot.forEach((docSnap) => {
                 const data = docSnap.data();
                 const { rank } = calculateProgress(data.xp || 0);
+                const isCurrent = data.nickname === localNickname && data.xp === localXP;
+                if (isCurrent) currentFound = true;
+
                 fetchedRankings.push({
                     rank: 0,
                     nickname: data.nickname || "Citizen",
                     region: data.region || region,
                     xp: data.xp || 0,
                     rankName: rank,
-                    isCurrentUser: false,
+                    isCurrentUser: isCurrent,
                     verified: data.verified || false
                 });
             });
+
+            // Fallback: If query return nothing (e.g. index missing) or empty, 
+            // AND we have a local user in this region, show them!
+            // This ensures "Be the first..." doesn't show if YOU are there.
+            if ((!currentFound || fetchedRankings.length === 0) && localNickname && localXP !== undefined && localXP >= 0) {
+                const { rank: localRankName } = calculateProgress(localXP);
+                fetchedRankings.push({
+                    rank: 99, // Temp
+                    nickname: localNickname,
+                    region: region,
+                    xp: localXP,
+                    rankName: localRankName,
+                    isCurrentUser: true,
+                    verified: false
+                });
+            }
 
             // Client-side Sort
             fetchedRankings.sort((a, b) => {
@@ -128,6 +152,18 @@ export const LeaderboardService = {
             return fetchedRankings;
         } catch (error) {
             console.error("Region player error:", error);
+            // Fallback on error: Show local user
+            if (localNickname && localXP !== undefined) {
+                const { rank: localRankName } = calculateProgress(localXP);
+                return [{
+                    rank: 1,
+                    nickname: localNickname,
+                    region: region,
+                    xp: localXP,
+                    rankName: localRankName,
+                    isCurrentUser: true
+                }];
+            }
             return [];
         }
     },

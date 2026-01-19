@@ -28,13 +28,8 @@ export default function Leaderboard() {
             if (activeTab === "global") {
                 data = await LeaderboardService.getRankings(nickname, region, realXP);
             } else {
-                data = await LeaderboardService.getRegionRankings(region);
-                if (!isGuest) {
-                    data = data.map(u => ({
-                        ...u,
-                        isCurrentUser: u.nickname === nickname
-                    }));
-                }
+                data = await LeaderboardService.getRegionRankings(region, nickname, realXP);
+                // No need to map isCurrentUser here as service does it
             }
 
             // Filter to only show citizens
