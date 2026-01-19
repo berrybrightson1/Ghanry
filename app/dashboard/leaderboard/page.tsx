@@ -8,6 +8,10 @@ import { useXP } from "@/hooks/useXP";
 
 export default function Leaderboard() {
     const [activeTab, setActiveTab] = useState<"global" | "region">("global");
+    const [rankings, setRankings] = useState<LeaderboardEntry[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [userRank, setUserRank] = useState<LeaderboardEntry | undefined>(undefined);
+    const { xp: realXP } = useXP();
     const [selectedRegion, setSelectedRegion] = useState("");
 
     const regions = ["Greater Accra", "Ashanti", "Volta", "Northern", "Central", "Eastern", "Western", "Western North", "Upper East", "Upper West", "Oti", "Bono", "Bono East", "Ahafo", "North East", "Savannah"];
