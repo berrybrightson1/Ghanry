@@ -37,12 +37,21 @@ export async function POST(req: Request) {
 
         // OpenAI/Perplexity format expects 'system' as a role in the messages array
         // We prepend the system prompt to the message history
+
+        const formattedMessages = messages.map((m: Message) => ({
+            role: m.role === "bot" ? "assistant" : m.role,
+            content: m.content
+        }));
+
+        // CRITICAL: Perplexity/OpenAI often requires the conversation to start with 'user' after 'system'.
+        // If the first regular message is 'assistant' (e.g. welcome msg), ignore it.
+        if (formattedMessages.length > 0 && formattedMessages[0].role === "assistant") {
+            formattedMessages.shift();
+        }
+
         const apiMessages = [
             { role: "system", content: SYSTEM_PROMPT },
-            ...messages.map((m: Message) => ({
-                role: m.role === "bot" ? "assistant" : m.role, // Map 'bot' to 'assistant'
-                content: m.content
-            }))
+            ...formattedMessages
         ];
 
         const completion = await perplexity.chat.completions.create({

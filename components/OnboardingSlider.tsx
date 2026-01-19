@@ -19,30 +19,30 @@ export default function OnboardingSlider() {
         {
             id: 1,
             type: "summary",
-            title: "Your Digital Passport",
-            description: "Secure your unique Ghanaian identity. Log in with your Passport ID & PIN to sync your progress and climb the citizenship ranks.",
-            icon: <ShieldCheck className="w-12 h-12 text-[#FCD116]" />
+            title: "What is this app?",
+            description: "Ghanry is a gamified heritage platform. Play quizzes, learn history, and earn XP to upgrade your citizenship status.",
+            icon: <GraduationCap className="w-12 h-12 text-[#FCD116]" />
         },
         {
             id: 2,
             type: "features",
-            title: "Rise to Glory",
-            description: "From Tourist to Legend. Level up your status.",
+            title: "How It Works",
+            description: "A simple loop for mastery.",
             features: [
-                { icon: <GraduationCap className="w-5 h-5 text-[#FCD116]" />, label: "Trivia Battles" },
-                { icon: <ShieldCheck className="w-5 h-5 text-blue-400" />, label: "Get Verified" },
-                { icon: <Sparkles className="w-5 h-5 text-ghana-gold" />, label: "Citizenship" },
-                { icon: <Globe className="w-5 h-5 text-green-400" />, label: "Leaderboard" },
-                { icon: <Scroll className="w-5 h-5 text-[#CE1126]" />, label: "Wisdom Pot" },
-                { icon: <Image src="/Flame.svg" width={20} height={20} alt="Streak" />, label: "Daily Streak" },
+                { icon: <Image src="/Flame.svg" width={20} height={20} alt="Streak" />, label: "1. Play Daily" },
+                { icon: <ShieldCheck className="w-5 h-5 text-blue-400" />, label: "2. Earn XP" },
+                { icon: <Sparkles className="w-5 h-5 text-ghana-gold" />, label: "3. Rank Up" },
+                { icon: <Globe className="w-5 h-5 text-green-400" />, label: "4. Compete" },
+                { icon: <Scroll className="w-5 h-5 text-[#CE1126]" />, label: "5. Learn Lore" },
+                { icon: <Star className="w-5 h-5 text-[#FCD116]" />, label: "6. Win Badges" },
             ]
         },
         {
             id: 3,
             type: "summary",
             title: "Claim Your Heritage",
-            description: "Start as a Tourist (1.5x XP Boost). Pass the Citizenship Test to become a true Ghanaian and unlock exclusive badges.",
-            icon: <Star className="w-12 h-12 text-[#CE1126] fill-[#CE1126]" />
+            description: "Unlock the exclusive 'Citizen' status by proving your knowledge. Are you a Tourist or a Legend? Let's find out.",
+            icon: <ShieldCheck className="w-12 h-12 text-[#CE1126]" />
         }
     ];
 
