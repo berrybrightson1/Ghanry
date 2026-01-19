@@ -44,12 +44,36 @@ export default function DashboardLayout({
 
             setUserData({
                 nickname: storedNickname,
-                region: "Ghana", // Default region
+                region: "Ghana",
                 isGuest,
-                avatar: storedAvatar || undefined, // undefined if null
-                status: storedStatus || undefined, // undefined if null
+                avatar: storedAvatar || undefined,
+                status: storedStatus || undefined,
                 verified: storedVerified
             });
+
+            // SYNC CHECK: If user has an ID, check Firestore for latest verification status/sync
+            if (storedId) {
+                setTimeout(async () => {
+                    try {
+                        // Lazy load the sync module to avoid blocking UI
+                        const { loadFromFirestore } = await import('@/lib/userSync');
+                        const data = await loadFromFirestore(storedId);
+                        if (data) {
+                            // Update local verification if different
+                            if (data.verified === true && !storedVerified) {
+                                localStorage.setItem("ghanry_verified", "true");
+                                window.dispatchEvent(new Event("ghanry_profile_update"));
+                            }
+                            // Sync completed levels if available
+                            if (data.completedLevels) {
+                                localStorage.setItem("ghanry_completed_levels", JSON.stringify(data.completedLevels));
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Background sync failed", e);
+                    }
+                }, 2000);
+            }
         };
 
         loadUser();

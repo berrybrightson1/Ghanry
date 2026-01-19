@@ -218,6 +218,7 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
                         totalQuestions={categoryQuestions.length}
                         nextPath={nextPath}
                         timeElapsed={timeElapsed}
+                        categorySlug={slug}
                     />
                 ) : (
                     <QuizCard

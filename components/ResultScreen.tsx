@@ -22,7 +22,8 @@ export default function ResultScreen({
     totalQuestions: number,
     isDaily?: boolean,
     timeElapsed?: number,
-    nextPath?: string
+    nextPath?: string,
+    categorySlug?: string
 }) {
     const { updateStreak, streak } = useStreak();
     const { addXP, xp } = useXP();
@@ -45,21 +46,35 @@ export default function ResultScreen({
     const newTotalXP = xp + quizReward.totalXP;
     const newProgress = calculateProgress(newTotalXP);
 
+    const [xpAwarded, setXpAwarded] = useState(false);
+
     useEffect(() => {
         if (!hasUpdated) {
-            // Update streak and XP on completion
+            // Check if level already completed
+            const completedLevels = JSON.parse(localStorage.getItem("ghanry_completed_levels") || "[]");
+            const isReplay = completedLevels.includes(categorySlug) && !isDaily;
+
+            // Update streak
             updateStreak();
 
-            // Only add XP if they got at least one question right or it's a daily
-            if (score > 0 || isDaily) {
-                addXP(baseXP); // Multiplier is handled inside addXP
+            if (!isReplay && (score > 0 || isDaily)) {
+                addXP(baseXP);
+                setXpAwarded(true);
+
+                // Save completion
+                if (!isDaily && categorySlug) {
+                    completedLevels.push(categorySlug);
+                    localStorage.setItem("ghanry_completed_levels", JSON.stringify(completedLevels));
+                }
+            } else {
+                setXpAwarded(false); // Valid replay or 0 score
             }
 
             if (isDaily) {
                 markAsCompleted();
             }
 
-            // Trigger confetti if score is decent OR it's a Daily Trivia completion
+            // Trigger confetti if score is decent
             if (score > (totalQuestions / 2) || isDaily) {
                 confetti({
                     particleCount: 200,
@@ -72,7 +87,7 @@ export default function ResultScreen({
 
             setHasUpdated(true);
         }
-    }, [score, totalQuestions, updateStreak, addXP, baseXP, hasUpdated, isDaily, markAsCompleted]);
+    }, [score, totalQuestions, updateStreak, addXP, baseXP, hasUpdated, isDaily, markAsCompleted, categorySlug]);
 
     return (
         <div className="w-full h-full flex flex-col items-center justify-center relative bg-transparent p-6 text-center">
@@ -91,9 +106,9 @@ export default function ResultScreen({
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
                             transition={{ delay: 0.5 }}
-                            className="absolute -top-2 -right-4 bg-[#CE1126] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border-2 border-white"
+                            className={`absolute -top-2 -right-4 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border-2 border-white ${xpAwarded ? 'bg-[#CE1126]' : 'bg-gray-500'}`}
                         >
-                            +{finalXP} XP
+                            {xpAwarded ? `+${finalXP} XP` : 'Replay'}
                         </motion.div>
                     )}
                 </div>
