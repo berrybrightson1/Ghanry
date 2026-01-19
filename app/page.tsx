@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import CustomSelect from "@/components/CustomSelect";
-import { Loader2, Sparkles, MapPin, Plane, Lock, ShieldCheck, ArrowLeft, CheckCircle2, Copy, CreditCard, KeyRound, AlertTriangle } from "lucide-react";
+import { Loader2, Sparkles, MapPin, Plane, Lock, ShieldCheck, ArrowLeft, CheckCircle2, Copy, KeyRound, AlertTriangle } from "lucide-react";
 import OnboardingSlider from "@/components/OnboardingSlider";
 import { createAccount, verifyUser, getUser } from "@/lib/passport";
 import { getRandomChallenge, Question } from "@/lib/quiz";
@@ -450,116 +450,116 @@ export default function Home() {
             <p className="text-gray-500 font-jakarta">
               {viewMode === 'guest' ? 'Begin your journey through Ghana.' : 'Sign up to get your Ghanry Card and sync your progress.'}
             </p>
-          </div>
+
 
             {/* Nickname */}
-        <div className="space-y-2">
-          <label className="text-sm font-jakarta font-bold text-gray-500 uppercase tracking-wider ml-1">What should we call you?</label>
-          <input
-            type="text"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            placeholder="e.g. Kwame Jet"
-            disabled={isSubmitting}
-            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-epilogue font-bold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all"
-          />
-        </div>
+            <div className="space-y-2">
+              <label className="text-sm font-jakarta font-bold text-gray-500 uppercase tracking-wider ml-1">What should we call you?</label>
+              <input
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="e.g. Kwame Jet"
+                disabled={isSubmitting}
+                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl font-epilogue font-bold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] transition-all"
+              />
+            </div>
 
-        {/* Location Status */}
-        <div className="space-y-2">
-          <label className="text-sm font-jakarta font-bold text-gray-500 uppercase tracking-wider ml-1">
-            {viewMode === 'signup' ? "Citizenship Type" : "Where are you right now?"}
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <button onClick={() => { setLocationStatus('citizen'); setSelectedRegion(""); }} className={`p-3 rounded-xl border flex flex-row items-center justify-center gap-2 transition-all ${locationStatus === 'citizen' ? "bg-[#006B3F]/10 border-[#006B3F] text-[#006B3F]" : "bg-white border-gray-100 text-gray-400 hover:border-gray-200"}`}>
-              <MapPin className="w-4 h-4" />
-              <span className="font-epilogue font-bold text-sm">{viewMode === 'signup' ? "Home-based" : "In Ghana"}</span>
-            </button>
-            <button onClick={() => { setLocationStatus('tourist'); setSelectedRegion(""); }} className={`p-3 rounded-xl border flex flex-row items-center justify-center gap-2 transition-all ${locationStatus === 'tourist' ? "bg-[#006B3F]/10 border-[#006B3F] text-[#006B3F]" : "bg-white border-gray-100 text-gray-400 hover:border-gray-200"}`}>
-              <Plane className="w-4 h-4" />
-              <span className="font-epilogue font-bold text-sm">{viewMode === 'signup' ? "Diaspora" : "Abroad"}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Region Select */}
-        <div className="space-y-2">
-          <label className="text-sm font-jakarta font-bold text-gray-500 uppercase tracking-wider ml-1">
-            {viewMode === 'signup' ? "Home Region" : (locationStatus === 'tourist' ? "Select your base" : "Home Region")}
-          </label>
-          <CustomSelect
-            options={locationStatus === 'tourist' ? diasporaLocations : regions}
-            placeholder={locationStatus === 'tourist' ? "Select your base" : "Select Region"}
-            value={selectedRegion}
-            onChange={setSelectedRegion}
-          />
-        </div>
-
-        {/* PIN Creation (Signup Only) */}
-        {viewMode === 'signup' && (
-          <div className="grid grid-cols-2 gap-3 pt-1">
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Create PIN</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input type="password" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/[^0-9]/g, ''))} className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-epilogue font-bold text-base tracking-[0.2em] text-center focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F]" placeholder="••••" />
+            {/* Location Status */}
+            <div className="space-y-2">
+              <label className="text-sm font-jakarta font-bold text-gray-500 uppercase tracking-wider ml-1">
+                {viewMode === 'signup' ? "Citizenship Type" : "Where are you right now?"}
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button onClick={() => { setLocationStatus('citizen'); setSelectedRegion(""); }} className={`p-3 rounded-xl border flex flex-row items-center justify-center gap-2 transition-all ${locationStatus === 'citizen' ? "bg-[#006B3F]/10 border-[#006B3F] text-[#006B3F]" : "bg-white border-gray-100 text-gray-400 hover:border-gray-200"}`}>
+                  <MapPin className="w-4 h-4" />
+                  <span className="font-epilogue font-bold text-sm">{viewMode === 'signup' ? "Home-based" : "In Ghana"}</span>
+                </button>
+                <button onClick={() => { setLocationStatus('tourist'); setSelectedRegion(""); }} className={`p-3 rounded-xl border flex flex-row items-center justify-center gap-2 transition-all ${locationStatus === 'tourist' ? "bg-[#006B3F]/10 border-[#006B3F] text-[#006B3F]" : "bg-white border-gray-100 text-gray-400 hover:border-gray-200"}`}>
+                  <Plane className="w-4 h-4" />
+                  <span className="font-epilogue font-bold text-sm">{viewMode === 'signup' ? "Diaspora" : "Abroad"}</span>
+                </button>
               </div>
             </div>
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Confirm PIN</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="password"
-                  maxLength={4}
-                  value={confirmPin}
-                  onChange={(e) => setConfirmPin(e.target.value.replace(/[^0-9]/g, ''))}
-                  className={`w-full pl-9 pr-3 py-2.5 bg-gray-50 border rounded-xl font-epilogue font-bold text-base tracking-[0.2em] text-center focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 transition-colors ${confirmPin.length > 0
-                    ? pin === confirmPin
-                      ? "border-green-500 text-green-700 bg-green-50"
-                      : "border-red-500 text-red-700 bg-red-50"
-                    : "border-gray-200 focus:border-[#006B3F]"
-                    }`}
-                  placeholder="••••"
-                />
+
+            {/* Region Select */}
+            <div className="space-y-2">
+              <label className="text-sm font-jakarta font-bold text-gray-500 uppercase tracking-wider ml-1">
+                {viewMode === 'signup' ? "Home Region" : (locationStatus === 'tourist' ? "Select your base" : "Home Region")}
+              </label>
+              <CustomSelect
+                options={locationStatus === 'tourist' ? diasporaLocations : regions}
+                placeholder={locationStatus === 'tourist' ? "Select your base" : "Select Region"}
+                value={selectedRegion}
+                onChange={setSelectedRegion}
+              />
+            </div>
+
+            {/* PIN Creation (Signup Only) */}
+            {viewMode === 'signup' && (
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Create PIN</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input type="password" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/[^0-9]/g, ''))} className="w-full pl-9 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl font-epilogue font-bold text-base tracking-[0.2em] text-center focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F]" placeholder="••••" />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Confirm PIN</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="password"
+                      maxLength={4}
+                      value={confirmPin}
+                      onChange={(e) => setConfirmPin(e.target.value.replace(/[^0-9]/g, ''))}
+                      className={`w-full pl-9 pr-3 py-2.5 bg-gray-50 border rounded-xl font-epilogue font-bold text-base tracking-[0.2em] text-center focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 transition-colors ${confirmPin.length > 0
+                        ? pin === confirmPin
+                          ? "border-green-500 text-green-700 bg-green-50"
+                          : "border-red-500 text-red-700 bg-red-50"
+                        : "border-gray-200 focus:border-[#006B3F]"
+                        }`}
+                      placeholder="••••"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            {viewMode === 'guest' ? (
+              <button onClick={handleGuestStart} disabled={isSubmitting} className="w-full py-4 bg-[#FCD116] hover:bg-[#eec308] disabled:opacity-80 disabled:cursor-wait text-black font-epilogue font-extrabold text-lg rounded-xl shadow-lg shadow-yellow-500/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 mt-4">
+                {isSubmitting ? <><Loader2 className="w-5 h-5 animate-spin" /><span>Entering...</span></> : <><span>Enter as Guest</span><Sparkles className="w-5 h-5 opacity-40" /></>}
+              </button>
+            ) : (
+              <button onClick={handleSignUp} disabled={isSubmitting} className="w-full py-4 bg-[#006B3F] hover:bg-[#005a35] disabled:opacity-80 disabled:cursor-wait text-white font-epilogue font-extrabold text-lg rounded-xl shadow-lg shadow-green-900/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 mt-4">
+                {isSubmitting ? <><Loader2 className="w-5 h-5 animate-spin" /><span>Creating Account...</span></> : <><span>Create Account</span><ShieldCheck className="w-5 h-5 opacity-80" /></>}
+              </button>
+            )}
+
+            {/* Function Toggles */}
+            <div className="pt-4 border-t border-gray-100 w-full space-y-4">
+              <div className="flex flex-col gap-3 items-center">
+                <button
+                  onClick={handleGuestStart}
+                  disabled={isSubmitting}
+                  className="text-sm font-bold text-gray-400 hover:text-gray-900 flex items-center gap-2 transition-colors"
+                >
+                  Enter as Guest <Sparkles className="w-3 h-3" />
+                </button>
+                <div className="w-full h-px bg-gray-100/50"></div>
+                <button
+                  onClick={() => setViewMode("login")}
+                  className="text-sm font-bold text-[#006B3F] hover:underline decoration-2 underline-offset-2"
+                >
+                  Already a citizen? Login here
+                </button>
               </div>
             </div>
           </div>
         )}
-
-        {/* Action Buttons */}
-        {viewMode === 'guest' ? (
-          <button onClick={handleGuestStart} disabled={isSubmitting} className="w-full py-4 bg-[#FCD116] hover:bg-[#eec308] disabled:opacity-80 disabled:cursor-wait text-black font-epilogue font-extrabold text-lg rounded-xl shadow-lg shadow-yellow-500/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 mt-4">
-            {isSubmitting ? <><Loader2 className="w-5 h-5 animate-spin" /><span>Entering...</span></> : <><span>Enter as Guest</span><Sparkles className="w-5 h-5 opacity-40" /></>}
-          </button>
-        ) : (
-          <button onClick={handleSignUp} disabled={isSubmitting} className="w-full py-4 bg-[#006B3F] hover:bg-[#005a35] disabled:opacity-80 disabled:cursor-wait text-white font-epilogue font-extrabold text-lg rounded-xl shadow-lg shadow-green-900/20 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 mt-4">
-            {isSubmitting ? <><Loader2 className="w-5 h-5 animate-spin" /><span>Creating Account...</span></> : <><span>Create Account</span><ShieldCheck className="w-5 h-5 opacity-80" /></>}
-          </button>
-        )}
-
-        {/* Function Toggles */}
-        <div className="pt-4 border-t border-gray-100 w-full space-y-4">
-          <div className="flex flex-col gap-3 items-center">
-            <button
-              onClick={handleGuestStart}
-              disabled={isSubmitting}
-              className="text-sm font-bold text-gray-400 hover:text-gray-900 flex items-center gap-2 transition-colors"
-            >
-              Enter as Guest <Sparkles className="w-3 h-3" />
-            </button>
-            <div className="w-full h-px bg-gray-100/50"></div>
-            <button
-              onClick={() => setViewMode("login")}
-              className="text-sm font-bold text-[#006B3F] hover:underline decoration-2 underline-offset-2"
-            >
-              Already a citizen? Login here
-            </button>
-          </div>
-        </div>
       </div>
-        )}
-    </div>
     </div >
   );
 }

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, XCircle, Timer, HelpCircle } from "lucide-react";
+import { CheckCircle2, XCircle, Timer, HelpCircle, ArrowLeft } from "lucide-react";
 import confetti from "canvas-confetti";
 
 interface Option {
@@ -21,10 +21,12 @@ interface Question {
 
 interface QuizCardProps {
     question: Question;
-    onNext: (isCorrect: boolean) => void;
+    onNext: (isCorrect: boolean, selectedOptionId: string) => void;
     questionNumber: number;
     totalQuestions: number;
     currentTime?: number;
+    onPrevious?: () => void;
+    savedAnswer?: string;
 }
 
 export default function QuizCard({
@@ -32,9 +34,28 @@ export default function QuizCard({
     onNext,
     questionNumber,
     totalQuestions,
-    currentTime = 0
+    currentTime = 0,
+    onPrevious,
+    savedAnswer
 }: QuizCardProps) {
-    const [selectedOption, setSelectedOption] = useState<string | null>(null);
+    const [selectedOption, setSelectedOption] = useState<string | null>(savedAnswer ?? null);
+
+    // Sync state if savedAnswer changes (e.g. navigation)
+    useEffect(() => {
+        setSelectedOption(savedAnswer ?? null);
+    }, [savedAnswer]);
+
+    // Auto-advance logic
+    useEffect(() => {
+        // Only auto-advance if option selected AND it wasn't a saved answer (user newly selected it)
+        if (selectedOption && !savedAnswer) {
+            const timer = setTimeout(() => {
+                const isCorrect = question.options.find(o => o.id === selectedOption)?.isCorrect || false;
+                onNext(isCorrect, selectedOption);
+            }, 2500); // 2.5s delay for "glancing"
+            return () => clearTimeout(timer);
+        }
+    }, [selectedOption, savedAnswer, onNext, question]);
 
 
 
@@ -76,10 +97,11 @@ export default function QuizCard({
 
     const handleNext = () => {
         setTimeout(() => {
-            const isCorrect = question.options.find(o => o.id === selectedOption)?.isCorrect || false;
-            setSelectedOption(null);
-            onNext(isCorrect);
-        }, 500);
+            if (selectedOption) {
+                const isCorrect = question.options.find(o => o.id === selectedOption)?.isCorrect || false;
+                onNext(isCorrect, selectedOption);
+            }
+        }, 300);
     };
 
     return (
@@ -136,8 +158,8 @@ export default function QuizCard({
                             {question.options.map((option) => (
                                 <motion.button
                                     key={option.id}
-                                    onClick={() => handleOptionSelect(option.id)}
-                                    disabled={!!selectedOption}
+                                    onClick={() => !savedAnswer && handleOptionSelect(option.id)}
+                                    disabled={!!selectedOption && !savedAnswer}
                                     whileTap={{ scale: 0.98 }}
                                     className={`group w-full p-4 rounded-2xl flex items-center justify-between transition-all duration-300 ${getOptionStyle(option)} text-left`}
                                 >
@@ -160,24 +182,36 @@ export default function QuizCard({
                         </div>
                     </div>
 
-                    {/* Footer / Next Button */}
-                    <AnimatePresence>
-                        {selectedOption && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 10 }}
-                                className="mt-6"
+                    {/* Footer / Navigation */}
+                    <div className="flex items-center gap-4 mt-6">
+                        {onPrevious && (
+                            <button
+                                onClick={onPrevious}
+                                aria-label="Previous Question"
+                                className="p-4 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors"
                             >
-                                <button
-                                    onClick={handleNext}
-                                    className="w-full py-4 bg-[#006B3F] hover:bg-[#004629] text-white font-epilogue font-bold text-base rounded-2xl shadow-xl shadow-green-900/20 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2"
-                                >
-                                    Next Intelligence
-                                </button>
-                            </motion.div>
+                                <ArrowLeft className="w-5 h-5" />
+                            </button>
                         )}
-                    </AnimatePresence>
+
+                        <AnimatePresence>
+                            {selectedOption && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10, flex: 1 }}
+                                    animate={{ opacity: 1, y: 0, flex: 1 }}
+                                    exit={{ opacity: 0, y: 10, flex: 0 }}
+                                    className="flex-1"
+                                >
+                                    <button
+                                        onClick={handleNext}
+                                        className="w-full py-4 bg-[#006B3F] hover:bg-[#004629] text-white font-epilogue font-bold text-base rounded-2xl shadow-xl shadow-green-900/20 transition-all hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2"
+                                    >
+                                        Next Intelligence
+                                    </button>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 </motion.div>
             </AnimatePresence>
         </div>

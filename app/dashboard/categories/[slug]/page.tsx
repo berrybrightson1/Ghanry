@@ -47,6 +47,7 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [score, setScore] = useState(0); // Count of correct answers
     const [gameStatus, setGameStatus] = useState<"playing" | "finished">("playing");
+    const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
     const [timeElapsed, setTimeElapsed] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const startTimeRef = useRef<number>(Date.now());
@@ -151,36 +152,49 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
         );
     }
 
-    const handleNext = (isCorrect: boolean) => {
-        // Mark current question as answered
-        const questionToMark = categoryQuestions[currentIndex];
-        if (questionToMark) {
-            markAsAnswered(questionToMark.id);
-        }
+    const handleNext = (isCorrect: boolean, selectedOptionId: string) => {
+        const currentQ = categoryQuestions[currentIndex];
+        const isAlreadyAnswered = userAnswers[currentQ.id] !== undefined;
 
-        let finalIsCorrect = isCorrect;
-        if (!isCorrect) {
-            // Check for wisdom shield
-            if (consumeShield()) {
-                finalIsCorrect = true;
-                toast.success("Wisdom Shield Activated!", {
-                    description: "Your error was blocked by the ancestors. 🛡️",
-                    icon: "🛡️"
-                });
+        // Only process scoring if this is the first time answering
+        if (!isAlreadyAnswered) {
+            // Mark current question as answered
+            if (currentQ) {
+                markAsAnswered(currentQ.id);
+            }
+
+            let finalIsCorrect = isCorrect;
+            if (!isCorrect) {
+                // Check for wisdom shield
+                if (consumeShield()) {
+                    finalIsCorrect = true;
+                    toast.success("Wisdom Shield Activated!", {
+                        description: "Your error was blocked by the ancestors. 🛡️",
+                        icon: "🛡️"
+                    });
+                }
+            }
+
+            setUserAnswers(prev => ({ ...prev, [currentQ.id]: selectedOptionId }));
+
+            if (finalIsCorrect) {
+                setScore(s => s + 1);
             }
         }
 
-        if (finalIsCorrect) {
-            setScore(s => s + 1);
-        }
-
         if (currentIndex < categoryQuestions.length - 1) {
-            setTimeout(() => setCurrentIndex(i => i + 1), 1000);
+            setCurrentIndex(i => i + 1);
         } else {
             const endTime = Date.now();
             const finalTime = Math.floor((endTime - startTimeRef.current) / 1000);
             setTimeElapsed(finalTime);
             setGameStatus("finished");
+        }
+    };
+
+    const handlePrevious = () => {
+        if (currentIndex > 0) {
+            setCurrentIndex(prev => prev - 1);
         }
     };
 
@@ -200,7 +214,9 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
                         questionNumber={currentIndex + 1}
                         totalQuestions={categoryQuestions.length}
                         currentTime={currentTime}
-                        onNext={(isCorrect) => handleNext(isCorrect)}
+                        onNext={(isCorrect, optionId) => handleNext(isCorrect, optionId)}
+                        onPrevious={currentIndex > 0 ? handlePrevious : undefined}
+                        savedAnswer={userAnswers[categoryQuestions[currentIndex]?.id]}
                     />
                 )}
             </div>
