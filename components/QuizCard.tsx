@@ -40,10 +40,10 @@ export default function QuizCard({
 }: QuizCardProps) {
     const [selectedOption, setSelectedOption] = useState<string | null>(savedAnswer ?? null);
 
-    // Sync state if savedAnswer changes (e.g. navigation)
+    // Sync state if savedAnswer changes OR question ID changes (fixes reuse bug)
     useEffect(() => {
         setSelectedOption(savedAnswer ?? null);
-    }, [savedAnswer]);
+    }, [savedAnswer, question.id]);
 
     // Auto-advance logic
     useEffect(() => {

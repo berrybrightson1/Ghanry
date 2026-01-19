@@ -48,10 +48,15 @@ export async function POST(req: Request) {
         const responseText = result.response.text();
 
         // Parse to ensure valid JSON before sending
-        const questions = JSON.parse(responseText);
+        // Parse to ensure valid JSON before sending
+        const rawQuestions = JSON.parse(responseText);
 
-        // Add timestamps or random IDs to ensure uniqueness if needed, 
-        // but the prompt handles basic ID structure.
+        // Add timestamps/random IDs to ensure uniqueness to prevent client key collision
+        // Start with a base timestamp + random ensures uniqueness across multiple requests too
+        const baseId = Date.now();
+        const questions = Array.isArray(rawQuestions)
+            ? rawQuestions.map((q, i) => ({ ...q, id: baseId + i }))
+            : [];
 
         return NextResponse.json({ questions });
 
