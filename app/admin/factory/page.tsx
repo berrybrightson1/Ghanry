@@ -9,7 +9,15 @@ export default function FactoryPage() {
     const [loading, setLoading] = useState(false);
     const [lastReport, setLastReport] = useState<string | null>(null);
 
-    const [generatedQuestions, setGeneratedQuestions] = useState<any[]>([]);
+    interface GeneratedQuestion {
+        question: string;
+        options: string[];
+        answer: string;
+        explanation: string;
+        fingerprint?: string;
+    }
+
+    const [generatedQuestions, setGeneratedQuestions] = useState<GeneratedQuestion[]>([]);
 
     const handleGenerate = async (category: string) => {
         setLoading(true);
