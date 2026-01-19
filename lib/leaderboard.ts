@@ -162,7 +162,7 @@ export const LeaderboardService = {
                 const q = query(usersRef, orderBy("xp", "desc"), limit(100));
                 const querySnapshot = await getDocs(q);
 
-                let allUsers: LeaderboardEntry[] = [];
+                const allUsers: LeaderboardEntry[] = [];
                 querySnapshot.forEach((docSnap) => {
                     const data = docSnap.data();
                     const { rank } = calculateProgress(data.xp || 0);
@@ -211,16 +211,16 @@ export const LeaderboardService = {
                 }));
 
             } catch (fallbackError) {
+                console.warn("Global fallback failed/empty, attempting unsorted region fetch:", fallbackError);
                 // FALLBACK STRATEGY 2:
                 // Fetch random 50 users from region (No Index Required for simple equality)
                 // Then sort locally. This finds "local heroes" who aren't in Global Top 100.
                 try {
-                    console.warn("Global fallback failed/empty. Trying unsorted region fetch.");
                     const usersRef = collection(db, "users");
                     const q = query(usersRef, where("region", "==", region), limit(50));
                     const querySnapshot = await getDocs(q);
 
-                    let allUsers: LeaderboardEntry[] = [];
+                    const allUsers: LeaderboardEntry[] = [];
                     querySnapshot.forEach((docSnap) => {
                         const data = docSnap.data();
                         const { rank } = calculateProgress(data.xp || 0);
