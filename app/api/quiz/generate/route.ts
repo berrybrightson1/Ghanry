@@ -22,6 +22,25 @@ CRITICAL JSON FORMATTING:
    }
 `;
 
+// Define Interfaces
+interface Option {
+    id: string;
+    text: string;
+    isCorrect: boolean;
+}
+
+interface RawQuizQuestion {
+    text: string;
+    options: Option[];
+    category?: string;
+    id?: number | string;
+}
+
+interface QuizQuestion extends RawQuizQuestion {
+    id: number;
+    category: string;
+}
+
 export async function POST(req: Request) {
     try {
         const { topic } = await req.json();
@@ -89,4 +108,3 @@ export async function POST(req: Request) {
         );
     }
 }
-```
