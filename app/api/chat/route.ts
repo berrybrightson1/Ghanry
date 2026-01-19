@@ -1,7 +1,7 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
-
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
+import perplexity from "@/lib/perplexity"; // Assuming you also want to use the shared client, or import OpenAI directly here if preferred. 
+// Using the shared client is cleaner if we exported it correctly. 
+// Let's assume we import the client we just created.
 
 const SYSTEM_PROMPT = `
 You are "Ghanry", an intelligent and expert AI guide specialized in everything about Ghana. 
@@ -18,52 +18,40 @@ CORE INSTRUCTIONS:
 Start every response with confidence.
 `;
 
+
 interface Message {
-    role: "user" | "bot";
+    role: "user" | "bot" | "system" | "assistant";
     content: string;
 }
 
 export async function POST(req: Request) {
     try {
-        const { messages }: { messages: Message[] } = await req.json();
+        const { messages } = await req.json();
 
-        if (!process.env.GOOGLE_GEMINI_API_KEY) {
+        if (!process.env.PERPLEXITY_API_KEY) {
             return NextResponse.json(
-                { error: "API Key not configured. Please add GOOGLE_GEMINI_API_KEY to your environment variables." },
+                { error: "API Key not configured. Please add PERPLEXITY_API_KEY to your environment variables." },
                 { status: 500 }
             );
         }
 
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash",
-            systemInstruction: SYSTEM_PROMPT
+        // OpenAI/Perplexity format expects 'system' as a role in the messages array
+        // We prepend the system prompt to the message history
+        const apiMessages = [
+            { role: "system", content: SYSTEM_PROMPT },
+            ...messages.map((m: Message) => ({
+                role: m.role === "bot" ? "assistant" : m.role, // Map 'bot' to 'assistant'
+                content: m.content
+            }))
+        ];
+
+        const completion = await perplexity.chat.completions.create({
+            model: "sonar",
+            messages: apiMessages,
+            max_tokens: 500, // equivalent to maxOutputTokens
         });
 
-        // Format history for Gemini
-        // We take the last few messages to maintain context
-        const history = messages.slice(0, -1).map((m) => ({
-            role: m.role === "user" ? "user" : "model",
-            parts: [{ text: m.content }],
-        }));
-
-        // CRITICAL: Gemini history MUST start with 'user' role
-        // If the first message is the 'bot' welcome message, we remove it from history
-        if (history.length > 0 && history[0].role === "model") {
-            history.shift();
-        }
-
-        const chat = model.startChat({
-            history,
-            generationConfig: {
-                maxOutputTokens: 500,
-            },
-        });
-
-        const lastMessage = messages[messages.length - 1].content;
-        const result = await chat.sendMessage(lastMessage);
-
-        const response = await result.response;
-        const text = response.text();
+        const text = completion.choices[0]?.message?.content || "";
 
         return NextResponse.json({ content: text });
     } catch (error: unknown) {
