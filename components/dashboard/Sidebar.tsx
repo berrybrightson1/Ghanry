@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useXP } from "@/hooks/useXP";
 import { calculateProgress, getRankColor } from "@/lib/gamification";
-import { useState, useEffect } from "react";
+
 
 const SHAPE_ICONS: Record<string, React.ElementType> = {
     Square, Circle, Triangle, Hexagon, Octagon, Star, Zap, Shield, Heart, Ghost
@@ -20,27 +20,10 @@ interface SidebarProps {
     verified?: boolean;
 }
 
-export default function Sidebar({ nickname, isGuest = false, avatar: initialAvatar, status, verified: initialVerified = false }: SidebarProps) {
+export default function Sidebar({ nickname, isGuest = false, avatar, status, verified = false }: SidebarProps) {
     const pathname = usePathname();
     const { xp } = useXP();
     const { rank } = calculateProgress(xp);
-
-    // Local state for avatar and verified status to allow real-time updates
-    const [avatar, setAvatar] = useState(initialAvatar);
-    const [verified, setVerified] = useState(initialVerified);
-
-    // Listen for profile updates
-    useEffect(() => {
-        const handleProfileUpdate = () => {
-            const newAvatar = localStorage.getItem("ghanry_avatar");
-            const newVerified = localStorage.getItem("ghanry_verified") === "true";
-            setAvatar(newAvatar || undefined);
-            setVerified(newVerified);
-        };
-
-        window.addEventListener('ghanry_profile_update', handleProfileUpdate);
-        return () => window.removeEventListener('ghanry_profile_update', handleProfileUpdate);
-    }, []);
 
     // Override Rank Label for Citizens if XP is low (avoid calling them "Tourist")
     // If status is citizen, use "Ghanaian" as base rank if calculated rank is "Tourist".
@@ -50,8 +33,7 @@ export default function Sidebar({ nickname, isGuest = false, avatar: initialAvat
         displayRank = "GHANAIAN";
     }
 
-    const rankColor = getRankColor(rank); // Keep color logic based on XP for progression feeling? Or match status?
-    // Let's keep color logic based on XP for now, but label based on Status.
+    const rankColor = getRankColor(rank);
 
     const isActive = (path: string) => {
         if (path === "/dashboard" && pathname === "/dashboard") return true;
@@ -91,7 +73,7 @@ export default function Sidebar({ nickname, isGuest = false, avatar: initialAvat
                             <h2 className="font-epilogue font-bold text-gray-900 leading-tight truncate max-w-[140px]" title={nickname}>
                                 {nickname}
                             </h2>
-                            {verified && (
+                            {verified && !isGuest && (
                                 <BadgeCheck className="w-4 h-4 text-blue-500 fill-blue-500/10" />
                             )}
                         </div>

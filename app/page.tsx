@@ -113,6 +113,9 @@ export default function Home() {
     localStorage.setItem("ghanry_nickname", nickname.trim());
     localStorage.setItem("ghanry_region", selectedRegion);
     localStorage.setItem("ghanry_status", locationStatus);
+    localStorage.removeItem("ghanry_verified"); // Ensure not verified
+    localStorage.removeItem("ghanry_passport_id"); // Ensure no ID
+    localStorage.removeItem("ghanry_avatar"); // Reset avatar
 
     const successMessage = locationStatus === 'citizen'
       ? 'Welcome Home, Citizen! Your ID is ready.'
