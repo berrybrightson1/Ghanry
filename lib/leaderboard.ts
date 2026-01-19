@@ -151,20 +151,81 @@ export const LeaderboardService = {
 
             return fetchedRankings;
         } catch (error) {
-            console.error("Region player error:", error);
-            // Fallback on error: Show local user
-            if (localNickname && localXP !== undefined) {
-                const { rank: localRankName } = calculateProgress(localXP);
-                return [{
-                    rank: 1,
-                    nickname: localNickname,
-                    region: region,
-                    xp: localXP,
-                    rankName: localRankName,
-                    isCurrentUser: true
-                }];
+            console.error("Region query failed (likely missing index). Falling back to client-side filter.", error);
+
+            // FALLBACK STRATEGY:
+            // Fetch top 100 global users and filter client-side.
+            // This bypasses the need for a composite index on (region, xp).
+            try {
+                const usersRef = collection(db, "users");
+                // Single field index on 'xp' is usually auto-created or simple to manage
+                const q = query(usersRef, orderBy("xp", "desc"), limit(100));
+                const querySnapshot = await getDocs(q);
+
+                let allUsers: LeaderboardEntry[] = [];
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const { rank } = calculateProgress(data.xp || 0);
+                    // Filter here
+                    if (data.region === region) {
+                        const isCurrent = data.nickname === localNickname && data.xp === localXP;
+                        allUsers.push({
+                            rank: 0,
+                            nickname: data.nickname || "Citizen",
+                            region: data.region,
+                            xp: data.xp || 0,
+                            rankName: rank,
+                            isCurrentUser: isCurrent,
+                            verified: data.verified || false
+                        });
+                    }
+                });
+
+                // Check if local user is in the filtered list
+                const alreadyHasLocalUser = allUsers.some(u => u.isCurrentUser);
+
+                // If local user is missing and valid, append them
+                if (!alreadyHasLocalUser && localNickname && localXP !== undefined) {
+                    const { rank: localRankName } = calculateProgress(localXP);
+                    // Note: We might be appending them at the end even if they should be higher 
+                    // if they weren't in the top 100 global. 
+                    // But if they weren't in top 100 global, they are likely low rank anyway.
+                    allUsers.push({
+                        rank: 99,
+                        nickname: localNickname,
+                        region: region,
+                        xp: localXP,
+                        rankName: localRankName,
+                        isCurrentUser: true,
+                        verified: false
+                    });
+                }
+
+                // Sort correct
+                allUsers.sort((a, b) => b.xp - a.xp);
+
+                // Assign Rank
+                return allUsers.slice(0, 10).map((entry, i) => ({
+                    ...entry,
+                    rank: i + 1
+                }));
+
+            } catch (fallbackError) {
+                console.error("Fallback failed:", fallbackError);
+                // Last resort: just the local user
+                if (localNickname && localXP !== undefined) {
+                    const { rank: localRankName } = calculateProgress(localXP);
+                    return [{
+                        rank: 1,
+                        nickname: localNickname,
+                        region: region,
+                        xp: localXP,
+                        rankName: localRankName,
+                        isCurrentUser: true
+                    }];
+                }
+                return [];
             }
-            return [];
         }
     },
 
