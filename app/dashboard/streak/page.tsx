@@ -172,7 +172,7 @@ export default function JourneyPage() {
             {/* Brag Card Modal */}
             {selectedMilestone && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-md">
-                    <div className="w-full max-w-sm">
+                    <div className="w-full max-w-sm flex flex-col gap-3">
                         <AchievementCard
                             ref={cardRef}
                             type={selectedMilestone.type}
@@ -186,7 +186,7 @@ export default function JourneyPage() {
                         <button
                             onClick={handleExport}
                             disabled={isExporting}
-                            className="col-span-2 py-4 bg-[#006B3F] hover:bg-[#005a35] text-white font-epilogue font-bold rounded-lg shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                            className="w-full py-4 bg-[#006B3F] hover:bg-[#005a35] text-white font-epilogue font-bold rounded-lg shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
                         >
                             {isExporting ? (
                                 <>Saving...</>
@@ -197,17 +197,15 @@ export default function JourneyPage() {
                                 </>
                             )}
                         </button>
+
+                        <button
+                            onClick={() => setSelectedMilestone(null)}
+                            disabled={isExporting}
+                            className="w-full py-4 bg-white/10 hover:bg-white/20 text-white font-epilogue font-bold rounded-lg border border-white/20 transition-all disabled:opacity-50"
+                        >
+                            Close
+                        </button>
                     </div>
-                    <div className="mt-3 text-center">
-                        <p className="text-white/60 text-xs font-jakarta mb-3">Share this achievement with your family and friends!</p>
-                    </div>
-                    <button
-                        onClick={() => setSelectedMilestone(null)}
-                        disabled={isExporting}
-                        className="w-full py-4 mt-3 bg-white/10 hover:bg-white/20 text-white font-epilogue font-bold rounded-lg border border-white/20 transition-all disabled:opacity-50"
-                    >
-                        Close
-                    </button>
                 </div>
             )}
         </div>
