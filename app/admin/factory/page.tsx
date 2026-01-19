@@ -27,7 +27,8 @@ export default function FactoryPage() {
             }
         } catch (error) {
             console.error(error);
-            toast.error("Critical Factory Failure");
+            const err = error as Error;
+            toast.error("Critical Factory Failure", { description: err.message || "Unknown Network Error" });
         } finally {
             setLoading(false);
         }
