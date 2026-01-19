@@ -211,20 +211,66 @@ export const LeaderboardService = {
                 }));
 
             } catch (fallbackError) {
-                console.error("Fallback failed:", fallbackError);
-                // Last resort: just the local user
-                if (localNickname && localXP !== undefined) {
-                    const { rank: localRankName } = calculateProgress(localXP);
-                    return [{
-                        rank: 1,
-                        nickname: localNickname,
-                        region: region,
-                        xp: localXP,
-                        rankName: localRankName,
-                        isCurrentUser: true
-                    }];
+                // FALLBACK STRATEGY 2:
+                // Fetch random 50 users from region (No Index Required for simple equality)
+                // Then sort locally. This finds "local heroes" who aren't in Global Top 100.
+                try {
+                    console.warn("Global fallback failed/empty. Trying unsorted region fetch.");
+                    const usersRef = collection(db, "users");
+                    const q = query(usersRef, where("region", "==", region), limit(50));
+                    const querySnapshot = await getDocs(q);
+
+                    let allUsers: LeaderboardEntry[] = [];
+                    querySnapshot.forEach((docSnap) => {
+                        const data = docSnap.data();
+                        const { rank } = calculateProgress(data.xp || 0);
+                        const isCurrent = data.nickname === localNickname && data.xp === localXP;
+                        allUsers.push({
+                            rank: 0,
+                            nickname: data.nickname || "Citizen",
+                            region: data.region,
+                            xp: data.xp || 0,
+                            rankName: rank,
+                            isCurrentUser: isCurrent,
+                            verified: data.verified || false
+                        });
+                    });
+
+                    const alreadyHasLocalUser = allUsers.some(u => u.isCurrentUser);
+                    if (!alreadyHasLocalUser && localNickname && localXP !== undefined) {
+                        const { rank: localRankName } = calculateProgress(localXP);
+                        allUsers.push({
+                            rank: 99,
+                            nickname: localNickname,
+                            region: region,
+                            xp: localXP,
+                            rankName: localRankName,
+                            isCurrentUser: true,
+                            verified: false
+                        });
+                    }
+
+                    allUsers.sort((a, b) => b.xp - a.xp);
+
+                    return allUsers.slice(0, 10).map((entry, i) => ({
+                        ...entry,
+                        rank: i + 1
+                    }));
+                } catch (finalError) {
+                    console.error("All strategies failed:", finalError);
+                    if (localNickname && localXP !== undefined) {
+                        const { rank: localRankName } = calculateProgress(localXP);
+                        return [{
+                            rank: 1,
+                            nickname: localNickname,
+                            region: region,
+                            xp: localXP,
+                            rankName: localRankName,
+                            isCurrentUser: true
+                        }];
+                    }
+                    return [];
                 }
-                return [];
             }
         }
     },
