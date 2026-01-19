@@ -149,15 +149,27 @@ export default function AskGhanryPage() {
                         {messages.map((msg, idx) => (
                             <div
                                 key={idx}
-                                className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                                className={`flex w-full mb-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                             >
                                 <div
-                                    className={`max-w-[85%] md:max-w-[70%] p-4 rounded-2xl text-sm md:text-base leading-relaxed ${msg.role === "user"
-                                        ? "bg-[#006B3F] text-white rounded-br-none shadow-md"
-                                        : "bg-gray-100 text-gray-800 rounded-bl-none"
+                                    className={`relative max-w-[85%] md:max-w-[70%] px-4 py-3 text-sm md:text-base shadow-sm ${msg.role === "user"
+                                        ? "bg-[#006B3F] text-white rounded-2xl rounded-tr-sm"
+                                        : "bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-tl-sm"
                                         }`}
                                 >
-                                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                                    <div className={`prose prose-sm max-w-none break-words ${msg.role === 'user' ? 'prose-invert text-white' : 'text-gray-800'}`}>
+                                        <ReactMarkdown
+                                            components={{
+                                                p: (props) => <p {...props} className="mb-2 last:mb-0 leading-relaxed" />,
+                                                ul: (props) => <ul {...props} className="list-disc pl-4 mb-2 last:mb-0 space-y-1" />,
+                                                ol: (props) => <ol {...props} className="list-decimal pl-4 mb-2 last:mb-0 space-y-1" />,
+                                                li: (props) => <li {...props} className="leading-snug" />,
+                                                a: (props) => <a {...props} className="underline text-current font-bold" target="_blank" rel="noopener noreferrer" />,
+                                            }}
+                                        >
+                                            {msg.content}
+                                        </ReactMarkdown>
+                                    </div>
                                 </div>
                             </div>
                         ))}
