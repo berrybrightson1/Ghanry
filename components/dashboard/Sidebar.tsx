@@ -50,7 +50,7 @@ export default function Sidebar({ nickname, isGuest = false, avatar, status, ver
         { path: "/dashboard/leaderboard", icon: Trophy, label: "Leaderboard" },
         { path: "/dashboard/games", icon: Gamepad2, label: "Sika Fie Games" },
         { path: "/dashboard/settings", icon: Settings, label: "Settings" },
-        { path: "/dashboard/ask", icon: MessageSquare, label: "Ask Ghanry" },
+        // { path: "/dashboard/ask", icon: MessageSquare, label: "Ask Ghanry" }, // Feature Disabled
     ];
 
     return (

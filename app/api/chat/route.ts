@@ -33,6 +33,8 @@ interface Message {
 
 export async function POST(req: Request) {
     try {
+        return new Response("Feature Disabled", { status: 403 });
+
         const { messages } = await req.json();
 
         if (!process.env.PERPLEXITY_API_KEY) {

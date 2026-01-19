@@ -1,0 +1,19 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // or "sqlite" based on preference, defaulting to postgresql for production readiness
+  url      = env("DATABASE_URL")
+}
+
+model Question {
+  id          String   @id @default(cuid())
+  question    String
+  options     String[] 
+  answer      String
+  explanation String
+  category    String
+  fingerprint String   @unique // The anti-cheat lock
+  createdAt   DateTime @default(now())
+}
