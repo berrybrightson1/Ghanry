@@ -22,7 +22,8 @@ export default function FactoryPage() {
             const result = await generateUniqueBatch(category, 5); // Generate 5 at a time for speed
 
             if (result.success) {
-                const msg = `Factory Report: ${result.generated} generated. ${result.saved > 0 ? `Saved ${result.saved} to DB.` : 'Check list below.'}`;
+                const savedCount = result.saved ?? 0;
+                const msg = `Factory Report: ${result.generated} generated. ${savedCount > 0 ? `Saved ${savedCount} to DB.` : 'Check list below.'}`;
                 setLastReport(msg);
 
                 if (result.questions) {
@@ -94,6 +95,28 @@ export default function FactoryPage() {
                     </div>
                 )}
             </div>
+
+            {/* Live Preview of Generated Content */}
+            {generatedQuestions.length > 0 && (
+                <div className="w-full max-w-4xl mt-12 space-y-4 animate-in fade-in slide-in-from-bottom-4">
+                    <h2 className="text-xl font-bold text-gray-800 text-center mb-6">Fresh from the Factory 🏭</h2>
+                    <div className="grid gap-4 md:grid-cols-2">
+                        {generatedQuestions.map((q, i) => (
+                            <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-3 text-left">
+                                <p className="font-epilogue font-bold text-gray-900">{q.question}</p>
+                                <div className="grid grid-cols-2 gap-2">
+                                    {q.options.map((opt: string, idx: number) => (
+                                        <div key={idx} className={`text-xs p-2 rounded ${opt === q.answer ? 'bg-green-100 text-green-800 font-bold border border-green-200' : 'bg-gray-50 text-gray-500'}`}>
+                                            {opt}
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className="text-xs text-gray-400 italic mt-2 border-t pt-2">{q.explanation}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
