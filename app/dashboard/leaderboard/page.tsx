@@ -134,6 +134,7 @@ export default function Leaderboard() {
                     <div className="mb-4">
                         <div className="relative">
                             <select
+                                aria-label="Filter by Region"
                                 value={selectedRegion}
                                 onChange={(e) => setSelectedRegion(e.target.value)}
                                 className="w-full p-3 pl-4 pr-10 bg-white border border-gray-200 rounded-xl font-epilogue font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#006B3F] appearance-none cursor-pointer shadow-sm"
