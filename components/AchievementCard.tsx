@@ -9,9 +9,10 @@ interface AchievementCardProps {
     message: string;
     onClose?: () => void;
     isVerified?: boolean;
+    nickname?: string;
 }
 
-const AchievementCard = forwardRef<HTMLDivElement, AchievementCardProps>(({ type, value, title, message, onClose, isVerified }, ref) => {
+const AchievementCard = forwardRef<HTMLDivElement, AchievementCardProps>(({ type, value, title, message, onClose, isVerified, nickname }, ref) => {
     return (
         <motion.div
             ref={ref}
@@ -58,6 +59,11 @@ const AchievementCard = forwardRef<HTMLDivElement, AchievementCardProps>(({ type
                 <p className="text-gray-800 font-jakarta font-bold text-xl leading-tight text-center">
                     &ldquo;{message}&rdquo;
                 </p>
+                {nickname && (
+                    <p className="text-[#006B3F] font-epilogue font-bold text-sm bg-[#006B3F]/5 px-3 py-1 rounded-full">
+                        @{nickname}
+                    </p>
+                )}
             </div>
 
             {/* Bottom: Logo & Dots */}

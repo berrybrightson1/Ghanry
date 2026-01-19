@@ -63,8 +63,11 @@ export default function JourneyPage() {
     const [isExporting, setIsExporting] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
 
+    const [nickname, setNickname] = useState("");
+
     useEffect(() => {
         setIsVerified(localStorage.getItem("ghanry_verified") === "true");
+        setNickname(localStorage.getItem("ghanry_nickname") || "Friend");
     }, []);
 
     const isUnlocked = (milestone: Milestone) => {
@@ -180,6 +183,7 @@ export default function JourneyPage() {
                             title={selectedMilestone.title}
                             message={selectedMilestone.message}
                             isVerified={isVerified}
+                            nickname={nickname}
                             onClose={() => !isExporting && setSelectedMilestone(null)}
                         />
 
