@@ -16,7 +16,8 @@ export default function ResultScreen({
     totalQuestions,
     isDaily,
     timeElapsed = 0,
-    nextPath = "/dashboard/categories"
+    nextPath = "/dashboard/categories",
+    categorySlug
 }: {
     score: number,
     totalQuestions: number,
