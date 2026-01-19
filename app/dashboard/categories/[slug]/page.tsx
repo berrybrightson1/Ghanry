@@ -125,6 +125,17 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
         };
 
         fetchQuestions();
+
+        // Cleanup / Reset State on Slug Change
+        return () => {
+            setCategoryQuestions([]);
+            setCurrentIndex(0);
+            setScore(0);
+            setGameStatus("playing");
+            setTimeElapsed(0);
+            setUserAnswers({});
+            setLoading(true);
+        };
     }, [slug]);
 
 

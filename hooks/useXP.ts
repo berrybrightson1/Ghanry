@@ -75,6 +75,7 @@ export function useXP() {
         setXp(newXP);
         localStorage.setItem('ghanry_xp', newXP.toString());
         syncXPToFirestore(newXP);
+        window.dispatchEvent(new Event('ghanry_xp_update'));
         return true;
     };
 
