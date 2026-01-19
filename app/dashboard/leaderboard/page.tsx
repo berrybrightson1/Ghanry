@@ -8,28 +8,39 @@ import { useXP } from "@/hooks/useXP";
 
 export default function Leaderboard() {
     const [activeTab, setActiveTab] = useState<"global" | "region">("global");
-    const [rankings, setRankings] = useState<LeaderboardEntry[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [userRank, setUserRank] = useState<LeaderboardEntry | undefined>(undefined);
-    const { xp: realXP } = useXP();
+    const [selectedRegion, setSelectedRegion] = useState("");
+
+    const regions = ["Greater Accra", "Ashanti", "Volta", "Northern", "Central", "Eastern", "Western", "Western North", "Upper East", "Upper West", "Oti", "Bono", "Bono East", "Ahafo", "North East", "Savannah"];
+    const diasporaLocations = ["Global Diaspora", "USA", "UK", "Europe", "Rest of World"];
+    const allRegions = [...regions, ...diasporaLocations];
+
+    useEffect(() => {
+        // Initialize region from local storage once on mount
+        const storedRegion = localStorage.getItem("ghanry_region");
+        if (storedRegion && allRegions.includes(storedRegion)) {
+            setSelectedRegion(storedRegion);
+        } else {
+            setSelectedRegion("Greater Accra");
+        }
+    }, []);
 
     useEffect(() => {
         const fetchRankings = async () => {
             setIsLoading(true);
             const nickname = localStorage.getItem("ghanry_nickname") || "Guest";
-            const region = localStorage.getItem("ghanry_region") || "Greater Accra";
+            // Use selectedRegion from state, fallback to localstorage or default
+            const regionToFetch = selectedRegion || localStorage.getItem("ghanry_region") || "Greater Accra";
+
             const passportId = localStorage.getItem("ghanry_passport_id");
 
             // Only include user if they have a valid passport ID
-            // Modified: Guests can view, but not participate
             const isGuest = !passportId;
 
             let data: LeaderboardEntry[] = [];
             if (activeTab === "global") {
-                data = await LeaderboardService.getRankings(nickname, region, realXP);
+                data = await LeaderboardService.getRankings(nickname, regionToFetch, realXP);
             } else {
-                data = await LeaderboardService.getRegionRankings(region, nickname, realXP);
-                // No need to map isCurrentUser here as service does it
+                data = await LeaderboardService.getRegionRankings(regionToFetch, nickname, realXP);
             }
 
             // Filter to only show citizens
@@ -37,13 +48,17 @@ export default function Leaderboard() {
 
             setRankings(validRankings);
             if (!isGuest) {
-                setUserRank(validRankings.find(p => p.isCurrentUser));
+                // Determine if we found the user in this specific query
+                const userInList = validRankings.find(p => p.isCurrentUser);
+                setUserRank(userInList);
             }
             setIsLoading(false);
         };
 
-        fetchRankings();
-    }, [realXP, activeTab]);
+        if (selectedRegion) {
+            fetchRankings();
+        }
+    }, [realXP, activeTab, selectedRegion]);
 
     const isGuest = typeof window !== 'undefined' && !localStorage.getItem("ghanry_passport_id");
 
@@ -79,7 +94,7 @@ export default function Leaderboard() {
                                 #{userRank.rank}
                             </div>
                             <div className="flex-1 text-left">
-                                <p className="text-[10px] text-yellow-300 font-bold uppercase tracking-widest mb-1 opacity-90">Your Global Rank</p>
+                                <p className="text-[10px] text-yellow-300 font-bold uppercase tracking-widest mb-1 opacity-90">Your Rank</p>
                                 <p className="text-white font-epilogue font-bold text-lg leading-none">Keep pushing!</p>
                             </div>
                         </div>
@@ -110,89 +125,73 @@ export default function Leaderboard() {
                     </button>
                 </div>
 
+                {/* Region Filter (Only visible on Region Tab) */}
+                {activeTab === "region" && (
+                    <div className="mb-4">
+                        <div className="relative">
+                            <select
+                                value={selectedRegion}
+                                onChange={(e) => setSelectedRegion(e.target.value)}
+                                className="w-full p-3 pl-4 pr-10 bg-white border border-gray-200 rounded-xl font-epilogue font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#006B3F] appearance-none cursor-pointer shadow-sm"
+                            >
+                                {allRegions.map(r => (
+                                    <option key={r} value={r}>{r}</option>
+                                ))}
+                            </select>
+                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M6 9l6 6 6-6" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* List */}
                 <div className="space-y-3 pb-8">
                     {isLoading ? (
                         <div className="flex flex-col items-center justify-center py-12 text-gray-400 gap-2">
                             <Loader2 className="w-8 h-8 animate-spin text-[#006B3F]" />
-                            <span className="text-xs font-bold uppercase tracking-wider">Syncing Global Data...</span>
+                            <span className="text-xs font-bold uppercase tracking-wider">Loading Data...</span>
                         </div>
-                    ) : activeTab === "global" ? (
-                        rankings.length > 0 ? (
-                            rankings.map((user) => (
-                                <div
-                                    key={user.rank}
-                                    className={`p-4 rounded-2xl shadow-sm flex items-center gap-4 transition-all ${user.isCurrentUser
-                                        ? "bg-green-50 border-2 border-[#006B3F] scale-[1.02] shadow-md"
-                                        : "bg-white hover:scale-[1.01]"
-                                        }`}
-                                >
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm shadow-sm ${user.rank === 1 ? "bg-yellow-400 text-yellow-900" :
-                                        user.rank === 2 ? "bg-gray-300 text-gray-800" :
-                                            user.rank === 3 ? "bg-orange-300 text-orange-900" :
-                                                "bg-gray-100 text-gray-500"
-                                        }`}>
-                                        {user.rank <= 3 ? <Trophy className="w-5 h-5" /> : user.rank}
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className={`font-epilogue font-bold flex items-center gap-1 ${user.isCurrentUser ? "text-[#006B3F]" : "text-gray-800"}`}>
-                                            {user.nickname} {user.isCurrentUser && "(You)"}
-                                            {user.verified && <BadgeCheck className="w-4 h-4 text-blue-500 fill-blue-500/10" />}
-                                        </h3>
-                                        <div className="flex items-center gap-1 text-xs text-gray-400 font-bold">
-                                            <MapPin className="w-3 h-3" /> {user.region}
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="text-[#006B3F] font-extrabold text-sm">{user.xp.toLocaleString()} XP</div>
-                                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{user.rankName || "Citizen"}</div>
+                    ) : rankings.length > 0 ? (
+                        rankings.map((user) => (
+                            <div
+                                key={user.rank}
+                                className={`p-4 rounded-2xl shadow-sm flex items-center gap-4 transition-all ${user.isCurrentUser
+                                    ? "bg-green-50 border-2 border-[#006B3F] scale-[1.02] shadow-md"
+                                    : "bg-white hover:scale-[1.01]"
+                                    }`}
+                            >
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm shadow-sm ${user.rank === 1 ? "bg-yellow-400 text-yellow-900" :
+                                    user.rank === 2 ? "bg-gray-300 text-gray-800" :
+                                        user.rank === 3 ? "bg-orange-300 text-orange-900" :
+                                            "bg-gray-100 text-gray-500"
+                                    }`}>
+                                    {user.rank <= 3 ? <Trophy className="w-5 h-5" /> : user.rank}
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className={`font-epilogue font-bold flex items-center gap-1 ${user.isCurrentUser ? "text-[#006B3F]" : "text-gray-800"}`}>
+                                        {user.nickname} {user.isCurrentUser && "(You)"}
+                                        {user.verified && <BadgeCheck className="w-4 h-4 text-blue-500 fill-blue-500/10" />}
+                                    </h3>
+                                    <div className="flex items-center gap-1 text-xs text-gray-400 font-bold">
+                                        <MapPin className="w-3 h-3" /> {user.region}
                                     </div>
                                 </div>
-                            ))
-                        ) : (
-                            <div className="bg-white p-8 rounded-2xl text-center">
-                                <p className="text-gray-500 font-jakarta text-sm mb-2">Be the first to join the leaderboard!</p>
-                                <p className="text-xs text-gray-400">Complete quizzes to earn XP and rank up</p>
+                                <div className="text-right">
+                                    <div className="text-[#006B3F] font-extrabold text-sm">{user.xp.toLocaleString()} XP</div>
+                                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{user.rankName || "Citizen"}</div>
+                                </div>
                             </div>
-                        )
+                        ))
                     ) : (
-                        rankings.length > 0 ? (
-                            rankings.map((user) => (
-                                <div
-                                    key={user.rank}
-                                    className={`p-4 rounded-2xl shadow-sm flex items-center gap-4 transition-all ${user.isCurrentUser
-                                        ? "bg-green-50 border-2 border-[#006B3F] scale-[1.02] shadow-md"
-                                        : "bg-white hover:scale-[1.01]"
-                                        }`}
-                                >
-                                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-extrabold text-sm shadow-sm ${user.rank === 1 ? "bg-yellow-400 text-yellow-900" :
-                                        user.rank === 2 ? "bg-gray-300 text-gray-800" :
-                                            user.rank === 3 ? "bg-orange-300 text-orange-900" :
-                                                "bg-gray-100 text-gray-500"
-                                        }`}>
-                                        {user.rank <= 3 ? <Trophy className="w-5 h-5" /> : user.rank}
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className={`font-epilogue font-bold flex items-center gap-1 ${user.isCurrentUser ? "text-[#006B3F]" : "text-gray-800"}`}>
-                                            {user.nickname} {user.isCurrentUser && "(You)"}
-                                            {user.verified && <BadgeCheck className="w-4 h-4 text-blue-500 fill-blue-500/10" />}
-                                        </h3>
-                                        <div className="flex items-center gap-1 text-xs text-gray-400 font-bold">
-                                            <MapPin className="w-3 h-3" /> {user.region}
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <div className="text-[#006B3F] font-extrabold text-sm">{user.xp.toLocaleString()} XP</div>
-                                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{user.rankName || "Citizen"}</div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="bg-white p-8 rounded-2xl text-center">
-                                <p className="text-gray-500 font-jakarta text-sm mb-2">Be the first to represent {localStorage.getItem("ghanry_region") || "your region"}!</p>
-                                <p className="text-xs text-gray-400">Complete quizzes to earn XP and top the local charts</p>
-                            </div>
-                        )
+                        <div className="bg-white p-8 rounded-2xl text-center">
+                            <p className="text-gray-500 font-jakarta text-sm mb-2">
+                                {activeTab === "region" ? `Be the first to represent ${selectedRegion}!` : "Be the first to join the leaderboard!"}
+                            </p>
+                            <p className="text-xs text-gray-400">Complete quizzes to earn XP and rank up</p>
+                        </div>
                     )}
                 </div>
             </div >
