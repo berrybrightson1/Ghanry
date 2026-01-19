@@ -48,7 +48,7 @@ export async function generateUniqueBatch(category: string, count: number = 5) {
         let questions: GeneratedQuestion[] = [];
         try {
             questions = JSON.parse(jsonString);
-        } catch (e) {
+        } catch (_e) {
             console.error("Failed to parse JSON from AI", rawContent);
             return { success: false, message: "AI Malformed JSON" };
         }

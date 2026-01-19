@@ -63,7 +63,7 @@ export default function Leaderboard() {
         if (selectedRegion) {
             fetchRankings();
         }
-    }, [realXP, activeTab, selectedRegion]);
+    }, [realXP, activeTab, selectedRegion, allRegions]);
 
     const isGuest = typeof window !== 'undefined' && !localStorage.getItem("ghanry_passport_id");
 

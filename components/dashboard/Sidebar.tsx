@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, Trophy, Calendar, Settings, Flame, Gamepad2, MessageSquare, Sparkles, Square, Circle, Triangle, Hexagon, Octagon, Star, Zap, Shield, Heart, Ghost, BadgeCheck } from "lucide-react";
+import { Home, Trophy, Calendar, Settings, Flame, Gamepad2, Sparkles, Square, Circle, Triangle, Hexagon, Octagon, Star, Zap, Shield, Heart, Ghost, BadgeCheck } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
