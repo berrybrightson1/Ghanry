@@ -20,7 +20,7 @@ export default function OnboardingSlider() {
             id: 1,
             type: "summary",
             title: "What is this app?",
-            description: "Ghanry is a gamified heritage platform. Play quizzes, learn history, and earn XP to upgrade your citizenship status.",
+            description: "Ghanry is a gamified heritage platform. Play quizzes, learn history, earn XP to upgrade your citizenship status, and get featured on the global leaderboard.",
             icon: <GraduationCap className="w-12 h-12 text-[#FCD116]" />
         },
         {
