@@ -7,6 +7,10 @@ import { LeaderboardService, type LeaderboardEntry } from "@/lib/leaderboard";
 import { useXP } from "@/hooks/useXP";
 import CustomSelect from "@/components/CustomSelect";
 
+const regions = ["Greater Accra", "Ashanti", "Volta", "Northern", "Central", "Eastern", "Western", "Western North", "Upper East", "Upper West", "Oti", "Bono", "Bono East", "Ahafo", "North East", "Savannah"];
+const diasporaLocations = ["Global Diaspora", "USA", "UK", "Europe", "Rest of World"];
+const allRegions = [...regions, ...diasporaLocations];
+
 export default function Leaderboard() {
     const [activeTab, setActiveTab] = useState<"global" | "region">("global");
     const [rankings, setRankings] = useState<LeaderboardEntry[]>([]);
@@ -14,10 +18,6 @@ export default function Leaderboard() {
     const [userRank, setUserRank] = useState<LeaderboardEntry | undefined>(undefined);
     const { xp: realXP } = useXP();
     const [selectedRegion, setSelectedRegion] = useState("");
-
-    const regions = ["Greater Accra", "Ashanti", "Volta", "Northern", "Central", "Eastern", "Western", "Western North", "Upper East", "Upper West", "Oti", "Bono", "Bono East", "Ahafo", "North East", "Savannah"];
-    const diasporaLocations = ["Global Diaspora", "USA", "UK", "Europe", "Rest of World"];
-    const allRegions = [...regions, ...diasporaLocations];
 
     useEffect(() => {
         // Initialize region from local storage once on mount

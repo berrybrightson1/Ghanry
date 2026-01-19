@@ -1,0 +1,28 @@
+
+> ghanry@0.1.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env
+
+   Creating an optimized production build ...
+> [PWA] Compile server
+> [PWA] Compile server
+> [PWA] Compile client (static)
+> [PWA] Auto register service worker with: G:\wORKS 2\ACTIVE\Apps\Ghanry\node_modules\next-pwa\register.js
+> [PWA] Service worker: G:\wORKS 2\ACTIVE\Apps\Ghanry\public\sw.js
+> [PWA]   url: /sw.js
+> [PWA]   scope: /
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+Failed to compile.
+
+./app/dashboard/leaderboard/page.tsx
+20:11  Warning: The 'allRegions' array makes the dependencies of useEffect Hook (at line 66) change on every render. To fix this, wrap the initialization of 'allRegions' in its own useMemo() Hook.  react-hooks/exhaustive-deps
+30:8  Warning: React Hook useEffect has a missing dependency: 'allRegions'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./lib/question-factory.ts
+51:18  Error: '_e' is defined but never used.  @typescript-eslint/no-unused-vars
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
