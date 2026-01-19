@@ -51,7 +51,7 @@ export async function POST(req: Request) {
         // Remove markdown code blocks if present
         const jsonString = rawContent.replace(/```json/g, "").replace(/```/g, "").trim();
 
-        let rawQuestions: any[] = [];
+        let rawQuestions: unknown; // Use unknown for initial parse result
         try {
             rawQuestions = JSON.parse(jsonString);
         } catch (e) {
@@ -61,12 +61,16 @@ export async function POST(req: Request) {
 
         // 4. Transform/Validate IDs
         const baseId = Date.now();
-        const questions = Array.isArray(rawQuestions)
-            ? rawQuestions.map((q, i) => ({
-                ...q,
-                id: baseId + i, // Ensure unique ID for React keys
-                category: topic
-            }))
+        const questions: QuizQuestion[] = Array.isArray(rawQuestions)
+            ? rawQuestions.map((q: unknown, i): QuizQuestion => {
+                // Type assert q to RawQuizQuestion for safe property access and spreading
+                const typedQ = q as RawQuizQuestion;
+                return {
+                    ...typedQ, // Spread properties from the parsed object
+                    id: baseId + i, // Ensure unique ID for React keys
+                    category: topic // Override or set the category
+                };
+            })
             : [];
 
         if (questions.length === 0) {
@@ -75,11 +79,14 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ questions });
 
-    } catch (error: any) {
+    } catch (error: unknown) { // Use unknown for caught errors
         console.error("Perplexity API Error:", error);
+
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
         return NextResponse.json(
-            { error: "Generation Failed", details: error.message },
+            { error: "Generation Failed", details: errorMessage },
             { status: 500 }
         );
     }
 }
+```
