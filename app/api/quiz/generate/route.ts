@@ -1,72 +1,84 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import perplexity from "@/lib/perplexity";
 import { NextResponse } from "next/server";
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || "");
-
 const SYSTEM_PROMPT = `
-You remain "Ghanry", the expert AI guide on Ghana.
+You are "Ghanry", the expert AI guide on Ghana.
 The user needs 5 FRESH, unique, and challenging multiple-choice quiz questions about a specific topic relative to Ghana.
-Output MUST be valid JSON.
-Schema:
-[
-  {
-    "id": number,
-    "text": "Question text here?",
-    "category": "Topic Name",
-    "options": [
-      { "id": "a", "text": "Option 1", "isCorrect": false },
-      { "id": "b", "text": "Option 2", "isCorrect": true },
-      { "id": "c", "text": "Option 3", "isCorrect": false },
-      { "id": "d", "text": "Option 4", "isCorrect": false }
-    ]
-  }
-]
-- Do not markdown format the json. Just raw json.
-- Ensure only ONE option is isCorrect: true.
-- Questions should be interesting and educational.
+
+CRITICAL JSON FORMATTING:
+1. Output MUST be a valid JSON array.
+2. No markdown formatting (no \`\`\`json blocks).
+3. Schema per object:
+   {
+     "id": number (1-5),
+     "text": "Question string?",
+     "category": "Topic Name",
+     "options": [
+       { "id": "a", "text": "Option 1", "isCorrect": false },
+       { "id": "b", "text": "Option 2", "isCorrect": true },
+       { "id": "c", "text": "Option 3", "isCorrect": false },
+       { "id": "d", "text": "Option 4", "isCorrect": false }
+     ]
+   }
 `;
 
 export async function POST(req: Request) {
     try {
         const { topic } = await req.json();
 
-        if (!process.env.GOOGLE_GEMINI_API_KEY) {
-            throw new Error("API Key missing");
+        // 1. Validate API Key Availability
+        if (!process.env.PERPLEXITY_API_KEY) {
+            console.error("Missing PERPLEXITY_API_KEY");
+            return NextResponse.json({ error: "Server Configuration Error: API Key Missing" }, { status: 500 });
         }
 
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash", // Using standard stable model for JSON tasks
-            systemInstruction: SYSTEM_PROMPT,
-            generationConfig: {
-                responseMimeType: "application/json"
-            }
+        const prompt = `Generate 5 unique quiz questions about: ${topic}. Make them challenging but fair. Return straight JSON.`;
+
+        // 2. Call Perplexity
+        const completion = await perplexity.chat.completions.create({
+            model: "sonar",
+            messages: [
+                { role: "system", content: SYSTEM_PROMPT },
+                { role: "user", content: prompt }
+            ],
+            max_tokens: 3000,
+            temperature: 0.7
         });
 
-        const prompt = `Generate 5 unique quiz questions about: ${topic}. Make them challenging but fair.`;
+        const rawContent = completion.choices[0]?.message?.content || "[]";
 
-        const result = await model.generateContent(prompt);
-        const responseText = result.response.text();
+        // 3. Clean and Parse JSON
+        // Remove markdown code blocks if present
+        const jsonString = rawContent.replace(/```json/g, "").replace(/```/g, "").trim();
 
-        // Parse to ensure valid JSON before sending
-        // Parse to ensure valid JSON before sending
-        const rawQuestions = JSON.parse(responseText);
+        let rawQuestions: any[] = [];
+        try {
+            rawQuestions = JSON.parse(jsonString);
+        } catch (e) {
+            console.error("JSON Parse Error:", e, "Raw:", rawContent);
+            return NextResponse.json({ error: "AI returned invalid JSON" }, { status: 500 });
+        }
 
-        // Add timestamps/random IDs to ensure uniqueness to prevent client key collision
-        // Start with a base timestamp + random ensures uniqueness across multiple requests too
+        // 4. Transform/Validate IDs
         const baseId = Date.now();
         const questions = Array.isArray(rawQuestions)
-            ? rawQuestions.map((q, i) => ({ ...q, id: baseId + i }))
+            ? rawQuestions.map((q, i) => ({
+                ...q,
+                id: baseId + i, // Ensure unique ID for React keys
+                category: topic
+            }))
             : [];
+
+        if (questions.length === 0) {
+            return NextResponse.json({ error: "No questions generated" }, { status: 500 });
+        }
 
         return NextResponse.json({ questions });
 
-    } catch (error: unknown) {
-        console.error("Quiz Gen Error:", error);
-
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
-
+    } catch (error: any) {
+        console.error("Perplexity API Error:", error);
         return NextResponse.json(
-            { error: "Failed to generate questions", details: errorMessage },
+            { error: "Generation Failed", details: error.message },
             { status: 500 }
         );
     }
