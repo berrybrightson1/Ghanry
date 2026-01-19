@@ -5,6 +5,7 @@ import { Trophy, MapPin, Globe, Loader2, BadgeCheck } from "lucide-react";
 
 import { LeaderboardService, type LeaderboardEntry } from "@/lib/leaderboard";
 import { useXP } from "@/hooks/useXP";
+import CustomSelect from "@/components/CustomSelect";
 
 export default function Leaderboard() {
     const [activeTab, setActiveTab] = useState<"global" | "region">("global");
@@ -133,21 +134,12 @@ export default function Leaderboard() {
                 {activeTab === "region" && (
                     <div className="mb-4">
                         <div className="relative">
-                            <select
-                                aria-label="Filter by Region"
+                            <CustomSelect
+                                options={allRegions}
                                 value={selectedRegion}
-                                onChange={(e) => setSelectedRegion(e.target.value)}
-                                className="w-full p-3 pl-4 pr-10 bg-white border border-gray-200 rounded-xl font-epilogue font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#006B3F] appearance-none cursor-pointer shadow-sm"
-                            >
-                                {allRegions.map(r => (
-                                    <option key={r} value={r}>{r}</option>
-                                ))}
-                            </select>
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M6 9l6 6 6-6" />
-                                </svg>
-                            </div>
+                                onChange={setSelectedRegion}
+                                placeholder="Select a Region"
+                            />
                         </div>
                     </div>
                 )}
