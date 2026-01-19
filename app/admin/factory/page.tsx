@@ -9,9 +9,12 @@ export default function FactoryPage() {
     const [loading, setLoading] = useState(false);
     const [lastReport, setLastReport] = useState<string | null>(null);
 
+    const [generatedQuestions, setGeneratedQuestions] = useState<any[]>([]);
+
     const handleGenerate = async (category: string) => {
         setLoading(true);
         setLastReport(null);
+        setGeneratedQuestions([]);
         toast.info(`Spinning up the factory for ${category}...`);
 
         try {
@@ -19,9 +22,18 @@ export default function FactoryPage() {
             const result = await generateUniqueBatch(category, 5); // Generate 5 at a time for speed
 
             if (result.success) {
-                const msg = `Factory Report: ${result.generated} generated, ${result.saved} new saved, ${result.duplicates} duplicates rejected.`;
+                const msg = `Factory Report: ${result.generated} generated. ${result.saved > 0 ? `Saved ${result.saved} to DB.` : 'Check list below.'}`;
                 setLastReport(msg);
-                toast.success("Batch Complete!", { description: msg });
+
+                if (result.questions) {
+                    setGeneratedQuestions(result.questions);
+                }
+
+                if (result.warning) {
+                    toast.warning("Generated, but DB Save Failed", { description: result.warning });
+                } else {
+                    toast.success("Batch Complete!", { description: msg });
+                }
             } else {
                 toast.error("Factory Stalled", { description: result.message });
             }

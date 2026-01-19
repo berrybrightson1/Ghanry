@@ -59,31 +59,38 @@ export async function generateUniqueBatch(category: string, count: number = 5) {
         }
 
         // Save to Database with SkipDuplicates
-        // Note: createMany with skipDuplicates is supported in Postgres. 
-        // If not using Postgres/MySQL, we might need a loop, but creating many is efficient.
+        let savedCount = 0;
+        let dbError = null;
 
-        // We'll add the category to each object before saving
-        const dataToSave = questions.map(q => ({
-            question: q.question,
-            options: q.options,
-            answer: q.answer,
-            explanation: q.explanation,
-            fingerprint: q.fingerprint,
-            category: category
-        }));
+        try {
+            // We'll add the category to each object before saving
+            const dataToSave = questions.map(q => ({
+                question: q.question,
+                options: q.options,
+                answer: q.answer,
+                explanation: q.explanation,
+                fingerprint: q.fingerprint,
+                category: category
+            }));
 
-        const result = await prisma.question.createMany({
-            data: dataToSave,
-            skipDuplicates: true,
-        });
-
-        console.log(`✅ FACTORY REPORT: Generated ${questions.length}, Saved ${result.count} (Rejected ${questions.length - result.count} dups)`);
+            const result = await prisma.question.createMany({
+                data: dataToSave,
+                skipDuplicates: true,
+            });
+            savedCount = result.count;
+            console.log(`✅ FACTORY REPORT: Generated ${questions.length}, Saved ${savedCount}`);
+        } catch (e) {
+            console.error("⚠️ Database Save Failed (Skipping):", e);
+            dbError = e instanceof Error ? e.message : "DB Error";
+        }
 
         return {
             success: true,
             generated: questions.length,
-            saved: result.count,
-            duplicates: questions.length - result.count
+            saved: savedCount,
+            duplicates: questions.length - savedCount,
+            questions: questions, // Return the raw questions so UI can display them even if save fails!
+            warning: dbError
         };
 
     } catch (error) {
