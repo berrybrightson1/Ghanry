@@ -54,7 +54,7 @@ export default function Home() {
           setViewMode("locked");
         } else {
           localStorage.removeItem("ghanry_lockout_until");
-          if (viewMode === 'locked') setViewMode("guest");
+          if (viewMode === 'locked') setViewMode("signup");
         }
       }
     };
@@ -265,7 +265,7 @@ export default function Home() {
         {/* Back Button */}
         {viewMode !== "guest" && viewMode !== "signup" && viewMode !== "locked" && viewMode !== "success" && (
           <button
-            onClick={() => setViewMode("guest")}
+            onClick={() => setViewMode("signup")}
             className="text-gray-400 hover:text-gray-900 flex items-center gap-2 transition-colors font-jakarta text-sm font-bold mb-4 self-start"
           >
             <ArrowLeft className="w-4 h-4" /> Back
@@ -382,7 +382,7 @@ export default function Home() {
                     <h3 className="font-epilogue font-bold text-red-900 text-xl">Verification Failed</h3>
                     <p className="text-red-700 text-sm">You did not pass the challenge perfectly.</p>
                   </div>
-                  <button onClick={() => setViewMode('guest')} className="w-full py-3 bg-red-600 text-white font-bold rounded-xl shadow-lg hover:bg-red-700">
+                  <button onClick={() => setViewMode('signup')} className="w-full py-3 bg-red-600 text-white font-bold rounded-xl shadow-lg hover:bg-red-700">
                     Return to Menu
                   </button>
                 </div>
@@ -544,14 +544,7 @@ export default function Home() {
             {/* Function Toggles */}
             <div className="pt-4 border-t border-gray-100 w-full space-y-4">
               <div className="flex flex-col gap-3 items-center">
-                <button
-                  onClick={handleGuestStart}
-                  disabled={isSubmitting}
-                  className="text-sm font-bold text-gray-400 hover:text-gray-900 flex items-center gap-2 transition-colors"
-                >
-                  Enter as Guest <Sparkles className="w-3 h-3" />
-                </button>
-                <div className="w-full h-px bg-gray-100/50"></div>
+
                 <button
                   onClick={() => setViewMode("login")}
                   className="text-sm font-bold text-[#006B3F] hover:underline decoration-2 underline-offset-2"

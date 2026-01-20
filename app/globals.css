@@ -36,14 +36,28 @@ body {
 }
 
 /* For Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 107, 63, 0.2) transparent;
+@supports (scrollbar-width: thin) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 107, 63, 0.2) transparent;
+  }
 }
 
 @layer utilities {
   .animate-shake {
     animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  /* Hide Number Spinners */
+  .no-spinner {
+    -moz-appearance: textfield;
+    appearance: textfield;
+  }
+
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
 }
 
@@ -73,4 +87,18 @@ body {
 
 .sunrise-reveal {
   transition: all 1.5s ease-in-out;
+}
+
+@keyframes road-scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50px);
+  }
+}
+
+.animate-road-scroll {
+  animation: road-scroll 0.2s linear infinite;
 }

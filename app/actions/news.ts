@@ -4,11 +4,11 @@ import { fetchNews as fetchNewsLib, NewsItem } from "@/lib/news";
 
 export async function getGist(): Promise<NewsItem[]> {
     try {
-        console.log("Fetching Gist from Server...");
+        // console.log("Fetching Gist from Server...");
         const news = await fetchNewsLib();
         return news;
     } catch (error) {
-        console.error("Server Action fetch failed:", error);
+        // console.error("Server Action fetch failed:", error);
         return [];
     }
 }

@@ -273,8 +273,7 @@ export default function TrotroRun() {
                             onChange={handleBetChange}
                             disabled={gameState !== "IDLE"}
                             placeholder="Min 10"
-                            className="w-full bg-transparent text-right font-mono font-bold text-xl text-[#FCD116] placeholder-white/20 focus:outline-none disabled:opacity-50 appearance-none m-0"
-                            style={{ MozAppearance: "textfield" }} // Firefox
+                            className="w-full bg-transparent text-right font-mono font-bold text-xl text-[#FCD116] placeholder-white/20 focus:outline-none disabled:opacity-50 appearance-none m-0 no-spinner"
                         />
 
                         {/* Custom Spinners */}
@@ -362,21 +361,7 @@ export default function TrotroRun() {
                 </div>
             </div>
 
-            <style jsx global>{`
-                @keyframes road-scroll {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(-50px); }
-                }
-                .animate-road-scroll {
-                    animation: road-scroll 0.2s linear infinite;
-                }
-                /* Hide Chrome, Safari, Edge, Opera number spinner */
-                input.appearance-none::-webkit-outer-spin-button,
-                input.appearance-none::-webkit-inner-spin-button {
-                    -webkit-appearance: none;
-                    margin: 0;
-                }
-            `}</style>
+
         </div>
     );
 }
