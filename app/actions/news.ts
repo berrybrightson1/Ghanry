@@ -7,7 +7,7 @@ export async function getGist(): Promise<NewsItem[]> {
         // console.log("Fetching Gist from Server...");
         const news = await fetchNewsLib();
         return news;
-    } catch (error) {
+    } catch {
         // console.error("Server Action fetch failed:", error);
         return [];
     }
