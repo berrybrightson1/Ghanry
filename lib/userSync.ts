@@ -64,3 +64,17 @@ export const syncChatHistory = async (messages: Array<{ role: string; content: s
 export const syncSettings = async (settings: Record<string, unknown>): Promise<void> => {
     await syncToFirestore("settings", settings);
 };
+
+/**
+ * Syncs seen question IDs to Firestore
+ */
+export const syncAnsweredIds = async (ids: number[]): Promise<void> => {
+    await syncToFirestore("answeredQuestions", ids);
+};
+
+/**
+ * Syncs Gauntlet last played timestamp
+ */
+export const syncGauntletLastPlayed = async (timestamp: number): Promise<void> => {
+    await syncToFirestore("gauntletLastPlayed", timestamp);
+};

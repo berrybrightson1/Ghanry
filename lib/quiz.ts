@@ -65,11 +65,134 @@ export const hardGhanaQuestions: Question[] = [
         question: "Which river forms the natural border between Ghana and Ivory Coast to the southwest?",
         options: ["Volta River", "Pra River", "Tano River", "Ankobra River"],
         answer: "Tano River"
+    },
+    {
+        id: 11,
+        question: "Who was the first Ghanaian to win a Nobel Peace Prize?",
+        options: ["Kwame Nkrumah", "Kofi Annan", "Jerry Rawlings", "John Kufuor"],
+        answer: "Kofi Annan"
+    },
+    {
+        id: 12,
+        question: "What is the capital of the Upper West Region?",
+        options: ["Bolgatanga", "Tamale", "Wa", "Sunyani"],
+        answer: "Wa"
+    },
+    {
+        id: 13,
+        question: "Which Ghanaian footballer is known as 'Baby Jet'?",
+        options: ["Abedi Pele", "Michael Essien", "Asamoah Gyan", "Stephen Appiah"],
+        answer: "Asamoah Gyan"
+    },
+    {
+        id: 14,
+        question: "What major dam was completed in 1965, creating the world's largest man-made lake?",
+        options: ["Bui Dam", "Kpong Dam", "Akosombo Dam", "Weija Dam"],
+        answer: "Akosombo Dam"
+    },
+    {
+        id: 15,
+        question: "Which tribe celebrates the Hogbetsotso festival?",
+        options: ["Ga", "Ewe", "Fante", "Dagomba"],
+        answer: "Ewe"
+    },
+    {
+        id: 16,
+        question: "Who is the legendary priest associated with the Golden Stool?",
+        options: ["Okomfo Anokye", "Kwaku Ananse", "Togbe Tsali", "Nii Tackie Tawiah"],
+        answer: "Okomfo Anokye"
+    },
+    {
+        id: 17,
+        question: "What is the traditional cloth of the Ashanti people known as?",
+        options: ["Batakari", "Kente", "Adinkra", "Gonja"],
+        answer: "Kente"
+    },
+    {
+        id: 18,
+        question: "Which castle served as the seat of the British colonial government until 1957?",
+        options: ["Elmina Castle", "Cape Coast Castle", "Osu Castle (Christionsborg)", "Fort Amsterdam"],
+        answer: "Osu Castle (Christionsborg)"
+    },
+    {
+        id: 19,
+        question: "The name 'Ghana' means what in the Soninke language?",
+        options: ["Gold Coast", "Warrior King", "Land of Peace", "Black Star"],
+        answer: "Warrior King"
+    },
+    {
+        id: 20,
+        question: "Which tree is known as the 'Tree of Life' in Northern Ghana?",
+        options: ["Baobab", "Shea", "Cocoa", "Mahogany"],
+        answer: "Shea"
+    },
+    {
+        id: 21,
+        question: "What is the highest mountain in Ghana?",
+        options: ["Mount Afadja (Afadjato)", "Mount Gemi", "Kwahu Plateau", "Atewa Range"],
+        answer: "Mount Afadja (Afadjato)"
+    },
+    {
+        id: 22,
+        question: "Which Ghanaian dish is made from fermented corn and cassava dough?",
+        options: ["Fufu", "Banku", "Kenkey", "Tuo Zaafi"],
+        answer: "Banku"
+    },
+    {
+        id: 23,
+        question: "Who was the first female Chief Justice of Ghana?",
+        options: ["Georgina Theodora Wood", "Sophia Akuffo", "Joyce Bamford-Addo", "Akua Kuenyehia"],
+        answer: "Georgina Theodora Wood"
+    },
+    {
+        id: 24,
+        question: "In which year did Ghana win its first African Cup of Nations (AFCON)?",
+        options: ["1963", "1965", "1978", "1982"],
+        answer: "1963"
+    },
+    {
+        id: 25,
+        question: "Which region is known for the production of cocoa?",
+        options: ["Greater Accra", "Western North", "Northern", "Upper East"],
+        answer: "Western North"
+    },
+    {
+        id: 26,
+        question: "What is the main ingredient in the local drink 'Pito'?",
+        options: ["Palm Wine", "Millet or Sorghum", "Cassava", "Cocoa"],
+        answer: "Millet or Sorghum"
+    },
+    {
+        id: 27,
+        question: "Which Ghanaian language uses the phrase 'Akwaaba'?",
+        options: ["Ewe", "Ga", "Twi (Akan)", "Dagbani"],
+        answer: "Twi (Akan)"
+    },
+    {
+        id: 28,
+        question: "The Kakum National Park is famous for its...?",
+        options: ["Elephants", "Canopy Walkway", "Waterfalls", "Caves"],
+        answer: "Canopy Walkway"
+    },
+    {
+        id: 29,
+        question: "Which city is known as the 'Garden City' of Ghana?",
+        options: ["Accra", "Kumasi", "Takoradi", "Ho"],
+        answer: "Kumasi"
+    },
+    {
+        id: 30,
+        question: "What does the 'Black Star' in the Ghanaian flag represent?",
+        options: ["The rich soil", "The forests", "African emancipation", "The gold deposits"],
+        answer: "African emancipation"
     }
 ];
 
-export const getRandomChallenge = (count: number = 3): Question[] => {
+export const getRandomChallenge = (count: number = 3, excludeIds: number[] = []): Question[] => {
+    // Filter out excluded questions
+    const available = hardGhanaQuestions.filter(q => !excludeIds.includes(q.id));
+
     // Shuffle and pick 'count' questions
-    const shuffled = [...hardGhanaQuestions].sort(() => 0.5 - Math.random());
+    const shuffled = [...available].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, count);
 };

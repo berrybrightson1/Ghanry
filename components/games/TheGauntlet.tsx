@@ -21,6 +21,37 @@ export default function TheGauntlet() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [shuffledOptions, setShuffledOptions] = useState<string[]>([]);
 
+    // New State for persistence & rules
+    const [seenQuestionIds, setSeenQuestionIds] = useState<number[]>([]);
+    const [lastPlayed, setLastPlayed] = useState<number>(0);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Load State on Mount
+    useEffect(() => {
+        const loadState = async () => {
+            // 1. Load from LocalStorage
+            const storedSeen = JSON.parse(localStorage.getItem("ghanry_seen_questions") || "[]");
+            const storedLastPlayed = Number(localStorage.getItem("ghanry_gauntlet_last_played") || "0");
+
+            setSeenQuestionIds(storedSeen);
+            setLastPlayed(storedLastPlayed);
+
+            // 2. If logged in, sync with Firestore (Strategy: Merge max)
+            const passportId = localStorage.getItem("ghanry_passport_id");
+            if (passportId && passportId !== "guest") {
+                // We'll trust local for speed, but could fetch to sync up
+                // Ideally this happens in a context, but here we can do a lazy fetch
+                // skipping complicated merge logic for now to keep it snappy, 
+                // assuming user mainly plays on one device or userSync handles it eventually.
+            }
+            setIsLoading(false);
+        };
+        loadState();
+    }, []);
+
+
+
+    // Effect 1: Shuffle Options when question changes
     useEffect(() => {
         if (gameState === "playing" && questions[currentIndex]) {
             const q = questions[currentIndex];
@@ -28,20 +59,79 @@ export default function TheGauntlet() {
         }
     }, [gameState, currentIndex, questions]);
 
+    // Effect 2: Mark Question as Seen
+    useEffect(() => {
+        if (gameState === "playing" && questions[currentIndex]) {
+            const q = questions[currentIndex];
+            // Mark as seen immediately when problem appears
+            if (!seenQuestionIds.includes(q.id)) {
+                const newSeen = [...seenQuestionIds, q.id];
+                setSeenQuestionIds(newSeen);
+                localStorage.setItem("ghanry_seen_questions", JSON.stringify(newSeen));
+                // Sync logic handled by saveState calls elsewhere or eventually here
+                // We keep it simple to fix the loop
+            }
+        }
+    }, [gameState, currentIndex, questions, seenQuestionIds]);
+
+    const getCooldownRemaining = () => {
+        const now = Date.now();
+        const diff = now - lastPlayed;
+        const cooldown = 24 * 60 * 60 * 1000; // 24 hours
+        if (diff < cooldown) {
+            const remaining = cooldown - diff;
+            const hours = Math.floor(remaining / (1000 * 60 * 60));
+            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            return `${hours}h ${minutes}m`;
+        }
+        return null;
+    };
+
     const startGame = (stakeIndex: number) => {
         const stake = STAKES[stakeIndex];
 
+        // 1. Check Cooldown
+        const remaining = getCooldownRemaining();
+        if (remaining) {
+            toast.error("The Arena is closed.", {
+                description: `You must rest, warrior. Return in ${remaining}.`,
+                duration: 4000
+            });
+            return;
+        }
+
+        // 2. Check XP
         if (xp < stake.xp) {
             toast.error("Not enough XP!", { description: `You need ${stake.xp} XP to enter.` });
             return;
         }
 
+        // 3. Get Questions (excluding seen)
+        const gameQuestions = getRandomChallenge(stake.questions, seenQuestionIds);
+
+        // 4. Check if we have enough questions
+        if (gameQuestions.length < stake.questions) {
+            toast.error("You have conquered The Gauntlet!", {
+                description: "No new challenges available right now. The gods are crafting more...",
+                duration: 5000
+            });
+            return;
+        }
+
+        // 5. Start Game
         if (spendXP(stake.xp)) {
             setSelectedStake(stake);
-            const gameQuestions = getRandomChallenge(stake.questions);
             setQuestions(gameQuestions);
             setCurrentIndex(0);
             setGameState("playing");
+
+            // Set Last Played NOW to prevent refresh-scumming the cooldown? 
+            // Better to set it here so they accept the contract of "One Attempt".
+            // If they refresh, they lose the attempt + the XP (since XP is spent).
+            const now = Date.now();
+            setLastPlayed(now);
+            localStorage.setItem("ghanry_gauntlet_last_played", now.toString());
+
             toast.info(`Entered the Arena! -${stake.xp} XP`);
         }
     };
@@ -81,15 +171,25 @@ export default function TheGauntlet() {
         setCurrentIndex(0);
     };
 
+    if (isLoading) return <div className="p-10 text-center text-white/50">Loading Arena...</div>;
+
+    const remainingTime = getCooldownRemaining();
+
     return (
         <div className="w-full max-w-md mx-auto py-8">
             {/* LOBBY */}
             {gameState === "lobby" && (
                 <div className="space-y-6">
                     <div className="text-center py-6">
-                        <Skull className="w-16 h-16 text-red-500 mx-auto mb-4 opacity-80" />
-                        <h2 className="text-3xl font-epilogue font-black text-white mb-2">Choose Your Risk</h2>
-                        <p className="text-gray-400 text-sm">One wrong answer and you lose it all.<br />Survive the sequence to multiply your XP.</p>
+                        <Skull className={`w-16 h-16 mx-auto mb-4 opacity-80 ${remainingTime ? "text-gray-500" : "text-red-500"}`} />
+                        <h2 className="text-3xl font-epilogue font-black text-white mb-2">
+                            {remainingTime ? "Arena Closed" : "Choose Your Risk"}
+                        </h2>
+                        {remainingTime ? (
+                            <p className="text-yellow-500 font-mono text-lg">Next Attempt: {remainingTime}</p>
+                        ) : (
+                            <p className="text-gray-400 text-sm">One wrong answer and you lose it all.<br />Survive the sequence to multiply your XP.</p>
+                        )}
                     </div>
 
                     <div className="space-y-4">
@@ -97,7 +197,12 @@ export default function TheGauntlet() {
                             <button
                                 key={index}
                                 onClick={() => startGame(index)}
-                                className="w-full relative group overflow-hidden bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#FCD116] rounded-2xl p-6 transition-all text-left"
+                                disabled={!!remainingTime}
+                                className={`w-full relative group overflow-hidden border rounded-2xl p-6 transition-all text-left 
+                                    ${remainingTime
+                                        ? "bg-white/5 border-white/5 opacity-50 cursor-not-allowed"
+                                        : "bg-white/5 hover:bg-white/10 border-white/10 hover:border-[#FCD116]"
+                                    }`}
                             >
                                 <div className="flex justify-between items-center mb-2">
                                     <div className="flex items-center gap-2">
@@ -203,8 +308,10 @@ export default function TheGauntlet() {
                         onClick={resetGame}
                         className="w-full py-4 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-all"
                     >
-                        Try Again
+                        Return to Lobby
                     </button>
+                    {/* Cooldown reminder */}
+                    <p className="text-xs text-gray-500 mt-4">You can challenge the Gauntlet again in 24 hours.</p>
                 </div>
             )}
         </div>
