@@ -81,11 +81,27 @@ export default function SettingsPage() {
         const soundValue = storedSound === 'true';
         setSound(soundValue);
 
-        // Store original values
         setOriginalNickname(storedNick);
         setOriginalPassportId(storedId);
         setOriginalAvatar(storedAvatar);
         setOriginalSound(soundValue);
+
+        // Sync verification from cloud if logged in
+        if (storedId && storedId !== 'guest') {
+            import('@/lib/userSync').then(async ({ loadFromFirestore }) => {
+                const data = await loadFromFirestore(storedId);
+                if (data && data.verified === true) {
+                    setVerified(true);
+                    localStorage.setItem('ghanry_verified', 'true');
+                } else if (data && data.verified === false && storedVerified) {
+                    // Conflict: Local says true, Cloud says false? 
+                    // Trust Cloud -> revert local? Or Trust Local -> sync Cloud?
+                    // Let's trust Cloud for security.
+                    setVerified(false);
+                    localStorage.setItem('ghanry_verified', 'false');
+                }
+            });
+        }
     }, []);
 
     // Check if anything has changed
@@ -541,6 +557,12 @@ export default function SettingsPage() {
 
                                             setVerified(true);
                                             localStorage.setItem('ghanry_verified', 'true');
+
+                                            // Sync Verification
+                                            import('@/lib/userSync').then(({ syncVerification }) => {
+                                                syncVerification(true);
+                                            });
+
                                             setShowVerificationModal(false);
                                             toast.success("Verification Purchased! Welcome to the club.");
                                             confetti({ colors: ['#3b82f6', '#ffffff'] });
@@ -621,6 +643,12 @@ export default function SettingsPage() {
                                 onSuccess={() => {
                                     setVerified(true);
                                     localStorage.setItem('ghanry_verified', 'true');
+
+                                    // Sync Verification
+                                    import('@/lib/userSync').then(({ syncVerification }) => {
+                                        syncVerification(true);
+                                    });
+
                                     setShowStrictTest(false);
                                     toast.success("VERIFIED! Welcome to the elite.");
                                     confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });

@@ -78,3 +78,10 @@ export const syncAnsweredIds = async (ids: number[]): Promise<void> => {
 export const syncGauntletLastPlayed = async (timestamp: number): Promise<void> => {
     await syncToFirestore("gauntletLastPlayed", timestamp);
 };
+
+/**
+ * Syncs verification status to Firestore
+ */
+export const syncVerification = async (isVerified: boolean): Promise<void> => {
+    await syncToFirestore("verified", isVerified);
+};
