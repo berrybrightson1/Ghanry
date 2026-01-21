@@ -41,11 +41,13 @@ export default function Leaderboard() {
             // Only include user if they have a valid passport ID
             const isGuest = !passportId;
 
+            const isverified = localStorage.getItem("ghanry_verified") === "true";
+
             let data: LeaderboardEntry[] = [];
             if (activeTab === "global") {
-                data = await LeaderboardService.getRankings(nickname, regionToFetch, realXP);
+                data = await LeaderboardService.getRankings(nickname, regionToFetch, realXP, isverified);
             } else {
-                data = await LeaderboardService.getRegionRankings(regionToFetch, nickname, realXP);
+                data = await LeaderboardService.getRegionRankings(regionToFetch, nickname, realXP, isverified);
             }
 
             // Filter to only show citizens

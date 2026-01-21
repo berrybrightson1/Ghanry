@@ -16,7 +16,7 @@ export const LeaderboardService = {
     /**
      * Production-ready: Fetch real rankings from Firestore
      */
-    getRankings: async (localNickname: string, localRegion: string, localXP: number): Promise<LeaderboardEntry[]> => {
+    getRankings: async (localNickname: string, localRegion: string, localXP: number, localVerified: boolean = false): Promise<LeaderboardEntry[]> => {
         try {
             const usersRef = collection(db, "users");
             // Secondary sort by nickname ensures stable ordering for tied XP
@@ -40,7 +40,11 @@ export const LeaderboardService = {
                     verified: data.verified || false
                 };
 
-                if (entry.isCurrentUser) currentFound = true;
+                if (entry.isCurrentUser) {
+                    currentFound = true;
+                    // Force local verified status if it's the current user (trust local over potentially stale cloud data for UI)
+                    if (localVerified) entry.verified = true;
+                }
                 fetchedRankings.push(entry);
             });
 
@@ -67,7 +71,7 @@ export const LeaderboardService = {
                     xp: localXP,
                     rankName: localRankName,
                     isCurrentUser: true,
-                    verified: false // Fallback
+                    verified: localVerified // Use local status
                 });
             }
 
@@ -82,7 +86,8 @@ export const LeaderboardService = {
                 region: localRegion,
                 xp: localXP,
                 rankName: localRankName,
-                isCurrentUser: true
+                isCurrentUser: true,
+                verified: localVerified
             }];
         }
     },
@@ -93,7 +98,7 @@ export const LeaderboardService = {
     /**
      * Get top player for a specific region
      */
-    getRegionRankings: async (region: string, localNickname?: string, localXP?: number) => {
+    getRegionRankings: async (region: string, localNickname?: string, localXP?: number, localVerified: boolean = false) => {
         try {
             const usersRef = collection(db, "users");
             // Note: This query requires a Firestore Composite Index (Region ASC, XP DESC)
@@ -117,7 +122,7 @@ export const LeaderboardService = {
                     xp: data.xp || 0,
                     rankName: rank,
                     isCurrentUser: isCurrent,
-                    verified: data.verified || false
+                    verified: (isCurrent && localVerified) ? true : (data.verified || false)
                 });
             });
 
@@ -133,7 +138,7 @@ export const LeaderboardService = {
                     xp: localXP,
                     rankName: localRankName,
                     isCurrentUser: true,
-                    verified: false
+                    verified: localVerified
                 });
             }
 
@@ -176,7 +181,7 @@ export const LeaderboardService = {
                             xp: data.xp || 0,
                             rankName: rank,
                             isCurrentUser: isCurrent,
-                            verified: data.verified || false
+                            verified: (isCurrent && localVerified) ? true : (data.verified || false)
                         });
                     }
                 });
@@ -197,7 +202,7 @@ export const LeaderboardService = {
                         xp: localXP,
                         rankName: localRankName,
                         isCurrentUser: true,
-                        verified: false
+                        verified: localVerified
                     });
                 }
 
@@ -232,7 +237,7 @@ export const LeaderboardService = {
                             xp: data.xp || 0,
                             rankName: rank,
                             isCurrentUser: isCurrent,
-                            verified: data.verified || false
+                            verified: (isCurrent && localVerified) ? true : (data.verified || false)
                         });
                     });
 
@@ -246,7 +251,7 @@ export const LeaderboardService = {
                             xp: localXP,
                             rankName: localRankName,
                             isCurrentUser: true,
-                            verified: false
+                            verified: localVerified
                         });
                     }
 
@@ -266,7 +271,8 @@ export const LeaderboardService = {
                             region: region,
                             xp: localXP,
                             rankName: localRankName,
-                            isCurrentUser: true
+                            isCurrentUser: true,
+                            verified: localVerified
                         }];
                     }
                     return [];
