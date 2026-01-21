@@ -27,6 +27,9 @@ export const LeaderboardService = {
             let currentFound = false;
 
             querySnapshot.forEach((doc) => {
+                // EXCLUSION: Hide Dev Account
+                if (doc.id === "GH-0020-C") return;
+
                 const data = doc.data();
                 const { rank: rankName } = calculateProgress(data.xp || 0);
 
@@ -110,6 +113,9 @@ export const LeaderboardService = {
             let currentFound = false;
 
             querySnapshot.forEach((docSnap) => {
+                // EXCLUSION: Hide Dev Account
+                if (docSnap.id === "GH-0020-C") return;
+
                 const data = docSnap.data();
                 const { rank } = calculateProgress(data.xp || 0);
                 const isCurrent = data.nickname === localNickname && data.xp === localXP;
@@ -169,6 +175,9 @@ export const LeaderboardService = {
 
                 const allUsers: LeaderboardEntry[] = [];
                 querySnapshot.forEach((docSnap) => {
+                    // EXCLUSION: Hide Dev Account
+                    if (docSnap.id === "GH-0020-C") return;
+
                     const data = docSnap.data();
                     const { rank } = calculateProgress(data.xp || 0);
                     // Filter here
@@ -227,6 +236,9 @@ export const LeaderboardService = {
 
                     const allUsers: LeaderboardEntry[] = [];
                     querySnapshot.forEach((docSnap) => {
+                        // EXCLUSION: Hide Dev Account
+                        if (docSnap.id === "GH-0020-C") return;
+
                         const data = docSnap.data();
                         const { rank } = calculateProgress(data.xp || 0);
                         const isCurrent = data.nickname === localNickname && data.xp === localXP;
