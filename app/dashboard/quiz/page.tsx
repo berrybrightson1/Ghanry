@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import QuizCard from "@/components/QuizCard";
 import ResultScreen from "@/components/ResultScreen";
 
 import { useQuestionProgress } from "@/hooks/useQuestionProgress";
+import { useDailyTrivia } from "@/hooks/useDailyTrivia";
 
 // Daily Trivia Questions - Distinct ID range (5000+) to avoid overlap with category IDs
 const QUESTIONS = [
@@ -66,9 +68,12 @@ const QUESTIONS = [
 ];
 
 export default function QuizPage() {
-    // const router = useRouter();
-    // const { isCompletedToday } = useDailyTrivia();
+    // Redirect if already completed today to prevent XP farming
+    const router = useRouter();
+    const { isCompletedToday } = useDailyTrivia();
     const { markAsAnswered } = useQuestionProgress();
+
+    // State
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [score, setScore] = useState(0);
     const [isCompleted, setIsCompleted] = useState(false);
@@ -87,15 +92,14 @@ export default function QuizPage() {
         return () => clearInterval(timer);
     }, [isCompleted]);
 
-    // Temporarily disabled daily redirect to allow for testing and replaying
-    // useEffect(() => {
-    //     if (isCompletedToday && !isCompleted) {
-    //         router.replace("/dashboard");
-    //     }
-    // }, [isCompletedToday, isCompleted, router]);
+    useEffect(() => {
+        if (isCompletedToday && !isCompleted) {
+            router.replace("/dashboard");
+        }
+    }, [isCompletedToday, isCompleted, router]);
 
     // Don't render anything if redirecting
-    // if (isCompletedToday && !isCompleted) return null;
+    if (isCompletedToday && !isCompleted) return null;
 
     const handleNext = (isCorrect: boolean) => {
         // Mark current daily question as answered
