@@ -558,16 +558,15 @@ export default function SettingsPage() {
                                             setVerified(true);
                                             localStorage.setItem('ghanry_verified', 'true');
 
-                                            // Sync Verification
-                                            import('@/lib/userSync').then(({ syncVerification }) => {
-                                                syncVerification(true);
-                                            });
-
-                                            setShowVerificationModal(false);
-                                            toast.success("Verification Purchased! Welcome to the club.");
-                                            confetti({ colors: ['#3b82f6', '#ffffff'] });
                                             window.dispatchEvent(new Event('ghanry_xp_update'));
                                             window.dispatchEvent(new Event('ghanry_profile_update'));
+
+                                            // Sync with Firestore
+                                            import('@/lib/userSync').then(({ syncVerification, syncXP }) => {
+                                                const newXP = currentxp - 10000;
+                                                syncVerification(true);
+                                                syncXP(newXP);
+                                            });
                                         }
                                     } else {
                                         toast.error(`Insufficient XP. You need 10,000 XP. (Current: ${xp})`);

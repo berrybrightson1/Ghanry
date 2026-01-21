@@ -90,6 +90,10 @@ export default function DashboardLayout({
                 isOpen={isMobileMenuOpen}
                 onClose={() => setIsMobileMenuOpen(false)}
                 nickname={userData.nickname}
+                isGuest={userData.isGuest}
+                avatar={userData.avatar}
+                status={userData.status}
+                verified={userData.verified}
             />
 
             {/* Desktop Sidebar (Hidden on Mobile) */}

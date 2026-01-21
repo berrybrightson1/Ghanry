@@ -10,9 +10,13 @@ interface MobileSidebarProps {
     isOpen: boolean;
     onClose: () => void;
     nickname: string;
+    isGuest?: boolean;
+    avatar?: string;
+    status?: 'citizen' | 'tourist';
+    verified?: boolean;
 }
 
-export default function MobileSidebar({ isOpen, onClose, nickname }: MobileSidebarProps) {
+export default function MobileSidebar({ isOpen, onClose, nickname, isGuest, avatar, status, verified }: MobileSidebarProps) {
     const pathname = usePathname();
 
     // Close on route change
@@ -68,7 +72,13 @@ export default function MobileSidebar({ isOpen, onClose, nickname }: MobileSideb
                         </div>
 
                         {/* Force full height for individual sidebar children */}
-                        <Sidebar nickname={nickname} />
+                        <Sidebar
+                            nickname={nickname}
+                            isGuest={isGuest}
+                            avatar={avatar}
+                            status={status}
+                            verified={verified}
+                        />
                     </motion.div>
                 </>
             )}
