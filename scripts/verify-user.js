@@ -1,7 +1,6 @@
 const { initializeApp } = require('firebase/app');
 const { getFirestore, doc, getDoc, updateDoc } = require('firebase/firestore');
 
-// Initialize Firebase (using same config as your app)
 const firebaseConfig = {
     apiKey: "AIzaSyBxLZbl3B-kvIRI-cecc_Fn8SIJy4j8nJY",
     authDomain: "ghanry-web.firebaseapp.com",
@@ -14,20 +13,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-async function deductXP() {
+async function verifyUser() {
     const args = process.argv.slice(2);
-    if (args.length < 2) {
-        console.error("Usage: node scripts/deduct-xp.js <passportId> <amount>");
+    if (args.length < 1) {
+        console.error("Usage: node scripts/verify-user.js <passportId>");
         process.exit(1);
     }
 
     const passportId = args[0];
-    const amount = parseInt(args[1], 10);
-
-    if (isNaN(amount)) {
-        console.error("Invalid amount");
-        process.exit(1);
-    }
 
     try {
         const userRef = doc(db, "users", passportId);
@@ -38,15 +31,16 @@ async function deductXP() {
             process.exit(1);
         }
 
-        const currentXP = docSnap.data().xp || 0;
-        const newXP = Math.max(0, currentXP - amount);
+        const data = docSnap.data();
+        await updateDoc(userRef, { verified: true });
 
-        await updateDoc(userRef, { xp: newXP });
-        console.log(`✅ Deducted ${amount} XP from ${passportId}`);
-        console.log(`Old XP: ${currentXP} -> New XP: ${newXP}`);
+        console.log(`✅ Success!`);
+        console.log(`User: ${data.nickname} (${passportId})`);
+        console.log(`Status: VERIFIED (Blue Badge Applied)`);
+
     } catch (error) {
-        console.error("❌ Error deducting XP:", error);
+        console.error("❌ Error verifying user:", error);
     }
 }
 
-deductXP();
+verifyUser();
