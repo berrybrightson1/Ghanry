@@ -2,8 +2,9 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, Star, Menu } from "lucide-react";
+import { ChevronRight, Star, Menu, BadgeCheck } from "lucide-react";
 import { useXP } from "@/hooks/useXP";
+import { useState, useEffect } from "react";
 
 interface BreadcrumbsProps {
     onMenuClick?: () => void;
@@ -13,6 +14,18 @@ export default function Breadcrumbs({ onMenuClick }: BreadcrumbsProps) {
     const pathname = usePathname();
     const paths = pathname.split("/").filter(Boolean);
     const { xp } = useXP();
+    const [verified, setVerified] = useState(false);
+
+    useEffect(() => {
+        const checkVerified = () => {
+            const isVerified = localStorage.getItem('ghanry_verified') === 'true';
+            setVerified(isVerified);
+        };
+        checkVerified();
+
+        window.addEventListener('ghanry_profile_update', checkVerified);
+        return () => window.removeEventListener('ghanry_profile_update', checkVerified);
+    }, []);
 
     return (
         <div className="w-full px-6 py-4 flex items-center justify-between gap-3">
@@ -67,10 +80,18 @@ export default function Breadcrumbs({ onMenuClick }: BreadcrumbsProps) {
                 </div>
             </div>
 
-            {/* XP Badge - Always visible now */}
-            <div className="inline-flex items-center gap-2 px-3 h-12 bg-yellow-50 border border-yellow-200 rounded-xl shadow-sm text-yellow-700 text-xs font-bold font-jakarta flex-shrink-0">
-                <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-600" />
-                <span>{xp} XP</span>
+            {/* XP Badge & Verification - Always visible now */}
+            <div className="flex items-center gap-2">
+                {verified && (
+                    <div className="h-12 w-12 flex items-center justify-center rounded-xl bg-blue-50 border border-blue-100 text-blue-500 shadow-sm animate-in fade-in zoom-in duration-300">
+                        <BadgeCheck className="w-5 h-5 fill-blue-500/10" />
+                    </div>
+                )}
+
+                <div className="inline-flex items-center gap-2 px-3 h-12 bg-yellow-50 border border-yellow-200 rounded-xl shadow-sm text-yellow-700 text-xs font-bold font-jakarta flex-shrink-0">
+                    <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-600" />
+                    <span>{xp} XP</span>
+                </div>
             </div>
         </div>
     );
