@@ -41,7 +41,7 @@ const item = {
 
 export default function CategoriesPage() {
     return (
-        <div className="p-6 sm:p-8 space-y-8">
+        <div className="p-6 space-y-8">
             <div className="space-y-2">
                 <h1 className="text-3xl font-epilogue font-bold text-gray-900">Master Your Roots</h1>
                 <p className="text-gray-500 font-jakarta text-sm lowercase">choose a path to prove your knowledge about the motherland.</p>
@@ -51,7 +51,7 @@ export default function CategoriesPage() {
                 variants={container}
                 initial="hidden"
                 animate="show"
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+                className="grid grid-cols-2 gap-4"
             >
                 {categories.map((cat) => (
                     <Link key={cat.id} href={`/dashboard/categories/${cat.id}`}>

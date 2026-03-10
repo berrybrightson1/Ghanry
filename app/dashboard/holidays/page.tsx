@@ -12,7 +12,7 @@ export default function HolidaysPage() {
     return (
         <div className="max-w-4xl mx-auto p-6 space-y-8">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+            <div className="flex flex-col justify-between items-start gap-4">
                 <div className="space-y-2">
                     <span className="flex items-center gap-2 text-xs font-bold text-red-500 uppercase tracking-wider mb-2">
                         <Flag className="w-4 h-4" />
@@ -50,14 +50,14 @@ export default function HolidaysPage() {
             </div>
 
             {/* Timeline */}
-            <div className="relative border-l-2 border-gray-100 ml-4 md:ml-6 space-y-8 pb-12">
+            <div className="relative border-l-2 border-gray-100 ml-4 space-y-8 pb-12">
                 {holidays.map((holiday, index) => (
                     <motion.div
                         key={index}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
-                        className="relative pl-8 md:pl-12"
+                        className="relative pl-8"
                     >
                         {/* Dot */}
                         <div className={`absolute -left-[9px] top-6 w-5 h-5 rounded-full border-4 border-white ${holiday.highlight ? "bg-[#FCD116]" : "bg-gray-200"
@@ -67,7 +67,7 @@ export default function HolidaysPage() {
                             ? activeTab === "ghana" ? "bg-green-50 border-[#006B3F]/20" : "bg-yellow-50 border-yellow-200/50"
                             : "bg-white border-gray-100"
                             }`}>
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="flex flex-col justify-between gap-4">
                                 <div>
                                     <div className="flex items-center gap-3 mb-1">
                                         <span className={`text-xs font-bold uppercase tracking-wider px-2 py-1 rounded-md ${holiday.highlight

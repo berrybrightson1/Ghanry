@@ -91,6 +91,7 @@ export default function OnboardingSlider() {
                                 className="object-cover"
                                 alt="Brand"
                                 fill
+                                sizes="(max-width: 768px) 100vw, 100vw"
                                 priority
                             />
 

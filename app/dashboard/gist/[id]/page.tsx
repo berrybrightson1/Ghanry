@@ -62,7 +62,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                             src={article.image}
                             alt={article.title}
                             fill
+                            sizes="(max-width: 768px) 100vw, 680px"
                             className="object-cover"
+                            priority
                             unoptimized
                         />
                     ) : (

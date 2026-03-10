@@ -49,7 +49,7 @@ export default function MobileSidebar({ isOpen, onClose, nickname, isGuest, avat
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 sm:hidden"
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
                     />
 
                     <motion.div
@@ -57,7 +57,7 @@ export default function MobileSidebar({ isOpen, onClose, nickname, isGuest, avat
                         animate={{ x: 0 }}
                         exit={{ x: "-100%" }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                        className="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-50 sm:hidden shadow-2xl overflow-hidden"
+                        className="fixed top-0 left-0 bottom-0 w-[280px] bg-white z-50 shadow-2xl overflow-hidden"
                     >
                         {/* Close button - absolute for overlay */}
                         <div className="absolute top-4 right-4 z-[60]">

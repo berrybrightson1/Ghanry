@@ -55,36 +55,8 @@ export default function HeroCarousel() {
                 ))}
             </div>
 
-            {/* Hint for sliding */}
-            <div className="hidden sm:block">
-                {!isCompletedToday && currentIndex === 0 && (
-                    <div className="absolute top-1/2 -right-4 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                            onClick={() => setCurrentIndex(1)}
-                            className="p-3 bg-white rounded-full shadow-2xl border border-gray-100 text-[#006B3F] hover:bg-gray-50 flex items-center justify-center transform active:scale-95 transition-transform"
-                            aria-label="Next slide"
-                            title="Next slide"
-                        >
-                            <ChevronRight className="w-5 h-5" />
-                        </button>
-                    </div>
-                )}
-                {currentIndex === 1 && (
-                    <div className="absolute top-1/2 -left-4 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                            onClick={() => setCurrentIndex(0)}
-                            className="p-3 bg-white rounded-full shadow-2xl border border-gray-100 text-[#006B3F] hover:bg-gray-50 flex items-center justify-center transform active:scale-95 transition-transform"
-                            aria-label="Previous slide"
-                            title="Previous slide"
-                        >
-                            <ChevronLeft className="w-5 h-5" />
-                        </button>
-                    </div>
-                )}
-            </div>
-
-            {/* Mobile Swipe Indicators / Arrows */}
-            <div className="flex sm:hidden justify-between absolute top-1/2 left-0 right-0 -translate-y-1/2 px-2">
+            {/* Tap Arrows */}
+            <div className="flex justify-between absolute top-1/2 left-0 right-0 -translate-y-1/2 px-2">
                 <button
                     onClick={() => setCurrentIndex(0)}
                     className={`p-2 bg-white/80 backdrop-blur-md rounded-full shadow-lg transition-opacity active:scale-95 ${currentIndex === 1 ? "opacity-100" : "opacity-0 pointer-events-none"}`}

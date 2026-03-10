@@ -107,17 +107,13 @@ export default function QuizCard({
     return (
         <div className="w-full max-w-xl mx-auto px-4 pt-2 pb-2 flex flex-col items-center justify-start min-h-[400px] relative">
 
-            {/* Premium Aura Glow */}
-            <div className="absolute inset-0 bg-ghana-gold/10 blur-[100px] rounded-full z-0 pointer-events-none scale-75 animate-pulse" />
-            <div className="absolute inset-0 bg-[#006B3F]/20 blur-[80px] rounded-full z-0 pointer-events-none -translate-y-8" />
-
             <AnimatePresence mode="wait">
                 <motion.div
                     key={question.id}
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: -20, opacity: 0 }}
-                    className="w-full bg-white/95 backdrop-blur-xl rounded-[2.5rem] p-6 sm:p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] relative z-10 flex flex-col border border-white"
+                    className="w-full bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] relative z-10 flex flex-col border border-white"
                 >
                     {/* Header */}
                     <div className="flex items-center justify-between mb-6">

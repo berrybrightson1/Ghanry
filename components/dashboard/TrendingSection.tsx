@@ -43,7 +43,7 @@ export default function TrendingSection() {
                 </Link>
             </div>
 
-            <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-6 px-6 sm:mx-0 sm:px-0">
+            <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6">
                 {trendingQuizzes.map((quiz, index) => (
                     <Link key={quiz.id} href={`/dashboard/categories/${quiz.slug}`}>
                         <motion.div

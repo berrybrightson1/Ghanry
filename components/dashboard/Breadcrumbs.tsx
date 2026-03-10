@@ -35,7 +35,7 @@ export default function Breadcrumbs({ onMenuClick }: BreadcrumbsProps) {
                     onClick={onMenuClick}
                     aria-label="Open mobile menu"
                     title="Open mobile menu"
-                    className="sm:hidden h-12 w-12 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm transition-all active:scale-95 flex-shrink-0"
+                    className="h-12 w-12 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-sm transition-all active:scale-95 flex-shrink-0"
                 >
                     <Menu className="w-5 h-5" />
                 </button>

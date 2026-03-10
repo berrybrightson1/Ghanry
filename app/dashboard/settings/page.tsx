@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
     ChevronDown, ChevronUp, Copy, AlertTriangle, Eye, EyeOff, Check, X, LogOut, Star,
-    Square, Circle, Triangle, Hexagon, Octagon, Zap, Shield, Heart, Ghost, BadgeCheck
+    Square, Circle, Triangle, Hexagon, Octagon, Zap, Shield, Heart, Ghost, BadgeCheck, MapPin
 } from 'lucide-react';
 import { useStreak } from '@/hooks/useStreak';
 import { useXP } from '@/hooks/useXP';
@@ -26,6 +26,7 @@ const SHAPES = [
 export default function SettingsPage() {
     const router = useRouter();
     const [nickname, setNickname] = useState('');
+    const [location, setLocation] = useState('');
     const [passportId, setPassportId] = useState('');
     const [avatar, setAvatar] = useState('🇬🇭'); // Default
 
@@ -48,12 +49,14 @@ export default function SettingsPage() {
 
     // Track original values for dirty state detection
     const [originalNickname, setOriginalNickname] = useState('');
+    const [originalLocation, setOriginalLocation] = useState('');
     const [originalPassportId, setOriginalPassportId] = useState('');
     const [originalAvatar, setOriginalAvatar] = useState('🇬🇭');
     const [originalSound, setOriginalSound] = useState(false);
 
     useEffect(() => {
         const storedNick = localStorage.getItem('ghanry_nickname') || '';
+        const storedLoc = localStorage.getItem('ghanry_location') || '';
         const storedId = localStorage.getItem('ghanry_passport_id') || '';
         const storedSound = localStorage.getItem('ghanry_sound');
         const storedAvatar = localStorage.getItem('ghanry_avatar') || '🇬🇭';
@@ -73,6 +76,7 @@ export default function SettingsPage() {
         }
 
         setNickname(storedNick);
+        setLocation(storedLoc);
         setPassportId(storedId);
         setAvatar(storedAvatar);
         setStatus(storedStatus);
@@ -82,6 +86,7 @@ export default function SettingsPage() {
         setSound(soundValue);
 
         setOriginalNickname(storedNick);
+        setOriginalLocation(storedLoc);
         setOriginalPassportId(storedId);
         setOriginalAvatar(storedAvatar);
         setOriginalSound(soundValue);
@@ -107,6 +112,7 @@ export default function SettingsPage() {
     // Check if anything has changed
     const hasChanges =
         nickname !== originalNickname ||
+        location !== originalLocation ||
         passportId !== originalPassportId ||
         avatar !== originalAvatar ||
         sound !== originalSound ||
@@ -137,6 +143,9 @@ export default function SettingsPage() {
 
         // Save changes
         localStorage.setItem('ghanry_nickname', nickname);
+        const trimmedLocation = location.trim();
+        localStorage.setItem('ghanry_location', trimmedLocation);
+        if (trimmedLocation) window.dispatchEvent(new Event('ghanry_location_update'));
         localStorage.setItem('ghanry_passport_id', passportId);
         localStorage.setItem('ghanry_avatar', avatar);
         localStorage.setItem('ghanry_sound', sound.toString());
@@ -151,7 +160,8 @@ export default function SettingsPage() {
                 const db = getFirestore();
                 await updateDoc(doc(db, "users", passportId), {
                     nickname,
-                    avatar
+                    avatar,
+                    location: location.trim(),
                 });
             } catch (e) {
                 console.warn("Could not sync profile to cloud", e);
@@ -173,6 +183,7 @@ export default function SettingsPage() {
 
         // Update original values
         setOriginalNickname(nickname);
+        setOriginalLocation(location);
         setOriginalPassportId(passportId);
         setOriginalAvatar(avatar);
         setOriginalSound(sound);
@@ -186,6 +197,7 @@ export default function SettingsPage() {
     const handleCancel = () => {
         // Revert to original values
         setNickname(originalNickname);
+        setLocation(originalLocation);
         setPassportId(originalPassportId);
         setAvatar(originalAvatar);
         setSound(originalSound);
@@ -269,6 +281,21 @@ export default function SettingsPage() {
                             onChange={e => setNickname(e.target.value)}
                             className="w-full border border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] font-epilogue font-bold text-gray-900"
                         />
+                    </div>
+
+                    <div>
+                        <label htmlFor="location" className="block font-jakarta font-medium mb-1.5 text-sm text-gray-700">City / Location</label>
+                        <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-300" />
+                            <input
+                                id="location"
+                                type="text"
+                                value={location}
+                                onChange={e => setLocation(e.target.value)}
+                                placeholder="e.g. Accra, London, New York"
+                                className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#006B3F]/20 focus:border-[#006B3F] font-jakarta text-sm text-gray-900"
+                            />
+                        </div>
                     </div>
 
                     <div>

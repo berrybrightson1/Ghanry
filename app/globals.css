@@ -11,36 +11,17 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  /* Body itself never scrolls — the app shell controls scrolling internally */
   overflow: hidden;
-  /* Prevent scrolling on main body */
 }
 
-/* Standard scrollbars restored with minimal/premium styling */
-::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+/* ── Hide ALL scrollbars system-wide (native app feel) ── */
+* {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;   /* IE / Edge legacy */
 }
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(0, 107, 63, 0.2);
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 107, 63, 0.4);
-}
-
-/* For Firefox */
-@supports (scrollbar-width: thin) {
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 107, 63, 0.2) transparent;
-  }
+*::-webkit-scrollbar {
+  display: none;               /* Chrome, Safari, Opera */
 }
 
 @layer utilities {

@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import QuizCard from "@/components/QuizCard";
 import ResultScreen from "@/components/ResultScreen";
-
+import { Flame, Clock, Zap, PlayCircle, CalendarCheck } from "lucide-react";
+import { motion } from "framer-motion";
 import { useQuestionProgress } from "@/hooks/useQuestionProgress";
 import { useDailyTrivia } from "@/hooks/useDailyTrivia";
 
@@ -76,30 +77,32 @@ export default function QuizPage() {
     // State
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [score, setScore] = useState(0);
-    const [isCompleted, setIsCompleted] = useState(false);
+    const [gameStatus, setGameStatus] = useState<"ready" | "playing" | "finished">("ready");
     const [timeElapsed, setTimeElapsed] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const startTimeRef = useRef<number>(Date.now());
 
-    // Reset timer on mount and start tick
+    // Timer — only ticks when playing
     useEffect(() => {
-        startTimeRef.current = Date.now();
+        if (gameStatus !== "playing") return;
         const timer = setInterval(() => {
-            if (!isCompleted) {
-                setCurrentTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
-            }
+            setCurrentTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
         }, 1000);
         return () => clearInterval(timer);
-    }, [isCompleted]);
+    }, [gameStatus]);
 
     useEffect(() => {
-        if (isCompletedToday && !isCompleted) {
+        if (isCompletedToday && gameStatus !== "finished") {
             router.replace("/dashboard");
         }
-    }, [isCompletedToday, isCompleted, router]);
+    }, [isCompletedToday, gameStatus, router]);
 
-    // Don't render anything if redirecting
-    if (isCompletedToday && !isCompleted) return null;
+    if (isCompletedToday && gameStatus !== "finished") return null;
+
+    const handleStart = () => {
+        startTimeRef.current = Date.now();
+        setGameStatus("playing");
+    };
 
     const handleNext = (isCorrect: boolean) => {
         // Mark current daily question as answered
@@ -112,17 +115,79 @@ export default function QuizPage() {
         if (currentQuestionIndex < QUESTIONS.length - 1) {
             setCurrentQuestionIndex(prev => prev + 1);
         } else {
-            // Quiz is complete
             const endTime = Date.now();
             setTimeElapsed(Math.floor((endTime - startTimeRef.current) / 1000));
-            setIsCompleted(true);
+            setGameStatus("finished");
         }
     };
 
+    if (gameStatus === "ready") {
+        return (
+            <div className="w-full h-full flex flex-col px-5 pt-6 pb-6">
+
+                {/* ── Hero ── */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: "spring", bounce: 0.3, duration: 0.55 }}
+                    className="flex-1 flex flex-col items-center justify-center gap-4 text-center"
+                >
+                    <div className="w-24 h-24 rounded-3xl bg-orange-50 border border-orange-100 flex items-center justify-center shadow-sm mb-2">
+                        <CalendarCheck className="w-10 h-10 text-orange-500" strokeWidth={1.5} />
+                    </div>
+
+                    <div>
+                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Ready to play</p>
+                        <h1 className="font-epilogue font-extrabold text-3xl text-gray-900 leading-tight">Daily Trivia</h1>
+                        <p className="text-gray-500 font-jakarta text-sm mt-3 leading-relaxed">Every day brings five new questions drawn from across Ghanaian history, culture, geography, food and more. Your answers are locked in once submitted, your streak is on the line, and the timer starts the moment you begin. Come back tomorrow for a fresh set.</p>
+                    </div>
+                </motion.div>
+
+                {/* ── Stats card ── */}
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.45 }}
+                    className="bg-gray-50 border border-gray-100 rounded-2xl p-4 mb-4"
+                >
+                    <div className="grid grid-cols-3 divide-x divide-gray-200">
+                        <div className="flex flex-col items-center gap-1.5 px-2">
+                            <Flame className="w-5 h-5 text-orange-400" strokeWidth={1.5} />
+                            <span className="font-epilogue font-extrabold text-gray-900 text-base leading-none">Daily</span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Streak</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1.5 px-2">
+                            <Clock className="w-5 h-5 text-[#006B3F]" strokeWidth={1.5} />
+                            <span className="font-epilogue font-extrabold text-gray-900 text-base leading-none">Live</span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Timer</span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1.5 px-2">
+                            <Zap className="w-5 h-5 text-[#CE1126]" strokeWidth={1.5} />
+                            <span className="font-epilogue font-extrabold text-gray-900 text-base leading-none">XP</span>
+                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Reward</span>
+                        </div>
+                    </div>
+                </motion.div>
+
+                {/* ── Start button ── */}
+                <motion.button
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.18, duration: 0.4 }}
+                    onClick={handleStart}
+                    className="w-full py-4 bg-[#FCD116] text-gray-900 font-epilogue font-extrabold text-lg rounded-2xl shadow-lg shadow-yellow-900/15 active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+                >
+                    <PlayCircle className="w-5 h-5" />
+                    Start Quiz
+                </motion.button>
+            </div>
+        );
+    }
+
     return (
-        <div className="w-full min-h-screen bg-gradient-to-br from-[#006B3F] to-[#004629] relative flex flex-col items-center justify-start px-4 overflow-x-hidden">
+        <div className="w-full min-h-screen bg-white relative flex flex-col items-center justify-start px-4 overflow-x-hidden">
             <div className="w-full max-w-4xl mx-auto pt-8 pb-12 flex-1 flex flex-col items-center justify-start">
-                {isCompleted ? (
+                {gameStatus === "finished" ? (
                     <ResultScreen
                         score={score}
                         totalQuestions={QUESTIONS.length}

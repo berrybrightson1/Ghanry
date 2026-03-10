@@ -7,12 +7,14 @@ const epilogue = Epilogue({
   subsets: ["latin"],
   variable: "--font-epilogue",
   display: "swap",
+  adjustFontFallback: false,
 });
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   variable: "--font-jakarta",
   display: "swap",
+  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -47,23 +49,56 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-
-      <body className={`${epilogue.variable} ${jakarta.variable} antialiased bg-gradient-to-br from-green-950 via-green-900 to-black min-h-screen flex flex-col items-center justify-start sm:justify-center overflow-y-auto`}
+      {/*
+        Desktop background: dark neutral so the app looks like a phone
+        floating on a desk surface.
+      */}
+      <body
+        className={`${epilogue.variable} ${jakarta.variable} antialiased bg-neutral-900 flex items-start justify-center min-h-screen`}
       >
-        {/* Mobile Container Strategy */}
-        <div className="w-full min-h-[100dvh] sm:min-h-[700px] sm:h-[85vh] sm:max-w-6xl sm:my-10 bg-white/20 backdrop-blur-3xl sm:rounded-3xl shadow-2xl overflow-hidden relative flex flex-col items-stretch font-jakarta">
+        {/*
+          Mobile-only app shell.
+          - max-w-sm  →  caps at 384 px (phone width)
+          - h-[100dvh] →  full dynamic viewport height, no address-bar flicker
+          - overflow-hidden → clips everything; sheets/overlays use absolute positioning
+          - relative → anchor for absolute-positioned overlays & sheets
+          - w-full → fills narrower screens (real phones) edge-to-edge
+        */}
+        <div
+          className={`
+            w-full max-w-sm
+            h-[100dvh]
+            overflow-hidden
+            bg-white
+            shadow-2xl
+            relative
+            flex flex-col
+            font-jakarta
+          `}
+        >
           {children}
 
-          {/* Global Toast Notification */}
-          <div className="absolute bottom-8 left-0 right-0 z-50 flex justify-center pointer-events-none">
-            <div className="pointer-events-auto">
-              <Toaster position="bottom-center" toastOptions={{
-                className: 'bg-white text-gray-900 border border-gray-100 shadow-xl rounded-2xl px-4 py-3 font-jakarta',
-                style: { marginBottom: '20px' },
-                duration: 2000,
-              }} />
-            </div>
-          </div>
+          {/* Global toasts — offset clears the 60px bottom nav */}
+          <Toaster
+            position="bottom-center"
+            offset="80px"
+            toastOptions={{
+              unstyled: true,
+              classNames: {
+                toast:
+                  "flex items-start gap-3 w-full bg-gray-900 text-white rounded-2xl px-4 py-3 shadow-2xl shadow-black/40 font-jakarta",
+                title:
+                  "text-white font-bold text-sm leading-snug",
+                description:
+                  "text-white/60 text-xs font-medium leading-snug mt-0.5",
+                actionButton:
+                  "!bg-[#FCD116] !text-gray-900 !font-bold !text-xs !rounded-xl !px-3 !py-1.5 !ml-auto !flex-shrink-0",
+                closeButton:
+                  "!bg-white/10 !text-white/60 !rounded-xl",
+              },
+              duration: 2000,
+            }}
+          />
         </div>
       </body>
     </html>
