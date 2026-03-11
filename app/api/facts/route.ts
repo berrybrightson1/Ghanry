@@ -1,17 +1,24 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { getDidYouKnowFact } from "@/lib/ai-facts";
+import { ghanaFactsPool } from "@/lib/ghana-facts-expanded";
 
-export const dynamic = 'force-dynamic'; // Ensure new fact on every request
+export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
     try {
-        const fact = await getDidYouKnowFact(); // Fetch random fact
-        return NextResponse.json({ fact });
+        const excludeParam = req.nextUrl.searchParams.get("exclude") ?? "";
+        const excludeIds = excludeParam
+            ? excludeParam.split(",").map(Number).filter(Boolean)
+            : [];
+
+        const fact = getDidYouKnowFact(excludeIds);
+        
+        return NextResponse.json({ 
+            fact,
+            totalCount: ghanaFactsPool.length 
+        });
     } catch (error) {
         console.error("API Error:", error);
-        return NextResponse.json(
-            { error: "Failed to fetch fact" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "Failed to fetch fact" }, { status: 500 });
     }
 }

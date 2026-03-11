@@ -46,34 +46,49 @@ const CATEGORY_ORDER = ["history", "culture", "geography", "food", "music", "art
 
 export default function CategoryQuizPage({ params }: { params: { slug: string } }) {
     const slug = params.slug;
+    const SESSION_KEY = `ghanry_quiz_${slug}`;
 
-    const [categoryQuestions, setCategoryQuestions] = useState<Question[]>([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [score, setScore] = useState(0); // Count of correct answers
-    const [gameStatus, setGameStatus] = useState<"ready" | "playing" | "finished">("ready");
-    const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
-    const [timeElapsed, setTimeElapsed] = useState(0);
-    const [currentTime, setCurrentTime] = useState(0);
-    const startTimeRef = useRef<number>(Date.now());
+    // ── Helpers ────────────────────────────────────────────────────────
+    const shuffleArray = (array: Question[]) =>
+        [...array].sort(() => Math.random() - 0.5);
 
-    // Tick the timer
+    // To prevent hydration errors, we wait until mount to read sessionStorage
+    const [isMounted, setIsMounted] = useState(false);
+
     useEffect(() => {
-        if (gameStatus === "playing") {
-            const timer = setInterval(() => {
-                setCurrentTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
-            }, 1000);
-            return () => clearInterval(timer);
-        }
-    }, [gameStatus]);
+        setIsMounted(true);
+    }, []);
+
+    // Read any saved session upfront (sync, but only used securely after mount)
+    const savedSession = (() => {
+        if (typeof window === "undefined") return null;
+        try {
+            const raw = sessionStorage.getItem(SESSION_KEY);
+            return raw ? JSON.parse(raw) : null;
+        } catch { return null; }
+    })();
+
+    const [categoryQuestions, setCategoryQuestions] = useState<Question[]>(
+        savedSession?.questions ?? []
+    );
+    const [currentIndex, setCurrentIndex] = useState<number>(
+        savedSession?.currentIndex ?? 0
+    );
+    const [score, setScore] = useState<number>(savedSession?.score ?? 0);
+    const [gameStatus, setGameStatus] = useState<"ready" | "playing" | "finished">(
+        savedSession?.gameStatus ?? "ready"
+    );
+    const [userAnswers, setUserAnswers] = useState<Record<number, string>>(
+        savedSession?.userAnswers ?? {}
+    );
+    const [timeElapsed, setTimeElapsed] = useState<number>(savedSession?.timeElapsed ?? 0);
+
+    // startTimeRef tracks when the quiz started. We accept a minor drift on refresh.
+    const startTimeRef = useRef<number>(Date.now());
 
     const { markAsAnswered } = useQuestionProgress();
     const { updateStreak } = useStreak();
     const { consumeShield } = useXP();
-
-    // Helper: Shuffle array
-    const shuffleArray = (array: Question[]) => {
-        return [...array].sort(() => Math.random() - 0.5);
-    };
 
     // Calculate Next Category for the Result Screen
     const currentCategoryIndex = CATEGORY_ORDER.indexOf(slug);
@@ -81,18 +96,45 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
     const nextPath = `/dashboard/categories/${nextCategorySlug}`;
 
     useEffect(() => {
-        // 1. Resolve static questions for this slug
+        // ── If a saved session exists for this slug, restore it — don't reset ──
+        const raw = sessionStorage.getItem(SESSION_KEY);
+        if (raw) {
+            try {
+                const saved = JSON.parse(raw);
+                if (saved.slug === slug) {
+                    // Already restored via useState initializers — just return
+                    // but still need questions if they weren't in session
+                    if (!saved.questions?.length) {
+                        const staticMap: Record<string, Question[]> = {
+                            history: historyQuestions, food: foodQuestions, music: musicQuestions,
+                            culture: cultureQuestions, geography: geographyQuestions, arts: artsQuestions,
+                            sports: sportsQuestions, general: generalQuestions,
+                        };
+                        setCategoryQuestions(shuffleArray(staticMap[slug] ?? generalQuestions).slice(0, 5));
+                    }
+                    return;
+                }
+            } catch { /* fall through to fresh start */ }
+        }
+
+        // ── Fresh start: reset everything ──
+        setCategoryQuestions([]);
+        setCurrentIndex(0);
+        setScore(0);
+        setGameStatus("ready");
+        setTimeElapsed(0);
+        setUserAnswers({});
+        sessionStorage.removeItem(SESSION_KEY);
+
+        // 1. Load static questions
         const staticMap: Record<string, Question[]> = {
             history: historyQuestions, food: foodQuestions, music: musicQuestions,
             culture: cultureQuestions, geography: geographyQuestions, arts: artsQuestions,
             sports: sportsQuestions, general: generalQuestions,
         };
-        const staticQuestions = staticMap[slug] ?? generalQuestions;
+        setCategoryQuestions(shuffleArray(staticMap[slug] ?? generalQuestions).slice(0, 5));
 
-        // 2. Show start screen immediately with shuffled static questions
-        setCategoryQuestions(shuffleArray(staticQuestions).slice(0, 5));
-
-        // 3. Attempt AI upgrade silently in the background
+        // 2. Try AI upgrade silently
         const controller = new AbortController();
         (async () => {
             try {
@@ -107,24 +149,32 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
                 if (data.questions?.length >= 5) {
                     setCategoryQuestions(data.questions.slice(0, 5));
                 }
-            } catch {
-                // silently ignored — static questions are already set
-            }
+            } catch { /* silently ignored */ }
         })();
 
         return () => controller.abort();
+    }, [slug, SESSION_KEY]);
 
-        // Cleanup / Reset State on Slug Change
-        return () => {
-            controller.abort();
-            setCategoryQuestions([]);
-            setCurrentIndex(0);
-            setScore(0);
-            setGameStatus("ready");
-            setTimeElapsed(0);
-            setUserAnswers({});
-        };
-    }, [slug]);
+    // ── Persist state to sessionStorage on every meaningful change ──────
+    useEffect(() => {
+        if (gameStatus === "finished") {
+            // Clear session after finish so next visit starts fresh
+            sessionStorage.removeItem(SESSION_KEY);
+            return;
+        }
+        if (categoryQuestions.length === 0) return; // don't persist before questions load
+        try {
+            sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+                slug,
+                questions: categoryQuestions,
+                currentIndex,
+                score,
+                gameStatus,
+                userAnswers,
+                timeElapsed,
+            }));
+        } catch { /* storage full — ignore */ }
+    }, [slug, categoryQuestions, currentIndex, score, gameStatus, userAnswers, timeElapsed, SESSION_KEY]);
 
 
     useEffect(() => {
@@ -237,6 +287,14 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
         description: "Test your knowledge on Ghana.",
     };
 
+    if (!isMounted) {
+        return (
+            <div className="w-full h-screen flex items-center justify-center bg-white">
+                <div className="w-8 h-8 rounded-full border-4 border-gray-100 border-t-[#006B3F] animate-spin" />
+            </div>
+        );
+    }
+
     if (gameStatus === "ready") {
         return (
             <div className="w-full h-full flex flex-col px-5 pt-6 pb-6">
@@ -302,8 +360,8 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
     }
 
     return (
-        <div className="w-full min-h-screen bg-white relative flex flex-col items-center justify-start px-4 overflow-x-hidden">
-            <div className="w-full max-w-4xl mx-auto pt-8 pb-12 flex-1 flex flex-col items-center justify-start">
+        <div className="w-full h-full flex flex-col items-center justify-start overflow-hidden">
+            <div className="w-full max-w-xl mx-auto flex-1 flex flex-col items-stretch justify-start py-2 px-4 overflow-y-auto">
                 {gameStatus === "finished" ? (
                     <ResultScreen
                         score={score}
@@ -317,7 +375,6 @@ export default function CategoryQuizPage({ params }: { params: { slug: string } 
                         question={categoryQuestions[currentIndex]}
                         questionNumber={currentIndex + 1}
                         totalQuestions={categoryQuestions.length}
-                        currentTime={currentTime}
                         onNext={(isCorrect, optionId) => handleNext(isCorrect, optionId)}
                         onPrevious={currentIndex > 0 ? handlePrevious : undefined}
                         savedAnswer={userAnswers[categoryQuestions[currentIndex]?.id]}

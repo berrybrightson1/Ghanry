@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -34,15 +34,37 @@ export default function ProfileSheet({ open, onClose }: ProfileSheetProps) {
   const pathname = usePathname();
   const { xp }   = useXP();
 
-  // Close on route change
-  useEffect(() => { onClose(); }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+  // State to avoid hydration mismatch
+  const [userData, setUserData] = useState({
+    nickname: "Guest",
+    avatarRaw: undefined as string | undefined,
+    passportId: null as string | null,
+    status: undefined as string | undefined,
+    verified: false,
+    isGuest: true
+  });
 
-  const nickname = typeof window !== "undefined" ? (localStorage.getItem("ghanry_nickname") ?? "Guest") : "Guest";
-  const avatarRaw = typeof window !== "undefined" ? (localStorage.getItem("ghanry_avatar") ?? undefined) : undefined;
-  const passportId = typeof window !== "undefined" ? localStorage.getItem("ghanry_passport_id") : null;
-  const status = typeof window !== "undefined" ? (localStorage.getItem("ghanry_status") ?? undefined) : undefined;
-  const verified = typeof window !== "undefined" && localStorage.getItem("ghanry_verified") === "true";
-  const isGuest = !passportId;
+  useEffect(() => {
+    const nick = localStorage.getItem("ghanry_nickname") ?? "Guest";
+    const avatar = localStorage.getItem("ghanry_avatar") ?? undefined;
+    const pid = localStorage.getItem("ghanry_passport_id");
+    const stat = localStorage.getItem("ghanry_status") ?? undefined;
+    const isVer = localStorage.getItem("ghanry_verified") === "true";
+    
+    setUserData({
+      nickname: nick,
+      avatarRaw: avatar,
+      passportId: pid,
+      status: stat,
+      verified: isVer,
+      isGuest: !pid
+    });
+
+    // Also close sheet on route change
+    onClose();
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const { nickname, avatarRaw, status, verified, isGuest } = userData;
 
   const { rank, progressPercent } = calculateProgress(xp);
   let displayRank = rank;

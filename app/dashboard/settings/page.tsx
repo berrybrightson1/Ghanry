@@ -9,6 +9,7 @@ import { useStreak } from '@/hooks/useStreak';
 import { useXP } from '@/hooks/useXP';
 import { toast } from 'sonner';
 import confetti from 'canvas-confetti';
+import { useSoundEffects } from '@/hooks/useSoundEffects';
 
 const SHAPES = [
     { name: 'Star', icon: Star },
@@ -39,6 +40,7 @@ export default function SettingsPage() {
     const { streak } = useStreak();
     const { xp } = useXP();
     const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
+    const { playCorrect } = useSoundEffects();
 
     // Citizenship / Status State
     const [status, setStatus] = useState<string>('tourist');
@@ -383,7 +385,16 @@ export default function SettingsPage() {
                         <label className="font-jakarta font-bold text-gray-700" htmlFor="sound-toggle">Sound Effects</label>
                         <button
                             id="sound-toggle"
-                            onClick={() => setSound(!sound)}
+                            onClick={() => {
+                                const newVal = !sound;
+                                setSound(newVal);
+                                localStorage.setItem('ghanry_sound', newVal ? "true" : "false");
+                                window.dispatchEvent(new Event('ghanry_sound_update'));
+                                if (newVal) {
+                                    // Play a preview sound! (Need small delay so the state updates in the hook)
+                                    setTimeout(playCorrect, 50);
+                                }
+                            }}
                             aria-pressed={sound ? "true" : "false"}
                             className={`px-3 py-1.5 rounded-full transition-all flex items-center gap-1 ${sound ? 'bg-[#006B3F] text-white' : 'bg-gray-100 text-gray-500'}`}
                         >

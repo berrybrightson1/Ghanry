@@ -78,18 +78,11 @@ export default function QuizPage() {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [score, setScore] = useState(0);
     const [gameStatus, setGameStatus] = useState<"ready" | "playing" | "finished">("ready");
+    const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
     const [timeElapsed, setTimeElapsed] = useState(0);
-    const [currentTime, setCurrentTime] = useState(0);
     const startTimeRef = useRef<number>(Date.now());
 
-    // Timer — only ticks when playing
-    useEffect(() => {
-        if (gameStatus !== "playing") return;
-        const timer = setInterval(() => {
-            setCurrentTime(Math.floor((Date.now() - startTimeRef.current) / 1000));
-        }, 1000);
-        return () => clearInterval(timer);
-    }, [gameStatus]);
+    // startTimeRef tracks when the quiz started. We use this to calculate total timeElapsed at the end.
 
     useEffect(() => {
         if (isCompletedToday && gameStatus !== "finished") {
@@ -104,9 +97,10 @@ export default function QuizPage() {
         setGameStatus("playing");
     };
 
-    const handleNext = (isCorrect: boolean) => {
+    const handleNext = (isCorrect: boolean, selectedOptionId: string) => {
         // Mark current daily question as answered
         markAsAnswered(QUESTIONS[currentQuestionIndex].id);
+        setUserAnswers(prev => ({ ...prev, [QUESTIONS[currentQuestionIndex].id]: selectedOptionId }));
 
         if (isCorrect) {
             setScore(prev => prev + 1);
@@ -199,8 +193,8 @@ export default function QuizPage() {
                         question={QUESTIONS[currentQuestionIndex]}
                         questionNumber={currentQuestionIndex + 1}
                         totalQuestions={QUESTIONS.length}
-                        currentTime={currentTime}
-                        onNext={(isCorrect) => handleNext(isCorrect)}
+                        onNext={(isCorrect, optionId) => handleNext(isCorrect, optionId)}
+                        savedAnswer={userAnswers[QUESTIONS[currentQuestionIndex]?.id]}
                     />
                 )}
             </div>

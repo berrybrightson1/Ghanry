@@ -68,7 +68,7 @@ export default function OnboardingPage() {
 
   const finish = () => {
     localStorage.setItem("ghanry_onboarded", "true");
-    router.push("/?onboarded=true");
+    router.push("/login");
   };
 
   const isLast = index === slides.length - 1;
