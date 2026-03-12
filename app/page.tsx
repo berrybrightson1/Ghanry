@@ -17,8 +17,8 @@ type View = "signup" | "login" | "success" | "recovery" | "locked";
 export default function AuthPage() {
   const router = useRouter();
 
-  const [viewMode, setViewMode] = useState<View>("signup");
-  const [activeTab, setActiveTab] = useState<"signup" | "login">("signup");
+  const [viewMode, setViewMode] = useState<View>("login");
+  const [activeTab, setActiveTab] = useState<"signup" | "login">("login");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Registration

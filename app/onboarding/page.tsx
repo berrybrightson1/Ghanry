@@ -68,27 +68,27 @@ export default function OnboardingPage() {
 
   const finish = () => {
     localStorage.setItem("ghanry_onboarded", "true");
-    router.push("/login");
+    router.push("/?onboarded=true");
   };
 
   const isLast = index === slides.length - 1;
   const slide = slides[index];
 
   return (
-    <div className="relative w-full h-full bg-[#006B3F] overflow-hidden flex flex-col select-none">
+    <div className="absolute inset-0 w-full h-full bg-[#006B3F] overflow-hidden flex flex-col select-none">
 
       {/* Skip button */}
       {!isLast && (
         <button
           onClick={finish}
-          className="absolute top-5 right-5 z-30 text-white/60 font-jakarta font-bold text-sm px-3 py-1.5 rounded-full border border-white/20 hover:bg-white/10 transition-colors"
+          className="absolute top-6 right-6 z-30 text-white/60 font-jakarta font-bold text-sm px-3 py-1.5 rounded-full border border-white/20 hover:bg-white/10 transition-colors"
         >
           Skip
         </button>
       )}
 
       {/* Slides */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="absolute inset-0 w-full h-full overflow-hidden">
         <AnimatePresence custom={dir} mode="wait">
           <motion.div
             key={slide.id}
@@ -110,7 +110,7 @@ export default function OnboardingPage() {
 
             {/* ── SLIDE 0: Hero ── */}
             {slide.type === "hero" && (
-              <div className="relative w-full h-full flex flex-col items-center justify-between pt-16 pb-4">
+              <div className="relative w-full h-full flex flex-col items-center justify-between px-6">
                 <Image
                   src="/Slider-1.webp"
                   alt="Ghanry"
@@ -121,8 +121,8 @@ export default function OnboardingPage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-[#006B3F]" />
 
-                {/* Wordmark */}
-                <div className="relative z-10 flex flex-col items-center gap-1">
+                {/* Wordmark — centered vertically */}
+                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-1">
                   <h1 className="font-epilogue font-extrabold tracking-tight text-7xl drop-shadow-2xl">
                     <span className="text-white">Gha</span>
                     <span className="text-[#FCD116]">nry</span>
@@ -132,8 +132,8 @@ export default function OnboardingPage() {
                   </p>
                 </div>
 
-                {/* Welcome in Ghanaian languages */}
-                <div className="relative z-10 w-full px-6 flex flex-col gap-2.5">
+                {/* Welcome in Ghanaian languages — bottom section */}
+                <div className="absolute bottom-32 left-0 right-0 z-10 w-full px-6 flex flex-col gap-2.5">
                   <p className="text-white/40 font-jakarta text-[10px] uppercase tracking-widest text-center mb-1">
                     Welcome in Ghana&apos;s languages
                   </p>
@@ -168,7 +168,7 @@ export default function OnboardingPage() {
 
             {/* ── SLIDE 1: What is Ghanry ── */}
             {slide.type === "content" && (
-              <div className="flex-1 flex flex-col justify-between px-8 pt-16 pb-6 relative overflow-hidden">
+              <div className="absolute inset-0 flex flex-col px-8 pt-20 pb-24 relative overflow-hidden">
                 {/* Ambient glow */}
                 <motion.div
                   animate={{ scale: [1, 1.2, 1], opacity: [0.12, 0.28, 0.12] }}
@@ -255,7 +255,7 @@ export default function OnboardingPage() {
 
             {/* ── SLIDE 2: Features ── */}
             {slide.type === "features" && (
-              <div className="flex-1 flex flex-col justify-between px-8 pt-16 pb-6 relative overflow-hidden">
+              <div className="absolute inset-0 flex flex-col px-8 pt-20 pb-24 relative overflow-hidden">
                 <motion.div
                   animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.22, 0.1] }}
                   transition={{ duration: 6, repeat: Infinity }}
@@ -318,7 +318,7 @@ export default function OnboardingPage() {
 
             {/* ── SLIDE 3: CTA ── */}
             {slide.type === "cta" && (
-              <div className="flex-1 flex flex-col justify-between px-8 pt-16 pb-6 relative overflow-hidden">
+              <div className="absolute inset-0 flex flex-col px-8 pt-20 pb-24 relative overflow-hidden">
                 {/* Ambient glow — centered gold */}
                 <motion.div
                   animate={{ scale: [1, 1.25, 1], opacity: [0.15, 0.35, 0.15] }}
@@ -410,7 +410,7 @@ export default function OnboardingPage() {
       </div>
 
       {/* ── Bottom bar: dots + action ── */}
-      <div className="relative z-20 flex items-center justify-between px-8 pb-12 pt-4">
+      <div className="absolute bottom-0 left-0 right-0 z-20 flex items-center justify-between px-8 pb-6 pt-4 bg-gradient-to-t from-[#006B3F] to-transparent">
         {/* Dot indicators */}
         <div className="flex gap-2">
           {slides.map((_, i) => (
