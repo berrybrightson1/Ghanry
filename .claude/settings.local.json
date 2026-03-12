@@ -4,7 +4,8 @@
       "Bash(ls:*)",
       "Bash(mv:*)",
       "Bash(rm:*)",
-      "Bash(cd \"G:/wORKS 2/ACTIVE/Apps/Ghanry\" && npm run build 2>&1 | tail -50)"
+      "Bash(cd \"G:/wORKS 2/ACTIVE/Apps/Ghanry\" && npm run build 2>&1 | tail -50)",
+      "Bash(cd \"G:/wORKS 2/ACTIVE/Apps/Ghanry\" && rm -rf .next && npm run dev)"
     ]
   }
 }
